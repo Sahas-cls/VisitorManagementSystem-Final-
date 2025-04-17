@@ -123,14 +123,15 @@ const CApprovedVisitors = ({
       <form action="" onSubmit={() => alert("submitting")} className="w-full">
         <h1 className="text-md mt-2 mb-2 font-extrabold">Allowed Visitors.</h1>
 
-        <table className="w-full md:mx-1">
+        <div className="w-full overflow-x-auto md:overflow-hidden">
+        <table className="w-full ml-1">
           <thead className="">
             <tr className="">
-              <th className="pt-1 text-left pb-1 text-left  border-0 bg-blue-500 text-white text-[11px] sm:text-lg">Name</th>
-              <th className=" border-0 bg-blue-500 text-white text-left text-[11px] sm:text-[17px]">NIC/PPNo</th>
-              <th className=" border-0 bg-blue-500 text-white text-left text-[11px] sm:text-[17px]">Vehicle Type</th>
-              <th className=" border-0 bg-blue-500 text-white text-left text-[11px] sm:text-[17px]">Vehicle No</th>
-              <th className=" border-0 bg-blue-500 text-white text-left text-[11px] sm:text-[17px]">Visiting Date</th>
+              <th className="pt-1 text-left pb-1 text-left  border-0 bg-blue-500 text-white text-[11px] text-sm">Name</th>
+              <th className=" border-0 bg-blue-500 text-white text-left text-sm">NIC/PPNo</th>
+              <th className=" border-0 bg-blue-500 text-white text-left text-sm">Vehicle Type</th>
+              <th className=" border-0 bg-blue-500 text-white text-left text-sm">Vehicle No</th>
+              <th className=" border-0 bg-blue-500 text-white text-left text-sm">Visiting Date</th>
               <th className="border-0"></th>
             </tr>
           </thead>
@@ -151,13 +152,13 @@ const CApprovedVisitors = ({
                     className="odd:bg-blue-100 even:bg-blue-300"
                     key={visitor.ContactPerson_Id}
                   >
-                    <td className="p-2 border-r-2 text-[11px] sm:text-lg border-black">{visitor.ContactPerson_Name}</td>
-                    <td className="p-2 border-r-2 text-[11px] sm:text-lg border-black">{visitor.ContactPerson_NIC}</td>
-                    <td className="p-2 border-r-2 text-[11px] sm:text-lg border-black">{vehicleType || "No vehicles"}</td>
-                    <td className="p-2 border-r-2 text-[11px] sm:text-lg border-black">
+                    <td className="p-2 border-r-2 text-sm border-white">{visitor.ContactPerson_Name}</td>
+                    <td className="p-2 border-r-2 text-sm border-white">{visitor.ContactPerson_NIC}</td>
+                    <td className="p-2 border-r-2 text-sm border-white">{vehicleType || "No vehicles"}</td>
+                    <td className="p-2 border-r-2 text-sm border-white">
                       {vehicleNumbers || "No vehicles"}
                     </td>
-                    <td className="p-2 border-r-0 border-black w-auto text-[11px] sm:text-lg">
+                    <td className="p-2 border-r-0 border-black w-auto text-sm">
                       <div className="h-full md:flex md:gap-1">
                         <div className="w-1/2 text-center md:pr-1 md:h-full md:border-r border-black mb-0">
                           {new Date(
@@ -178,7 +179,7 @@ const CApprovedVisitors = ({
                     >
                       <FaRegEye
                         onClick={() => navigateTo(visitor)}
-                        className="hover:text-red-600 font-bolder text-sm sm:text-lg md:text-2xl"
+                        className="hover:text-red-600 font-bolder text-lg sm:text-xl"
                         style={{ cursor: "pointer" }}
                       />
                     </td>
@@ -194,6 +195,8 @@ const CApprovedVisitors = ({
             )}
           </tbody>
         </table>
+
+        </div>
 
         {errorMessages && <p className="error text-red-600">{errorMessages}</p>}
       </form>

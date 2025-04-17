@@ -121,69 +121,71 @@ const CConteiner = ({
           New Visitors List.
         </h1>
 
-        <table className="w-full">
-          <thead className="">
-            <tr className="">
-              <th className="pt-1 text-left pb-1 text-left  border-0 bg-blue-500 text-white">Name</th>
-              <th className="border-0 bg-blue-500 text-white text-left">NIC/PPNo</th>
-              <th className="border-0 bg-blue-500 text-white text-left">Vehicle Type</th>
-              <th className="border-0 bg-blue-500 text-white text-left">Vehicle No</th>
-              <th className="border-0 bg-blue-500 text-white text-left">Visiting Date</th>
-              <th className="border-0"></th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {visitorList && visitorList.length > 0 ? (
-              visitorList.map((visitor) => {
-                const vehicleNumbers = visitor.Vehicles.map(
-                  (vehicle) => vehicle.Vehicle_No
-                ).join("/n");
-
-                const vehicleType = visitor.Vehicles.map(
-                  (vehicle) => vehicle.Vehicle_Type
-                ).join("/n");
-
-                return (
-                  <tr className="odd:bg-blue-100 even:bg-blue-300" key={visitor.ContactPerson_Id}>
-                    <td className="p-2 border-r-2 border-black">{visitor.ContactPerson_Name}</td>
-                    <td className="p-2 border-r-2 border-black">{visitor.ContactPerson_NIC}</td>
-                    <td className="p-2 border-r-2 border-black">{vehicleType || "No vehicles"}</td>
-                    <td className="p-2 border-r-2 border-black">{vehicleNumbers || "No vehicles"}</td>
-                    <td className="td-dates p-2 border-r-0 border-black " style={{ display: "" }}>
-                      <div className="flex h-full cDiv-dates">
-                        <div className="w-1/2 text-center h-full border-black">
-                          {new Date(
-                            visitor.Visits[0]?.Date_From
-                          ).toLocaleDateString()}{" "}
-                        </div>
-                        <div className="w-1/2 text-center h-full">
-                          {visitor.Visits[0]?.Date_To &&
-                            new Date(
-                              visitor.Visits[0]?.Date_To
-                            ).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="bg-white" style={{ width: "1%", border: "0" }}>
-                      <FaRegEye
-                        onClick={() => navigateTo(visitor)}
-                        className="hover:text-red-600 "
-                        style={{ cursor: "pointer", fontSize: "1.4rem" }}
-                      />
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td colSpan={5} className="text-center italic border border-black py-1">
-                  No visitors yet!
-                </td>
+        <div className="w-full overflow-x-auto">
+          <table className="w-full">
+            <thead className="position-sticky">
+              <tr className="">
+                <th className="pt-1 text-left pb-1 text-left  border-0 bg-blue-500 text-white text-sm">Name</th>
+                <th className="border-0 bg-blue-500 text-white text-left text-sm">NIC/PPNo</th>
+                <th className="border-0 bg-blue-500 text-white text-left text-sm">Vehicle Type</th>
+                <th className="border-0 bg-blue-500 text-white text-left text-sm">Vehicle No</th>
+                <th className="border-0 bg-blue-500 text-white text-left text-sm">Visiting Date</th>
+                <th className="border-0"></th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {visitorList && visitorList.length > 0 ? (
+                visitorList.map((visitor) => {
+                  const vehicleNumbers = visitor.Vehicles.map(
+                    (vehicle) => vehicle.Vehicle_No
+                  ).join("/n");
+
+                  const vehicleType = visitor.Vehicles.map(
+                    (vehicle) => vehicle.Vehicle_Type
+                  ).join("/n");
+
+                  return (
+                    <tr className="odd:bg-blue-100 even:bg-blue-300 text-sm" key={visitor.ContactPerson_Id}>
+                      <td className="p-2 border-r-2 border-white text-sm">{visitor.ContactPerson_Name}</td>
+                      <td className="p-2 border-r-2 border-white text-sm">{visitor.ContactPerson_NIC}</td>
+                      <td className="p-2 border-r-2 border-white text-sm">{vehicleType || "No vehicles"}</td>
+                      <td className="p-2 border-r-2 border-white text-sm">{vehicleNumbers || "No vehicles"}</td>
+                      <td className="td-dates p-2 border-r-0 border-black text-sm" style={{ display: "" }}>
+                        <div className="flex h-full cDiv-dates">
+                          <div className="w-1/2 text-center h-full border-black">
+                            {new Date(
+                              visitor.Visits[0]?.Date_From
+                            ).toLocaleDateString()}{" "}
+                          </div>
+                          <div className="w-1/2 text-center h-full">
+                            {visitor.Visits[0]?.Date_To &&
+                              new Date(
+                                visitor.Visits[0]?.Date_To
+                              ).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="bg-white" style={{ width: "1%", border: "0" }}>
+                        <FaRegEye
+                          onClick={() => navigateTo(visitor)}
+                          className="hover:text-red-600 text-lg hover:scale-110 duration-300"
+                          style={{ cursor: "pointer", fontSize: "1.4rem" }}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={5} className="text-center italic border border-black py-1">
+                    No visitors yet!
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
         {errorMessages && <p className="error text-red-600">{errorMessages}</p>}
       </form>
