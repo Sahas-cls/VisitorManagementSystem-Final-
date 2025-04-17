@@ -1,0 +1,54 @@
+aside {
+  width: 20%;
+  min-height: 100vh;
+  background-color: #e3dede;
+  background-color: #c89666;
+  padding: 20px;
+}
+
+.dSidebar {
+  background-color: #c89666;
+}
+
+.navBtn {
+  background-color: #19424a;
+  color: rgb(255, 255, 255);
+  /* border: 1px solid rgb(0, 0, 0); */
+  /* box-shadow: 0px 0px 5px rgb(122, 115, 115); */
+}
+
+.navBtn:hover {
+  /* background-color: #18454e; */
+  background-color: #12343b;
+  border: 1px solid rgb(255, 255, 255);
+}
+
+@media (max-width: 500px) {
+  .dSidebar {
+    position: absolute;
+    width: 45%;
+    height: 100%;
+    /* background-color: red; */
+    background-color: #e3dededb;
+    border-right: 1px solid black;
+    background-color: #c89666;
+  }
+}
+
+@media (max-width: 353px) {
+  .dSidebar {
+    width: 45%;
+    height: 100%;
+    /* background-color: red; */
+    background-color: #e3dedec6;
+    background-color: #c89666;
+  }
+}
+
+.dSidebar {
+  background-image: url(../../assets/SidebarImg2.png);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-position: bottom;
+}

@@ -1,0 +1,122 @@
+.sv-containers {
+  width: 100%;
+  min-height: 100%;
+  /* border-top: 10px solid #fefefe; */
+  /* border-left: 10px solid #fefefe; */
+  background-color: rgb(227, 222, 222);
+  margin-left: 3px;
+}
+
+.sv-title {
+  font-size: 1.6rem;
+  text-align: center;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.sv-input {
+  padding: 5px 10px;
+  border: 1px solid gray;
+  border-radius: 10px;
+  margin-bottom: 5px;
+}
+
+.sd-top,
+.sd-bottom {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.sub-tpks {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.sv-textarea {
+  cursor: text;
+}
+
+tr{
+  width: 100%;
+}
+
+.sv-tblInput td {
+}
+
+.sd-left,
+.sd-right {
+  width: 47%;
+  border: 1px solid rgba(215, 238, 237, 0.355);
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 5px black;
+}
+
+.sd-left tr td:first-child {
+  width: 100%;
+  margin-right: 25px;
+  /* background-color: red; */
+}
+
+
+
+.sv-select {
+  cursor: pointer;
+  background-color: white;
+  /* background-color: red; */
+}
+
+.sv-input, .sv-select{
+  /* background-color: red; */
+  width: 100%;
+}
+
+.sv-checkboxes {
+  transform: scale(2);
+  margin-left: 20px;
+}
+
+.sv-span {
+  margin-left: 5px;
+}
+
+.sv-input, .sv-select, label{
+  font-size: 1rem;
+}
+
+.sv-date, .sv-visitorData {
+  width: 86%;
+}
+
+@media (max-width: 1000px){
+  .sv-input {
+    width: 75%;
+    /* background-color: red; */
+  }
+
+  .sd-top, .sd-bottom {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .sd-bottom {
+    margin-top: 0;
+  }
+
+  .sd-left, .sd-right {
+    width: 95%;
+    margin: 0 auto;
+    margin-top: 30px;
+  }
+
+  .sv-input {
+    width: 100%;
+  }
+}
+
+.error {
+  color: red;
+  text-align: center;
+}

@@ -1,0 +1,89 @@
+aside {
+  width: 20%;
+  min-height: 100vh;
+  background-color: #e3dede;
+  background-color: #c89666;
+  padding: 20px;
+}
+
+.navBtn {
+  width: 100%;
+  min-height: 7vh;
+  text-align: left;
+  /* background-color: #266b799c; */
+  /* background-color: #e8b684; */
+  border: 1px solid black;
+  color: white;
+}
+
+.navBtn:hover {
+  border: 2px solid white;
+}
+
+.hbtn-icons {
+  font-size: 1.8rem;
+}
+
+@media (max-width: 700px) {
+  .hSidebar {
+    width: 40%;
+  }
+}
+
+@media (max-width: 600px) {
+  .hSidebar {
+    position: absolute;
+    width: 45%;
+    height: 100%;
+    /* background-color: red; */
+    background-color: #e3dededb;
+    border-right: 1px solid black;
+  }
+
+  .navBtn {
+    font-size: 11px;
+  }
+
+  .hbtn-icons {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 353px) {
+  .hSidebar {
+    width: 45%;
+    height: 100%;
+    /* background-color: red; */
+    background-color: #e3dedec6;
+  }
+
+  .hbtn-icons {
+    font-size: 1.5rem;
+  }
+}
+
+.hSidebar {
+  background-color: #c89666;
+  background-image: url(../../assets/SidebarImg2.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  padding: 20px 12px;
+}
+
+.navBtn {
+  background: linear-gradient(to right, #12343b 10%, #52a0af 80%);
+  padding: 12px 24px;
+  color: white;
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.8s ease-in-out; /* Add transition on background */
+}
+
+.navBtn:hover {
+  background: linear-gradient(to right, #52a0af 10%, #12343b 80%);
+}
+

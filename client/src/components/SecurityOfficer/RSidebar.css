@@ -1,0 +1,29 @@
+aside {
+    width: 20%;
+    min-height: 100vh;
+    background-color: #e3dede;
+    /* border-top: 10px solid white; */
+    background-color: #e3dede;
+    padding: 20px;
+  }
+  
+  @media (max-width: 500px) {
+    aside {
+      position: absolute;
+      width: 45%;
+      height: 100%;
+      /* background-color: red; */
+      background-color: #e3dededb;
+      border-right: 1px solid black;
+    }
+  }
+  
+  @media (max-width: 353px) {
+    aside {
+      width: 45%;
+      height: 100%;
+      /* background-color: red; */
+      background-color: #e3dedec6;
+    }
+  }
+  

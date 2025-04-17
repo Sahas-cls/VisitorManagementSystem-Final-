@@ -1,0 +1,54 @@
+aside {
+  width: 20%;
+  min-height: 100vh;
+  background-color: #e3dede;
+  background-color: #c89666;
+  padding: 20px;
+}
+
+.cSidebar {
+  background-color: #c89666;
+  background: url("../../assets/SidebarImg2.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  border-right: 2px solid black;
+}
+
+.tblVisitor tr:nth-child(even) {
+  background-color: #f3ceac94;
+}
+
+.tblVisitor tr td:last-child {
+  background-color: #e3dededb;
+}
+
+@media (max-width: 600px) {
+  .cSidebar {
+    position: absolute;
+    width: 45%;
+    height: 100%;
+    /* background-color: red; */
+
+    background: url("../../assets/SidebarImg2.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    border-right: 2px solid black;
+    opacity: 95%;
+  }
+}
+
+@media (max-width: 353px) {
+  .cSidebar {
+    width: 45%;
+    height: 100%;
+    /* background-color: red; */
+
+    background: url("../../assets/SidebarImg2.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    border-right: 2px solid black;
+  }
+}

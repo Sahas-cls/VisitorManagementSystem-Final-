@@ -1,0 +1,29 @@
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(25px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .success-icon {
+    animation: fadeIn 0.8s ease-in-out;
+  }
+  
+  .success-text {
+    animation: slideIn 1.3s ease-in-out;
+  }

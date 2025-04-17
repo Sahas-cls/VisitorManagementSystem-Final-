@@ -1,0 +1,280 @@
+.visitor-container {
+  width: 100%;
+
+  /* margin-top: 20px; */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* background-color: rgb(221, 217, 217); */
+}
+
+.vTitle {
+  margin-top: 20px;
+  font-weight: bold;
+  font-size: 2rem;
+  text-align: center;
+  text-decoration: underline;
+}
+
+.vInput {
+  border: 1px solid rgba(122, 122, 122, 0.234);
+  padding: 5px 10px;
+  border-radius: 5px;
+  background-color: white;
+  /* box-shadow: 2px 2px 5px gray; */
+}
+
+.vInputDate {
+  width: 100%;
+  border: 1px solid black;
+  /* color: red; */
+}
+
+.vFactoryDepartment {
+  margin-top: 50px;
+  display: flex;
+  justify-content: space-around;
+  /* margin-left: 170px;
+  margin-right: 150px; */
+}
+
+.contactDiv {
+  width: 45%;
+  border: 1px solid rgb(192, 192, 192);
+  padding: 30px;
+  margin-top: 30px;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px;
+  box-shadow: 0px 0px 5px rgb(149, 149, 149);
+}
+
+.contactDiv .top {
+  width: 100%;
+  border-bottom: 0px solid black;
+  margin-bottom: 15px;
+}
+
+.contactDateTimeDiv {
+  justify-content: center;
+}
+
+.contactDiv .bottom {
+  /* width: 100%;
+  display: flex;
+  justify-content: space-between; */
+}
+
+.contactDiv .bottom table {
+  width: 100%;
+}
+
+/* .contactDiv .bottom table td:last-child {
+  width: 80%;
+} */
+
+/* .contactDiv .bottom table tr td :first-child {
+  width: 20%;
+} */
+
+.contactDiv .bottom table tr td input:last-child {
+  width: 100%;
+  /* margin-bottom: 20px; */
+  margin-bottom: 5px;
+}
+
+.tblVehicles tbody td {
+  border: 1px solid black;
+  height: 30px;
+}
+
+.vTblInput {
+  /* border: 1px solid black; */
+  height: 30px;
+  width: 100%;
+  outline: none;
+  padding-left: 10px;
+}
+
+.trVehicle .tdVehicle {
+  width: 50%;
+}
+
+.vBtn {
+  background-color: green;
+  padding: 10px 20px;
+  color: white;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  /* box-shadow: 0px 0px 10px green; */
+}
+
+.vBtn:hover {
+  background-color: rgb(2, 87, 2);
+}
+
+.vBtn:disabled {
+  background-color: rgb(153, 218, 132);
+}
+
+.subTpk {
+  font-weight: bold;
+  font-size: large;
+}
+
+.McontactDiv {
+  /* margin-bottom: 40px; */
+}
+
+.McontactDiv {
+  width: 45%;
+  border: 1px solid gray;
+  flex-direction: column;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.guidLine span {
+  font-size: large;
+}
+
+.error {
+  color: red;
+}
+
+.errorCenter {
+  color: red;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .contactDateTimeDiv {
+    width: 100%;
+  }
+  .vTitle {
+    font-size: 1.3rem;
+  }
+  .contactDateTimeDiv {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .contactDiv {
+    width: 85vw;
+  }
+
+  .tblVehicles {
+    width: 100%;
+  }
+
+  .tblVehicles td:last-child {
+    width: 10px;
+  }
+
+  .vInput {
+    margin-bottom: 20px;
+  }
+
+  .vFactoryDepartment {
+    display: flex;
+    flex-direction: column;
+    font-size: 10px;
+    align-items: left;
+    margin-left: 50px;
+    margin-bottom: 20px;
+  }
+
+  .error {
+    color: red;
+    font-size: 10px;
+    font-weight: 800;
+    text-align: left;
+    margin-left: 10px;
+  }
+  .errorCenter {
+    color: red;
+    font-size: 10px;
+    font-weight: 800;
+    text-align: center;
+    margin-left: 10px;
+  }
+  .guidLine {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+
+  /* .vBtn {
+    padding: 5px 10px;
+    width: 80px;
+    text-align: center;
+  } */
+}
+
+@media (max-width: 385px) {
+  .vFactoryDepartment {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    margin-left: 50px;
+    margin-bottom: 20px;
+  }
+
+  .vFactoryDepartment label,
+  .vFactoryDepartment select {
+    font-size: 13px;
+  }
+}
+
+.vf-icon {
+  font-size: 1.4rem;
+
+}
+
+.vsub-div {
+  background-image: url(../../assets/subdivImg9.png);
+  background-position: right;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* The main content */
+.content {
+  text-align: center;
+  padding: 20px;
+}
+
+/* The popup loader */
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(150, 138, 138, 0.208); /* Semi-transparent background */
+  z-index: 9999; /* Ensure it overlays on top */
+}
+
+/* The loader itself */
+.loader {
+  border: 8px solid #f3f3f3; /* Light gray background */
+  border-top: 8px solid #3498db; /* Blue color for the spinning part */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1.5s linear infinite;
+}
+
+/* Keyframe animation for spinning */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
