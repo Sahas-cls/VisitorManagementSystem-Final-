@@ -98,7 +98,7 @@ const Header = ({
     <header className=" bg-gradient-to-r from-blue-700 to-blue-900 min-h-20 flex justify-between px-9 border-b-2 border-b-white">
       <div className="flex items-center ml-9">
         <GiHamburgerMenu
-          className="text-3xl text-white header-icons"
+          className={`text-3xl text-white header-icons duration-300 ${toggleSidebar ? "rotate-180" : ""}`}
           onClick={() => setToggleSidebar(!toggleSidebar)}
         />
       </div>
@@ -125,9 +125,8 @@ const Header = ({
           />
         </div>
         <div
-          className={`userDropdown ${
-            userVisible === true ? "visible" : "noneVisible"
-          }`}
+          className={`userDropdown ${userVisible === true ? "visible" : "noneVisible"
+            }`}
         >
           <ul>
             {/* <li>{userName}</li> */}

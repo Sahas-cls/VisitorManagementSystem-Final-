@@ -26,7 +26,7 @@ const RMain = ({
   const screenSize = UseWindowWidth();
   useEffect(() => {
     // This effect runs when screenSize changes (e.g., window resize)
-    if (screenSize < 700) {
+    if (screenSize < 768) {
       setToggleSidebar(false); // Hide sidebar on small screens
     } else {
       setToggleSidebar(true); // Show sidebar on larger screens

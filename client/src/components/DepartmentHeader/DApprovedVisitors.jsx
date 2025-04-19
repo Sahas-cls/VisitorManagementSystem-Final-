@@ -112,72 +112,74 @@ const DApprovedVisitors = ({
     <div className="dContainer" style={{ backgroundColor: "white" }}>
       {/* <h1>4654: {userId || 123}</h1> */}
       <form action="" onSubmit={() => alert("submitting")} className="w-full">
-        <h1 className="cTitle">Approved Visitors</h1>
+        <h1 className="text-md mt-2 font-extrabold mb-2">Approved Visitors</h1>
 
-        <table className="w-full">
-          <thead className="">
-            <tr>
-              <th className="pt-1 text-left pb-1 text-left  border-0 bg-blue-500 text-white">Name</th>
-              <th className="border-0 bg-blue-500 text-white text-left">NIC/PPNo</th>
-              <th className="border-0 bg-blue-500 text-white text-left">Vehicle Type</th>
-              <th className="border-0 bg-blue-500 text-white text-left">Vehicle No</th>
-              <th className="border-0 bg-blue-500 text-white text-left">Visiting Date</th>
-            </tr>
-          </thead>
 
-          <tbody>
-            {visitorList && visitorList.length > 0 ? (
-              visitorList.map((visitor) => {
-                const vehicleNumbers = visitor.Vehicles.map(
-                  (vehicle) => vehicle.Vehicle_No
-                ).join("/n");
+        <div className="w-full overflow-x-auto">
+          <table className="w-full">
+            <thead className="">
+              <tr>
+                <th className="pt-1 text-left pb-1 text-left  border-0 bg-blue-500 text-white">Name</th>
+                <th className="border-0 bg-blue-500 text-white text-left">NIC/PPNo</th>
+                <th className="border-0 bg-blue-500 text-white text-left">Vehicle Type</th>
+                <th className="border-0 bg-blue-500 text-white text-left">Vehicle No</th>
+                <th className="border-0 bg-blue-500 text-white text-left">Visiting Date</th>
+              </tr>
+            </thead>
 
-                const vehicleType = visitor.Vehicles.map(
-                  (vehicle) => vehicle.Vehicle_Type
-                ).join("/n");
+            <tbody>
+              {visitorList && visitorList.length > 0 ? (
+                visitorList.map((visitor) => {
+                  const vehicleNumbers = visitor.Vehicles.map(
+                    (vehicle) => vehicle.Vehicle_No
+                  ).join("/n");
 
-                return (
-                  <tr className="odd:bg-blue-100 even:bg-blue-300" key={visitor.ContactPerson_Id}>
-                    <td>{visitor.ContactPerson_Name}</td>
-                    <td>{visitor.ContactPerson_NIC}</td>
-                    <td>{vehicleType || "No vehicles"}</td>
-                    <td>{vehicleNumbers || "No vehicles"}</td>
-                    <td className="">
-                      <div className="flex td-Dates">
-                        <div className="w-1/2 text-center h-full border-r border-black">
+                  const vehicleType = visitor.Vehicles.map(
+                    (vehicle) => vehicle.Vehicle_Type
+                  ).join("/n");
+
+                  return (
+                    <tr className="odd:bg-blue-100 even:bg-blue-300" key={visitor.ContactPerson_Id}>
+                      <td className="p-2 border-r-2 border-white text-sm">{visitor.ContactPerson_Name}</td>
+                      <td className="p-2 border-r-2 border-white text-sm">{visitor.ContactPerson_NIC}</td>
+                      <td className="p-2 border-r-2 border-white text-sm">{vehicleType || "No vehicles"}</td>
+                      <td className="p-2 border-r-2 border-white text-sm">{vehicleNumbers || "No vehicles"}</td>
+                      <td className="td-Dates td-dates p-2 border-r-0 border-white flex flex-col md:flex-row gap-1 w-auto text-sm">
+                        <div className="w-auto md:w-1/2 text-center h-full border-r pr-1 border-black">
                           {new Date(
                             visitor.Visits[0]?.Date_From
                           ).toLocaleDateString()}{" "}
                         </div>
                         {/* &nbsp;-&nbsp; */}
 
-                        <div className="w-1/2 text-center h-full border-black">
+                        <div className="w-auto md:w-1/2 text-center h-full border-black ">
                           {visitor.Visits[0]?.Date_To &&
                             new Date(
                               visitor.Visits[0]?.Date_To
                             ).toLocaleDateString()}
                         </div>
-                      </div>
-                    </td>
-                    <td style={{ width: "1%", border: "0" }}>
-                      <FaRegEye
-                        onClick={() => navigateTo(visitor)}
-                        className="hover:text-red-600 font-bolder dEye-icon"
-                      // style={{ cursor: "pointer", fontSize: "1.2rem" }}
-                      />
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td colSpan="6" className="text-center italic border border-black">
-                  There are no visitors yet
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                      </td>
+                      <td className="bg-white " style={{ width: "1%", border: "0" }}>
+                        <FaRegEye
+                          onClick={() => navigateTo(visitor)}
+                          className="hover:text-red-600 font-bolder text-lg hover:scale-110 duration-300"
+                        // style={{ cursor: "pointer", fontSize: "1.2rem" }}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="6" className="text-center italic border border-black">
+                    There are no visitors yet
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+        </div>
 
         {errorMessages && <p className="error text-red-600">{errorMessages}</p>}
       </form>

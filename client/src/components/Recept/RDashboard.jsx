@@ -115,7 +115,7 @@ const RDashboard = () => {
 
   return (
     <div className="w-full min-h-full">
-      <div className="cContainer flex">
+      <div className="flex px-2 w-full h-100vh justify-center items-center md:h-2/4"  style={{backgroundColor:"white"}}>
         {isLoading && (
           <div className="text-center w-full h-full">
             <div className="loader-overlay w-full h-full">
@@ -124,18 +124,18 @@ const RDashboard = () => {
             </div>
           </div>
         )}
-        <form onSubmit={handleSubmit} className="border-2 border-gray-500 shadow-xl rounded-md px-16 py-10 mt-14 boxShadow">
-        <h1>Select a date period</h1>
+        <form onSubmit={handleSubmit} className="border border-gray-500 shadow-custom1 rounded-md p-5 mt-14 boxShadow md:w-[60%] bg-gradient-to-bl from-blue-100 to-blue-300 h-full flex flex-col justify-center items-center">
+        <h1 className="text-md mt-2 mb-8 font-extrabold">Select a date period</h1>
           <table className="">
-            <tr>
-              <td className="p-3">
+            <tr className="">
+              <td className="p-1">
                 {" "}
-                <label htmlFor="r-f-date">From</label>
+                <label className="text-font-esm md:text-sm" htmlFor="">From</label>
               </td>
 
-              <td className="p-3">
+              <td className="p-1">
                 <input
-                  className="recInput w-full mb-3"
+                  className="text-font-esm md:text-sm border border-slate-500 bg-white p-1 rounded-md"
                   type="date"
                   name="dateFrom"
                   id="r-f-date"
@@ -147,14 +147,14 @@ const RDashboard = () => {
             </tr>
 
             <tr>
-              <td className="p-3">
+              <td className="p-1">
                 {" "}
-                <label htmlFor="r-t-date">To</label>
+                <label className="text-font-esm md:text-sm" htmlFor="">To</label>
               </td>
 
-              <td className="p-3">
+              <td className="p-1">
                 <input
-                  className="recInput w-full mb-3"
+                  className="text-font-esm md:text-sm border border-slate-500 bg-white p-1 rounded-md"
                   type="date"
                   name="dateTo"
                   id="r-t-date"
@@ -166,11 +166,11 @@ const RDashboard = () => {
 
             <tr>
               {/* <td></td> */}
-              <td colSpan={2} className="text-right p-3">
-                <button className="py-1 px-3 bg-green-500 hover:bg-green-600 rounded-md hover:text-white font-bold mt-3">
-                  <span className="flex">
-                    <FaDownload className="text-lg mr-1" />
-                    <h3>Download</h3>
+              <td colSpan={2} className="text-left">
+                <button className="py-1 px-3 bg-green-500 hover:bg-green-600 rounded-md hover:text-white font-bold mt-8">
+                  <span className="flex justify-center items-center">
+                    <FaDownload className="text-font-esm md:text-sm mr-1" />
+                    <p className="text-font-esm md:text-sm">Download</p>
                   </span>
                 </button>
               </td>

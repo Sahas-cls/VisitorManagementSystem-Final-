@@ -7,8 +7,13 @@ export default {
         'login-img': "url('/assets/sidebarImg6.jpg')",
       },
 
+      fontSize: {
+        'font-esm': "12px",
+      },
+
       boxShadow: {
         custom: "0px 0px 10px rgba(0, 0, 0, 0.8)",
+        custom1: "2px 2px 5px rgba(0, 0, 0, 0.8)",
       },
 
       colors: {

@@ -151,14 +151,14 @@ const CConteiner = ({
                       <td className="p-2 border-r-2 border-white text-sm">{visitor.ContactPerson_NIC}</td>
                       <td className="p-2 border-r-2 border-white text-sm">{vehicleType || "No vehicles"}</td>
                       <td className="p-2 border-r-2 border-white text-sm">{vehicleNumbers || "No vehicles"}</td>
-                      <td className="td-dates p-2 border-r-0 border-black text-sm" style={{ display: "" }}>
-                        <div className="flex h-full cDiv-dates">
-                          <div className="w-1/2 text-center h-full border-black">
+                      <td className="p-2 border-r-0 border-black w-auto text-sm" style={{ display: "" }}>
+                        <div className="h-full md:flex md:gap-1">
+                          <div className="w-1/2 text-center md:pr-1 md:h-full md:border-r border-black mb-0">
                             {new Date(
                               visitor.Visits[0]?.Date_From
                             ).toLocaleDateString()}{" "}
                           </div>
-                          <div className="w-1/2 text-center h-full">
+                          <div className="w-1/2 text-center md:h-full border-black">
                             {visitor.Visits[0]?.Date_To &&
                               new Date(
                                 visitor.Visits[0]?.Date_To
@@ -170,7 +170,7 @@ const CConteiner = ({
                         <FaRegEye
                           onClick={() => navigateTo(visitor)}
                           className="hover:text-red-600 text-lg hover:scale-110 duration-300"
-                          style={{ cursor: "pointer", fontSize: "1.4rem" }}
+                          style={{ cursor: "pointer" }}
                         />
                       </td>
                     </tr>

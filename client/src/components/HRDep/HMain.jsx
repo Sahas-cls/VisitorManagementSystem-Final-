@@ -72,7 +72,8 @@ const HMain = ({
 
   useEffect(() => {
     // This effect runs when screenSize changes (e.g., window resize)
-    if (screenSize < 700) {
+    if (screenSize < 768) {
+      // alert("700px")
       setToggleSidebar(false); // Hide sidebar on small screens
     } else {
       setToggleSidebar(true); // Show sidebar on larger screens
@@ -89,9 +90,9 @@ const HMain = ({
         toggleSidebar={toggleSidebar}
         setToggleSidebar={setToggleSidebar}
       />
-      <div className="mainContainer flex">
+      <div className="mainContainer flex duration-150">
         {toggleSidebar ? (
-          <HSidebar onSidebarClick={handleSidebarClick} />
+          <HSidebar onSidebarClick={handleSidebarClick} className="duration-150"/>
         ) : null}
         {/* {toggleSidebar ? <HSidebar onSidebarClick={handleSidebarClick} /> : ""} */}
         {view === "visitor" && (

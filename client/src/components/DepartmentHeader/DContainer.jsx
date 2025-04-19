@@ -139,11 +139,11 @@ const DConteiner = ({
 
                   return (
                     <tr className="odd:bg-blue-100 even:bg-blue-300 text-sm" key={visitor.ContactPerson_Id}>
-                      <td className="p-2 border-r border-black text-sm">{visitor.ContactPerson_Name}</td>
-                      <td className="p-2 border-r border-black text-sm">{visitor.ContactPerson_NIC}</td>
-                      <td className="p-2 border-r border-black text-sm">{vehicleType || "No vehicles"}</td>
-                      <td className="p-2 border-r border-black text-sm">{vehicleNumbers || "No vehicles"}</td>
-                      <td className="td-Dates td-dates p-2 border-r-0 border-black flex flex-col md:flex-row gap-1 w-auto text-sm">
+                      <td className="p-2 border-r-2 border-white text-sm">{visitor.ContactPerson_Name}</td>
+                      <td className="p-2 border-r-2 border-white text-sm">{visitor.ContactPerson_NIC}</td>
+                      <td className="p-2 border-r-2 border-white text-sm">{vehicleType || "No vehicles"}</td>
+                      <td className="p-2 border-r-2 border-white text-sm">{vehicleNumbers || "No vehicles"}</td>
+                      <td className="td-Dates td-dates p-2 border-r-0 border-white flex flex-col md:flex-row gap-1 w-auto text-sm">
                         <div className="w-auto md:w-1/2 text-center h-full border-r pr-1 border-black">
                           {new Date(
                             visitor.Visits[0]?.Date_From

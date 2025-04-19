@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./SuddenVisit.css";
+// import "./SuddenVisit.css";
 import {
   FaBicycle,
   FaCheck,
@@ -106,7 +106,7 @@ const SuddenVisit = (userFactoryId) => {
       setVisitorData({
         visitorName: "",
         visitorNIC: "",
-    });
+      });
 
       setVisitorErrors({
         visitorName: "",
@@ -116,7 +116,7 @@ const SuddenVisit = (userFactoryId) => {
       setVisitorErrors(errors); // Directly set `errors` as the state value
     }
 
-    
+
   };
 
   // Function to remove a specific visitor from the list
@@ -330,43 +330,44 @@ const SuddenVisit = (userFactoryId) => {
   };
 
   return (
-    <div className="sv-containers" style={{backgroundColor: "#e3dede"}}>
+    <div className="w-full overflow-hidden" style={{ backgroundColor: "white" }}>
       <form onSubmit={handleSubmit}>
         <div className="">
-          <h1 className="sv-title">
+          <h1 className="text-lg mt-2 mb-2 md:text-xl lg:text-2xl xl:text-3xl">
             Sudden Visit application for BOI entry permits (Internal)
           </h1>
         </div>
 
-        <div className="sv-buttons mt-7 text-right">
+        <div className=" mt-7 text-right">
           <button
             type="submit"
-            className="mr-5 bg-green-700 text-white py-1.5 px-6 mr-2 rounded-md hover:bg-green-800 mb-5"
+            className="mr-5 text-sm bg-green-700 text-white py-1.5 px-6 mr-2 rounded-md hover:bg-green-800 mb-5"
           >
             Save
           </button>
         </div>
 
         <div className="w-full">
-          <div className="sd-top">
+          <div className="w-full p-2 lg:flex gap-[2%]">
             {/* top left */}
-            <div className="sd-left">
-              <h1 className="sub-tpks">Entry permit request details</h1>
-              <table className="sv-tblInput">
+            <div className=" border-black p-1 rounded-lg shadow-custom1 bg-gradient-to-br from-blue-200 to-blue-300 lg:w-[50%] h-72">
+              <h1 className="text-lg text-blue-950 mb-2">Entry permit request details</h1>
+              {/* table goes here */}
+              <table className="w-full text-sm mb-2">
                 <tbody>
-                  <tr>
-                    <td className="flex justify-start items-start">
-                      <label htmlFor="">Requested Dept: </label>
+                  <tr className="">
+                    <td className="w-1/12 sm:w-3/12">
+                      <label className="text-font-esm whitespace-nowrap sm:text-sm" htmlFor="req-dept">Requested Dept: </label>
                     </td>
                     <td>
-                      <p className="error">
+                      <p>
                         {validationErrors.reqDept && validationErrors.reqDept}
                       </p>
                       <select
                         name="reqDept"
                         onChange={handleEntryRequest}
-                        className="sv-input sv-select"
-                        id=""
+                        id="req-dept"
+                        className="text-font-esm ml-0 p-1 bg-white w-3/4 sm:text-sm"
                       >
                         <option value="">Select a Department</option>
                         {Array.isArray(departments) &&
@@ -384,55 +385,54 @@ const SuddenVisit = (userFactoryId) => {
                     </td>
                   </tr>
 
-                  <tr>
-                    <td className="flex justify-start items-start">
-                      <label htmlFor="">Requested Date: </label>
+                  <tr className="">
+                    <td className="w-1/12">
+                      <label className="text-font-esm whitespace-nowrap sm:text-sm" htmlFor="">Requested Date: </label>
                     </td>
                     <td>
-                      <p className="error">
+                      <p>
                         {validationErrors.reqDate && validationErrors.reqDate}
                       </p>
                       <input
                         type="Date"
-                        className="sv-input"
                         name="reqDate"
                         onChange={handleEntryRequest}
+                        className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 w-3/4 sm:text-sm"
                       />
                     </td>
                   </tr>
 
-                  <tr>
-                    <td className="flex justify-start items-start">
-                      <label htmlFor="">Requested Officer:</label>
+                  <tr className="">
+                    <td className="w-1/12">
+                      <label className="text-font-esm whitespace-nowrap sm:text-sm" htmlFor="">Requested Officer:</label>
                     </td>
                     <td>
-                      <p className="error">
-                        {validationErrors.reqOfficer &&
-                          validationErrors.reqOfficer}
+                      <p>
+                        {validationErrors.reqOfficer && validationErrors.reqOfficer}
                       </p>
                       <input
                         type="text"
-                        className="sv-input"
                         name="reqOfficer"
                         onChange={handleEntryRequest}
+                        className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 w-3/4 sm:text-sm"
                       />
                     </td>
                   </tr>
 
-                  <tr>
-                    <td className="flex justify-start items-start">
-                      <label htmlFor="">Visitor Category: </label>
+                  <tr className="">
+                    <td className="w-1/12">
+                      <label className="text-font-esm whitespace-nowrap sm:text-sm" htmlFor="">Visitor Category: </label>
                     </td>
                     <td>
-                      <p className="error">
+                      <p>
                         {validationErrors.visitorCategory &&
                           validationErrors.visitorCategory}
                       </p>
                       <select
-                        className="sv-input sv-select cursor-default"
                         name="visitorCategory"
                         onChange={handleEntryRequest}
                         id=""
+                        className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 w-3/4 sm:text-sm"
                       >
                         <option value="">Select visitor Category</option>
                         <option value="HR services">HR Services</option>
@@ -441,16 +441,17 @@ const SuddenVisit = (userFactoryId) => {
                   </tr>
                 </tbody>
               </table>
+
               {/* <p>{validationErrors}</p> */}
             </div>
 
             {/* top right */}
-            <div className="sd-right">
-              <h1 className="sub-tpks">Entry permit details</h1>
+            <div className="mt-5 border-black p-1 rounded-lg shadow-custom1 bg-gradient-to-br from-blue-200 to-blue-300 lg:w-[50%] h-72 lg:mt-0">
+              <h1 className="text-lg text-blue-950 mb-2">Entry permit details</h1>
               <table>
                 <tr>
-                  <td className="w-1/3 ml-3 flex justify-start items-start flex justify-start items-start">
-                    <label htmlFor="">Purpose: </label>
+                  <td className="w-auto">
+                    <label className="text-font-esm whitespace-nowrap sm:text-sm" htmlFor="">Purpose: </label>
                   </td>
                   <td>
                     <p className="error">
@@ -459,7 +460,7 @@ const SuddenVisit = (userFactoryId) => {
                     <select
                       name="purpose"
                       onChange={handleEntryPermit}
-                      className="sv-input sv-select ml-2"
+                      className="text-font-esm ml-0 p-1 bg-white sm:text-sm"
                       id=""
                     >
                       <option value="">Select a purpose</option>
@@ -473,34 +474,34 @@ const SuddenVisit = (userFactoryId) => {
               </table>
 
               {/* date and time details */}
-              <table className="mt-2">
-                <tr>
-                  <td></td>
-                  <td>From</td>
-                  <td>To</td>
+              <table className="mt-2 mb-2 overflow-auto">
+                <tr >
+                  <td className="m-0 p-0"></td>
+                  <td className="text-font-esm sm:text-sm">From</td>
+                  <td className="text-font-esm sm:text-sm">To</td>
                 </tr>
                 <tr>
-                  <td>Date:</td>
-                  <td>
+                  <td className="text-font-esm sm:text-sm w-5">Date:</td>
+                  <td className="">
                     <p className="error">
                       &nbsp;
                       {validationErrors.dateFrom && validationErrors.dateFrom}
                     </p>
                     <input
                       type="date"
-                      className="sv-input sv-date"
+                      className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 sm:text-sm w-full"
                       name="dateFrom"
                       onChange={handleEntryPermit}
                       id=""
                     />
                   </td>
-                  <td>
+                  <td className="">
                     <p className="error">
                       &nbsp;{validationErrors.dateTo && validationErrors.dateTo}
                     </p>
                     <input
                       type="date"
-                      className="sv-input sv-date"
+                      className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 sm:text-sm"
                       name="dateTo"
                       onChange={handleEntryPermit}
                       id=""
@@ -509,7 +510,7 @@ const SuddenVisit = (userFactoryId) => {
                 </tr>
 
                 <tr>
-                  <td>Time:</td>
+                  <td className="text-font-esm sm:text-sm">Time:</td>
                   <td>
                     <p className="error">
                       &nbsp;
@@ -517,19 +518,19 @@ const SuddenVisit = (userFactoryId) => {
                     </p>
                     <input
                       type="time"
-                      className="sv-input sv-date"
+                      className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 sm:text-sm"
                       name="timeFrom"
                       onChange={handleEntryPermit}
                       id=""
                     />
                   </td>
-                  <td>
+                  <td className="w-full">
                     <p className="error">
                       &nbsp;{validationErrors.timeTo && validationErrors.timeTo}
                     </p>
                     <input
                       type="time"
-                      className="sv-input sv-date"
+                      className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 sm:text-sm"
                       name="timeTo"
                       disabled={disableTimeTo}
                       onChange={handleEntryPermit}
@@ -542,16 +543,16 @@ const SuddenVisit = (userFactoryId) => {
           </div>
 
           {/* bottom */}
-          <div className="sd-bottom">
+          <div className="w-full p-2 lg:flex gap-[2%]">
             {/* Visitor Details */}
-            <div className="sd-right">
-              <h1 className="sub-tpks">Visitor Details</h1>
+            <div className="border-black p-1 rounded-lg shadow-custom1 bg-gradient-to-br from-blue-200 to-blue-300 lg:w-2/4">
+              <h1 className="text-lg text-blue-950 mb-2">Visitor Details</h1>
               <table>
                 <tbody>
                   <tr>
                     <td>
                       <div className="">
-                        <label htmlFor="">Name: </label>
+                        <label className="text-font-esm whitespace-nowrap sm:text-sm" htmlFor="">Name: </label>
                         <p className="error">
                           &nbsp;{" "}
                           {visitorErrors.visitorName &&
@@ -561,7 +562,7 @@ const SuddenVisit = (userFactoryId) => {
                           name="visitorName"
                           value={visitorData.visitorName}
                           onChange={handleVisitorData}
-                          className="py-1 pl-1 rounded-md sv-visitorData"
+                          className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 sm:text-sm"
                           type="text"
                         />
                       </div>
@@ -569,7 +570,7 @@ const SuddenVisit = (userFactoryId) => {
 
                     <td>
                       <div className="">
-                        <label htmlFor="">NIC: </label>
+                        <label className="text-font-esm whitespace-nowrap sm:text-sm" htmlFor="">NIC: </label>
                         <p className="error">
                           &nbsp;{" "}
                           {visitorErrors.visitorNIC && visitorErrors.visitorNIC}
@@ -578,7 +579,7 @@ const SuddenVisit = (userFactoryId) => {
                           name="visitorNIC"
                           value={visitorData.visitorNIC}
                           onChange={handleVisitorData}
-                          className="py-1 pl-1 rounded-md sv-visitorData"
+                          className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 sm:text-sm"
                           type="text"
                         />
                       </div>
@@ -587,16 +588,16 @@ const SuddenVisit = (userFactoryId) => {
                       className="sv-icons cursor-pointer text-2xl float-start"
                       style={{ width: "1%" }}
                     >
-                      <FaPlusCircle onClick={handleVisitorPlusButton} />
+                      <FaPlusCircle className="text-sm sm:text-xl" onClick={handleVisitorPlusButton} />
                     </td>
                   </tr>
                 </tbody>
               </table>
 
-              <table className="w-full mt-3">
+              <table className="w-full mt-3 mb-5">
                 <thead>
-                  <th style={{ textAlign: "center" }}>Name</th>
-                  <th style={{ textAlign: "center" }}>NIC</th>
+                  <th className="text-font-esm sm:text-sm" style={{ textAlign: "center" }}>Name</th>
+                  <th className="text-font-esm sm:text-sm" style={{ textAlign: "center" }}>NIC</th>
                 </thead>
 
                 <tbody>
@@ -605,27 +606,21 @@ const SuddenVisit = (userFactoryId) => {
                     visitorsData.map((visitor, index) => (
                       <tr key={index}>
                         <td
-                          style={{
-                            border: "1px solid black",
-                            textAlign: "",
-                            width: "50%",
-                          }}
+                          className="border border-black text-font-esm p-0 pl-1 sm:text-sm sm:p-2"
+                          style={{margin:"0", height: "10px"}}
                         >
                           {visitor.visitorName}
                         </td>
                         <td
-                          style={{
-                            border: "1px solid black",
-                            textAlign: "",
-                            width: "48%",
-                          }}
+                          className="border border-black text-font-esm p-0 pl-1 sm:text-sm sm:p-2"
+                          style={{margin:"0", height: "10px"}}
                         >
                           {visitor.visitorNIC}
                         </td>
                         <td style={{ width: "1%" }}>
                           <MdDelete
                             onClick={() => removeItem(index)}
-                            className="hover:text-red-600 cursor-pointer"
+                            className="text-red-600 cursor-pointer text-lg"
                           />
                         </td>
                       </tr>
@@ -635,43 +630,44 @@ const SuddenVisit = (userFactoryId) => {
             </div>
 
             {/* right div */}
-            <div className="sd-right">
-              <h1 className="sub-tpks">Meal plan</h1>
+            <div className="border-black p-1 rounded-lg shadow-custom1 bg-gradient-to-br mt-5 lg:mt-0 from-blue-200 to-blue-300 lg:w-[50%]">
+              <h1 className="text-lg text-blue-950 mb-2">Meal plan</h1>
               &nbsp;
               <div className="">
                 <input
                   type="checkbox"
                   name="breakfast"
                   onChange={handleMealplan}
-                  className="sv-checkboxes"
+                  className="ml-1"
+                  id="Breakfast"
                 />{" "}
-                <span className="sv-span">Breakfast</span>
+                <label htmlFor="Breakfast" className="sv-span text-font-esm sm:text-sm mr-2">Breakfast</label>
                 <input
                   type="checkbox"
                   className="sv-checkboxes"
                   onChange={handleMealplan}
                   name="lunch"
-                  id=""
+                  id="Lunch"
                 />{" "}
-                <span className="sv-span">Lunch</span>
+                <label htmlFor="Lunch" className="sv-span text-font-esm sm:text-sm">Lunch</label>
                 <input
                   type="checkbox"
                   onChange={handleMealplan}
-                  className="sv-checkboxes"
+                  className="sv-checkboxes ml-2"
                   name="tea"
-                  id=""
+                  id="tea"
                 />{" "}
-                <span className="sv-span">Tea</span>
+                <label htmlFor="tea" className="sv-span text-font-esm sm:text-sm">Tea</label>
               </div>
-              <div className="">
+              <div className="mb-5 ml-2">
                 <h3 className="mt-3 text-black">Additional Note: </h3>
                 <textarea
-                  cols="30"
-                  rows="4"
+                  cols={window.screen.width > 728 ? 60 : 40}
+                  rows={window.screen.width > 728 ? 5 : 4}
                   name="additionalNote"
                   onChange={handleMealplan}
                   id=""
-                  className="sv-textarea"
+                  className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0"
                 ></textarea>
               </div>
             </div>

@@ -7,6 +7,7 @@ import vmsLogo from "../../assets/vmsLogo2.png";
 const DSidebar = ({ handleSidebarClick }) => {
   const [isActive, setisActive] = useState("New Visitors");
   const handleIsActive = (item) => {
+    // alert(item)
     // alert(item);
     setisActive(item);
   };
@@ -17,7 +18,7 @@ const DSidebar = ({ handleSidebarClick }) => {
         <img src={vmsLogo} alt="vms Logo" width="170px" />
       </div>
 
-      <button onClick={() => {handleSidebarClick("visitor"); handleIsActive('New Visitors')}}
+      <button onClick={() => { handleSidebarClick("visitor"); handleIsActive('New Visitors') }}
         className={`w-full min-h-14 hover:bg-[#5151A5] hover:text-gray-200  border-b-2 border-gray-400 text-gray-300 font-bold ${isActive == "New Visitors" ? "active-sidebar" : ""
           } lg:min-h-16`}
       >
@@ -31,7 +32,7 @@ const DSidebar = ({ handleSidebarClick }) => {
       <button
         className={`w-full min-h-14 hover:bg-[#5151A5] hover:text-gray-200  text-gray-300 font-bold hover:hover-sidebar ${isActive == "Approved Visitors" ? "active-sidebar" : ""
           }`}
-        onClick={() => {handleSidebarClick("approvedVisitors"); handleIsActive('Approved Visitors')}}
+        onClick={() => { handleSidebarClick("approvedVisitors"); handleIsActive('Approved Visitors') }}
       >
         <div className="flex flex-row pl-2">
           <FaPersonCircleCheck className="text-2xl" />

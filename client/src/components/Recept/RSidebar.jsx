@@ -1,33 +1,46 @@
-import React from "react";
+import React, { useState } from "react";
 // import "./RSidebar.css";
 import { FaPersonCircleExclamation } from "react-icons/fa6";
 import { FaPersonCirclePlus } from "react-icons/fa6";
 import { FaPersonCircleCheck } from "react-icons/fa6";
 import { TbReportSearch } from "react-icons/tb";
+import vmsLogo from "../../assets/vmsLogo2.png";
 
 const RSidebar = ({ handleSidebarClick }) => {
+  const [isActive, setisActive] = useState("New Visitors");
+  const handleIsActive = (item) => {
+    // alert(item);
+    setisActive(item);
+  };
   return (
-    <aside className="rSidebar" style={{marginRight: "0.5px"}}>
+    <aside className="bg-navy w-4/6 p-0 z-50 absolute sm:w-3/6 md:relative md:w-2/6 lg:relative lg:w-1/5 w-4/6 sm:w-3/6 md:relative md:w-2/6 lg:w-1/4 lg:max-w-[320px]">
+
+      <div className="flex justify-center mb-5">
+        <img src={vmsLogo} alt="vms Logo" width="170px" />
+      </div>
+
       <button
         type="button"
-        className="navBtn"
-        onClick={() => handleSidebarClick("visitor")}
+        className={`w-full min-h-14 hover:bg-[#5151A5] hover:text-gray-200  border-b-2 border-gray-400 text-gray-300 font-bold ${isActive == "New Visitors" ? "active-sidebar" : ""
+          } lg:min-h-16`}
+        onClick={() => {handleSidebarClick("visitor"); handleIsActive("New Visitors")}}
       >
-        <div className="flex">
+        <div className="flex flex-row pl-2">
           <span>
-            <FaPersonCircleExclamation className="lg:text-2xl mr-2" />
+            <FaPersonCircleExclamation className="text-2xl mr-2" />
           </span>
           New Visitors
         </div>
       </button>
       <button
         type="button"
-        className="navBtn"
-        onClick={() => handleSidebarClick("suddenVisit")}
+        className={`w-full min-h-14 hover:bg-[#5151A5] hover:text-gray-200  text-gray-300 font-bold hover:hover-sidebar ${isActive == "Sudden Visit" ? "active-sidebar" : ""
+          }`}
+        onClick={() => { handleSidebarClick("suddenVisit"); handleIsActive("Sudden Visit") }}
       >
-        <div className="flex">
+        <div className="flex flex-row pl-2">
           <span>
-            <FaPersonCirclePlus className="lg:text-2xl mr-2" />
+            <FaPersonCirclePlus className="text-2xl mr-2" />
           </span>
           Sudden Visit
         </div>
@@ -35,12 +48,13 @@ const RSidebar = ({ handleSidebarClick }) => {
 
       <button
         type="button"
-        className="navBtn"
-        onClick={() => handleSidebarClick("getReports")}
+        className={`w-full min-h-14 hover:bg-[#5151A5] hover:text-gray-200  text-gray-300 font-bold hover:hover-sidebar ${isActive == "Generate Reports" ? "active-sidebar" : ""
+          }`}
+        onClick={() => { handleSidebarClick("getReports"); handleIsActive("Generate Reports") }}
       >
-        <div className="flex">
+        <div className="flex flex-row pl-2">
           <span>
-            <TbReportSearch className="lg:text-2xl mr-2" />
+            <TbReportSearch className="text-2xl mr-2" />
           </span>
           Generate Reports
         </div>
