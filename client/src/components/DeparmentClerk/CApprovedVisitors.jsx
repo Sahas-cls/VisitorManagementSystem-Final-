@@ -117,7 +117,7 @@ const CApprovedVisitors = ({
   // }, [windowWidth]);
 
   return (
-    <div className=" p-0 m-0 overflow-x-scroll sm:overflow-x-hidden" style={{ backgroundColor: "white" }}>
+    <div className="w-full p-0 m-0 overflow-x-scroll sm:overflow-x-hidden" style={{ backgroundColor: "white" }}>
       {/* <p>{userFactoryId !== undefined ? userFactoryId : "User Name"}</p> */}
       {/* <p>{userDepartmentId !== undefined ? userDepartmentId : "User Name"}</p> */}
       <form action="" onSubmit={() => alert("submitting")} className="w-full">
@@ -188,7 +188,7 @@ const CApprovedVisitors = ({
               })
             ) : (
               <tr>
-                <td colSpan={6} className="text-center">
+                <td colSpan={6} className="text-center italic">
                   No records yet
                 </td>
               </tr>

@@ -178,7 +178,7 @@ const CConteiner = ({
                 })
               ) : (
                 <tr>
-                  <td colSpan={5} className="text-center italic border border-black py-1">
+                  <td colSpan={5} className="text-center italic py-1">
                     No visitors yet!
                   </td>
                 </tr>

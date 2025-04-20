@@ -25,7 +25,7 @@ const CSidebar = ({ onSidebarClick }) => {
         }}
       >
         <div className={`flex h-full w-full pl-2`}>
-          <FaPersonCircleExclamation className="text-2xl" />
+          <FaPersonCircleExclamation className="lg:text-2xl" />
           <span className="ml-2">New Visitors</span>
         </div>
       </button>

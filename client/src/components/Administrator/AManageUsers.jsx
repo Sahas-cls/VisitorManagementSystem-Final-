@@ -223,7 +223,7 @@ const AManageUsers = () => {
   };
 
   return (
-    <div className="cContainer">
+    <div className="w-full px-2 bg-white">
       {isLoading && (
         <div className="text-center w-full h-full">
           <div className="loader-overlay w-full h-full">
@@ -231,7 +231,7 @@ const AManageUsers = () => {
           </div>
         </div>
       )}
-      <h1 className="text-center">Users List</h1>
+      <h1 className="text-md mt-2 mb-2 font-extrabold">Users List</h1>
       <div className="w-full">
         <div className="flex justify-end w-full">
           <div className="">
@@ -249,12 +249,15 @@ const AManageUsers = () => {
         <div className="flex justify-between mb-4">
           <div className="flex">
             <fieldset className="flex">
+            <div className="">
+
+            </div>
               <label htmlFor="factory">Select Factory: </label>
               <select
                 name=""
                 id="factory"
                 style={{ cursor: "pointer" }}
-                className="bg-white"
+                className="bg-white border-2 border-zinc-400 rounded-md ml-2"
                 onChange={(e) => addFilter(e)}
               >
                 <option value="" selected={selectedFactory === ""}>
@@ -281,11 +284,11 @@ const AManageUsers = () => {
             </fieldset>
           </div>
 
-          <div className="">
+          <div className="bg-white border-2 border-slate-300 rounded-lg">
             <div className="w-56 bg-white h-8 mr-3 rounded-xl flex">
               <input
                 type="text"
-                className="rounded-xl px-3 h-full outline-none"
+                className="rounded-xl px-3 h-full outline-none w-full h-full"
                 placeholder="Search by user name..."
                 name="searchKey"
                 onChange={handleSearchKey}
@@ -301,26 +304,26 @@ const AManageUsers = () => {
 
         <table className="w-full">
           <thead>
-            <tr className="bg-gray-400 text-white" style={{ color: "white" }}>
-              <th className="text-left text-black" style={{ border: "0" }}>
+            <tr className="bg-blue-500 text-white" style={{ color: "white" }}>
+              <th className="text-left text-white" style={{ border: "0" }}>
                 Id
               </th>
-              <th className="text-left text-black" style={{ border: "0" }}>
+              <th className="text-left text-white" style={{ border: "0" }}>
                 Name
               </th>
-              <th className="text-left text-black" style={{ border: "0" }}>
+              <th className="text-left text-white" style={{ border: "0" }}>
                 Email
               </th>
-              <th className="text-left text-black" style={{ border: "0" }}>
+              <th className="text-left text-white" style={{ border: "0" }}>
                 Category
               </th>
               {/* <th className="text-left " style={{ border: "0" }}>
                 Factory
               </th> */}
-              <th className="text-left text-black" style={{ border: "0" }}>
+              <th className="text-left text-white" style={{ border: "0" }}>
                 Department
               </th>
-              <th className="text-left text-black" style={{ border: "0" }}>
+              <th className="text-left text-white" style={{ border: "0" }}>
                 Actions
               </th>
             </tr>
@@ -330,8 +333,8 @@ const AManageUsers = () => {
             {Array.isArray(userList) && userList.length > 0 ? (
               userList.map((user) => {
                 return (
-                  <tr className="odd:bg-gray-100 even:bg-gray-300">
-                    <td className="text-left py-2 pr-3 text-wrap">
+                  <tr className="odd:bg-blue-100 even:bg-blue-300 text-sm">
+                    <td className="text-left py-2 pr-3 text-wrap pl-1">
                       {user.user_Id}
                     </td>
                     <td className="text-left py-2 pr-3 text-wrap">

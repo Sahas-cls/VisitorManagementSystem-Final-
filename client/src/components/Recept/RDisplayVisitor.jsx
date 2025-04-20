@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../../Header";
 // import CSidebar from "./CSidebar";
-import "./RDisplayVisitor.css";
+// import "./RDisplayVisitor.css";
 import axios from "axios";
 import { IoIosSave, IoIosSend } from "react-icons/io";
 import { FaPlusCircle } from "react-icons/fa";
@@ -303,9 +303,9 @@ const RDisplayVisitor = () => {
     try {
       const response = axios.post(
         "http://localhost:3000/visitor/update-visit-reception",
-        () => {}
+        () => { }
       );
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const [emailSuccessMsg, setEmailSuccessMsg] = useState();
@@ -426,522 +426,427 @@ const RDisplayVisitor = () => {
   };
 
   return (
-    <div className="rrContainer flex flex-col">
-      <form>
-        <Header
-          userName={userName}
-          userCategory={userCategory}
-          userDepartment={userDepartment}
-        />
-        <div className="flex">
-          {/* <CSidebar /> */}
-          <div className="vs-containers">
-            <h1 className="visitor-name">
-              Contact person's name: {Visitor.ContactPerson_Name}
-            </h1>
+    <div className="w-full flex flex-col mb-4 bg-white">
+  <form>
+    <Header
+      userName={userName}
+      userCategory={userCategory}
+      userDepartment={userDepartment}
+    />
+    <div className="flex flex-col lg:flex-row">
+      <div className="mb-0 bg-white w-full">
+        <h1 className="text-left ml-2 text-md mt-2 mb-2 font-extrabold">
+          {Visitor.ContactPerson_Name}
+        </h1>
 
-            <div className="vs-top-bottom">
-              <div className="vs-top">
-                <div className="vs-top-left">
-                  <h1 className="font-bold mb-1">
-                    Entry Permit Request Details
-                  </h1>
-                  <table>
-                    <tr>
-                      <td>
-                        <label htmlFor="">
-                          Request Dep: <span className="text-red-600">*</span>
-                        </label>
-                      </td>
-                      <td>
-                        <select
-                          name="Requested_Department"
-                          className="c-select"
-                          id=""
+        <div className="p-0">
+          {/* Top Section - Two Columns */}
+          <div className="m-0 p-2 flex flex-col lg:flex-row gap-4 lg:gap-[2%]">
+            {/* Left Card */}
+            <div className="bg-gradient-to-br from-blue-300 to-blue-100 w-full rounded-lg shadow-custom1 lg:w-[49%] p-2 h-auto min-h-[190px] pb-5">
+              <h1 className="font-bold text-lg text-blue-950 mb-2">
+                Entry Permit Request Details
+              </h1>
+              <div className="grid grid-cols-1 gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <label className="text-sm sm:w-1/3">
+                    Request Dep: <span className="text-red-600">*</span>
+                  </label>
+                  <select
+                    name="Requested_Department"
+                    className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+                  >
+                    <option value="">Select a Department:</option>
+                    {Array.isArray(departmentList) &&
+                      departmentList.map((department) => (
+                        <option
+                          key={department.Department_Id}
+                          value={department.Department_Id}
+                          selected={
+                            Visits.Department_Id === department.Department_Id
+                          }
                         >
-                          <option value="">Select a Department:</option>
-                          {/* get all departments to here */}
-                          {Array.isArray(departmentList) &&
-                            departmentList.map((department) => {
-                              return (
-                                <option
-                                  key={department.Department_Id}
-                                  value={department.Department_Id}
-                                  selected={
-                                    Visits.Department_Id ===
-                                    department.Department_Id
-                                  }
-                                >
-                                  {department.Department_Name}
-                                </option>
-                              );
-                            })}
-                        </select>
-                        {errors.Requested_Department && (
-                          <p className="error">{errors.Requested_Department}</p>
-                        )}
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>
-                        <label htmlFor="">
-                          Requested Date:{" "}
-                          <span className="text-red-600">*</span>
-                        </label>
-                      </td>
-                      <td>
-                        <input
-                          type="date"
-                          name="Date_From"
-                          // onChange={handleEntryPermitReq}
-                          className="cdInput"
-                          defaultValue={`${reqDate}`}
-                        />
-                        {errors.Date_From && (
-                          <p className="error">{errors.Date_From}</p>
-                        )}
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>
-                        <label htmlFor="">
-                          Requested Officer:{" "}
-                          <span className="text-red-600">*</span>
-                        </label>
-                      </td>
-                      <td>
-                        <input
-                          className="cdInput"
-                          name="Requested_Officer"
-                          // onChange={handleEntryPermitReq}
-                          defaultValue={Visits.Requested_Officer}
-                          type="text"
-                        />
-                        {errors.Requested_Officer && (
-                          <p className="error">{errors.Requested_Officer}</p>
-                        )}
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>
-                        <label htmlFor="">
-                          Visitor Category:{" "}
-                          <span className="text-red-600">*</span>
-                        </label>
-                      </td>
-                      {/* {alert(Visits.Visitor_Category)} */}
-                      <td>
-                        <select
-                          name="Visitor_Category"
-                          className="c-select"
-                          // onChange={handleEntryPermitReq}
-                          id=""
-                        >
-                          <option
-                            selected={Visits.Visitor_Category === ""}
-                            value=""
-                          >
-                            Select a Category
-                          </option>
-                          <option
-                            selected={Visits.Visitor_Category == "HR Services"}
-                            value="HR Services"
-                          >
-                            HR Services
-                          </option>
-                          <option
-                            selected={Visits.Visitor_Category === "Interview"}
-                            value="Interview"
-                          >
-                            Interview
-                          </option>
-                          <option
-                            selected={Visits.Visitor_Category === "asdf"}
-                            value=""
-                          ></option>
-                        </select>
-                        {errors.Visitor_Category && (
-                          <p className="error">{errors.Visitor_Category}</p>
-                        )}
-                      </td>
-                    </tr>
-                  </table>
-                  {/* top-left div end */}
+                          {department.Department_Name}
+                        </option>
+                      ))}
+                  </select>
                 </div>
+                {errors.Requested_Department && (
+                  <p className="error text-sm">{errors.Requested_Department}</p>
+                )}
 
-                <div className="vs-top-right">
-                  <h1 className="font-bold mb-1">Entry permit Details</h1>
-                  <table>
-                    <tr>
-                      <td>
-                        <label htmlFor="">
-                          Purpose: <span className="text-red-600">*</span>
-                        </label>
-                      </td>
-                      <td>
-                        <select
-                          name="Purpose"
-                          className="c-select"
-                          id=""
-                          // onChange={handleEntryPermit}
-                        >
-                          <option
-                            value=""
-                            selected={
-                              Visits.Purpose === "" || Visits.Purpose === null
-                            }
-                          >
-                            Select a Purpose
-                          </option>
-                          <option
-                            value="HR Services"
-                            selected={Visits.Purpose === "HR Services"}
-                          >
-                            HR Services
-                          </option>
-                        </select>
-                        {errors.Purpose && (
-                          <p className="error">{errors.Purpose}</p>
-                        )}
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td className="">
-                        <label htmlFor="">
-                          Date: <span className="text-red-600">*</span>
-                        </label>
-                      </td>
-                      <td className="flex gap-32">
-                        <label htmlFor="">From</label>
-                        <label htmlFor="" className="ml-5">
-                          To
-                        </label>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td></td>
-                      <td className="flex gap-8">
-                        <div className="">
-                          <input
-                            className="cdInput"
-                            type="date"
-                            name="Date_From"
-                            // onChange={handleEntryPermit}
-                            defaultValue={reqDate}
-                          />
-                          {errors.DateFrm && (
-                            <p className="error">{errors.DateFrm}</p>
-                          )}
-                        </div>
-
-                        <div className="">
-                          <input
-                            className="cdInput"
-                            type="date"
-                            name="Date_To"
-                            // onChange={handleEntryPermit}
-                            defaultValue={dateTo >= today ? dateTo : null}
-                          />
-                          {errors.Date_To && (
-                            <p className="error">{errors.Date_To}</p>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>
-                        <label htmlFor="">
-                          Time: <span className="text-red-600">*</span>
-                        </label>
-                      </td>
-                      <td className="flex gap-24" style={{ gap: "92px" }}>
-                        <div className="flex flex-col">
-                          <input
-                            className="cdInput"
-                            type="time"
-                            name="Time_From"
-                            // onChange={handleEntryPermit}
-                            defaultValue={timeFrom}
-                          />
-                          {errors.Time_From && (
-                            <p className="error">{errors.Time_From}</p>
-                          )}
-                        </div>
-
-                        <div className="flex flex-col">
-                          <input
-                            className="cdInput"
-                            type="time"
-                            name="Time_To"
-                            // onChange={handleEntryPermit}
-                            defaultValue={timeTo}
-                          />
-                          {errors.Time_To && (
-                            <p className="error">{errors.Time_To}</p>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  </table>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <label className="text-sm sm:w-1/3">
+                    Requested Date: <span className="text-red-600">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="Date_From"
+                    className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+                    defaultValue={`${reqDate}`}
+                  />
                 </div>
+                {errors.Date_From && (
+                  <p className="error text-sm">{errors.Date_From}</p>
+                )}
 
-                {/* top-div end */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <label className="text-sm sm:w-1/3">
+                    Requested Officer: <span className="text-red-600">*</span>
+                  </label>
+                  <input
+                    className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+                    name="Requested_Officer"
+                    defaultValue={Visits.Requested_Officer}
+                    type="text"
+                  />
+                </div>
+                {errors.Requested_Officer && (
+                  <p className="error text-sm">{errors.Requested_Officer}</p>
+                )}
+
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <label className="text-sm sm:w-1/3">
+                    Visitor Category: <span className="text-red-600">*</span>
+                  </label>
+                  <select
+                    name="Visitor_Category"
+                    className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+                  >
+                    <option selected={Visits.Visitor_Category === ""} value="">
+                      Select a Category
+                    </option>
+                    <option
+                      selected={Visits.Visitor_Category == "HR Services"}
+                      value="HR Services"
+                    >
+                      HR Services
+                    </option>
+                    <option
+                      selected={Visits.Visitor_Category === "Interview"}
+                      value="Interview"
+                    >
+                      Interview
+                    </option>
+                  </select>
+                </div>
+                {errors.Visitor_Category && (
+                  <p className="error text-sm">{errors.Visitor_Category}</p>
+                )}
               </div>
+            </div>
 
-              {/* bottom div start*/}
-              <div className="vs-top">
-                <div className="vs-top-left">
-                  <h1 className="font-bold mb-1">Person</h1>
-                  <table className="w-full tblVisitors">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>NIC</th>
-                      </tr>
-                    </thead>
+            {/* Right Card */}
+            <div className="bg-gradient-to-bl from-blue-300 to-blue-100 p-3 w-full rounded-lg shadow-custom1 lg:w-[49%] h-auto min-h-[190px] pb-5">
+              <h1 className="font-bold text-lg text-blue-950 mb-2">
+                Entry permit Details
+              </h1>
+              <div className="grid grid-cols-1 gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <label className="text-sm sm:w-1/3">
+                    Purpose: <span className="text-red-600">*</span>
+                  </label>
+                  <select
+                    name="Purpose"
+                    className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+                  >
+                    <option
+                      value=""
+                      selected={Visits.Purpose === "" || Visits.Purpose === null}
+                    >
+                      Select a Purpose
+                    </option>
+                    <option
+                      value="HR Services"
+                      selected={Visits.Purpose === "HR Services"}
+                    >
+                      HR Services
+                    </option>
+                  </select>
+                </div>
+                {errors.Purpose && <p className="error text-sm">{errors.Purpose}</p>}
 
-                    <tbody>
-                      {Array.isArray(visitorGroup) &&
-                        visitorGroup.map((visitor) => {
-                          return (
-                            <tr key={visitor.Visitor_Id}>
-                              <td>{visitor.Visitor_Name}</td>
-                              <td>{visitor.Visitor_NIC}</td>
-                              <td style={{ border: "0" }} className="">
-                                <FaPlusCircle
-                                  className="vf-icon hover:text-green-600"
-                                  onClick={handlePersonPlus} // Your existing logic for adding a vehicle
-                                />
-                                <MdDelete
-                                  onClick={(e) => removeVehicle(e, index)} // Correctly pass index for removal
-                                  className="vf-icon hover:text-red-600"
-                                />
-                              </td>
-                            </tr>
-                          );
-                        })}
-                    </tbody>
-                  </table>
-
-                  <div className="mt-3">
-                    <h3>Meal Plan: </h3>
-                    <tr>
-                      <td>
-                        <input
-                          className="cdInputChk"
-                          type="checkbox"
-                          name="Breakfast"
-                          // onChange={handlePerson}
-                          defaultChecked={Visits.Breakfast === true}
-                          id=""
-                        />{" "}
-                        <span>Breakfast</span>
-                      </td>
-                      <td>
-                        <input
-                          className="cdInputChk"
-                          type="checkbox"
-                          name="Lunch"
-                          // onChange={handlePerson}
-                          defaultChecked={Visits.Lunch === true}
-                        />
-                        <span>Lunch</span>
-                      </td>
-                      <td>
-                        <input
-                          className="cdInputChk"
-                          type="checkbox"
-                          name="Tea"
-                          // onChange={handlePerson}
-                          // checked={Visits.Tea === true}
-                          defaultChecked={Visits.Tea === true}
-                          id=""
-                        />
-                        <span>Tea</span>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td colSpan="2">
-                        <h3>Additional Note</h3>
-                        <textarea
-                          rows="4"
-                          type="text"
-                          name="Remark"
-                          // onChange={handlePerson}
-                          id=""
-                          defaultValue={Visits.Remark}
-                          readOnly={true}
-                        ></textarea>
-                      </td>
-                    </tr>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <label className="text-sm sm:w-1/3">
+                    Date: <span className="text-red-600">*</span>
+                  </label>
+                  <div className="flex flex-1 gap-2">
+                    <div className="flex-1">
+                      <label className="text-sm">From</label>
+                      <input
+                        className="text-sm w-full bg-white border rounded border-slate-400 p-1"
+                        type="date"
+                        name="Date_From"
+                        defaultValue={reqDate}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="text-sm">To</label>
+                      <input
+                        className="text-sm w-full bg-white border rounded border-slate-400 p-1"
+                        type="date"
+                        name="Date_To"
+                        defaultValue={dateTo >= today ? dateTo : null}
+                      />
+                    </div>
                   </div>
-
-                  {/* top-left div end */}
                 </div>
+                {errors.DateFrm && <p className="error text-sm">{errors.DateFrm}</p>}
+                {errors.Date_To && <p className="error text-sm">{errors.Date_To}</p>}
 
-                <div className="vs-top-right">
-                  <h1 className="font-bold mb-1">Vehicle</h1>
-                  <table className="w-full tblVisitors">
-                    <thead>
-                      <th>Vehicle Type</th>
-                      <th>Vehicle No</th>
-                    </thead>
-
-                    <tbody>
-                      {Array.isArray(Vehicles) &&
-                        Vehicles.map((vehicle) => {
-                          return (
-                            <tr key={vehicle.Vehicle_Id}>
-                              <td>{vehicle.Vehicle_No}</td>
-                              <td>{vehicle.Vehicle_Type}</td>
-                            </tr>
-                          );
-                        })}
-                    </tbody>
-                  </table>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <label className="text-sm sm:w-1/3">
+                    Time: <span className="text-red-600">*</span>
+                  </label>
+                  <div className="flex flex-1 gap-2">
+                    <div className="flex-1">
+                      <input
+                        className="text-sm w-full bg-white border rounded border-slate-400 p-1"
+                        type="time"
+                        name="Time_From"
+                        defaultValue={timeFrom}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        className="text-sm w-full bg-white border rounded border-slate-400 p-1"
+                        type="time"
+                        name="Time_To"
+                        defaultValue={timeTo}
+                      />
+                    </div>
+                  </div>
                 </div>
-
-                {/* top-div end */}
+                {errors.Time_From && (
+                  <p className="error text-sm">{errors.Time_From}</p>
+                )}
+                {errors.Time_To && (
+                  <p className="error text-sm">{errors.Time_To}</p>
+                )}
               </div>
-              <div
-                className={`${successOrError.type} === "error"? "error": "success"`}
-              >
-                {/* add success message */}
-                {/* {alert(successOrError.msg)} */}
-                {/* {console.log(successOrError.msg)} */}
-                <p className="text-center mt-4 font-bold">
-                  {successOrError.msg}
-                </p>
-              </div>
-              <div className="text-center">
-                <p className="error">{errorMessages}</p>
-              </div>
-              {/* <div className="button-div">
-                <button
-                  className="mr-1.5 mb-1.5 btnBack"
-                  type="button"
-                  onClick={() => navigate(-1)}
-                >
-                  Back
-                </button>
-                <button className="mr-1.5 mb-1.5 btnSave">Approve</button>
-              </div> */}
             </div>
           </div>
-        </div>
-      </form>
 
-      <div className="bg-gray-300" style={{backgroundColor: "#e3dede", margin:"0px", borderTop:"0px"}}>
-        <div className="w-full rd-entryReference" style={{ margin: "10px auto" }}>
-          <div className="text-center text-xl font-bold mb-8">
-            <h1>Entry permit Reference & Issue</h1>
-          </div>
-          <form onSubmit={handleSubmit}>
-            <div className="w-full flex justify-center items-center">
-              <table className="mb-4">
-                <tr>
-                  <td className="">
-                    <label className="rlabels" htmlFor="">
-                      Reference Number:{" "}
-                    </label>
-                  </td>
-                  <td>
+          {/* Bottom Section - Two Columns */}
+          <div className="m-0 p-2 flex flex-col lg:flex-row gap-4 lg:gap-[2%]">
+            {/* Left Card */}
+            <div className="bg-gradient-to-br from-blue-300 to-blue-100 p-3 w-full rounded-lg shadow-custom1 lg:w-[49%] min-h-[330px]">
+              <h1 className="font-bold text-lg text-blue-950 mb-2">Person</h1>
+              <div className="overflow-x-auto">
+                <table className="w-full tblVisitors">
+                  <thead>
+                    <tr>
+                      <th className="text-sm text-left">Name</th>
+                      <th className="text-sm text-left">NIC</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Array.isArray(visitorGroup) &&
+                      visitorGroup.map((visitor) => (
+                        <tr key={visitor.Visitor_Id}>
+                          <td className="text-sm border border-slate-600">{visitor.Visitor_Name}</td>
+                          <td className="text-sm border border-slate-600">{visitor.Visitor_NIC}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="mt-3">
+                <h3 className="font-bold text-lg text-blue-950 mb-2 text-center">
+                  Meal Plan
+                </h3>
+                <div className="flex justify-center gap-4 mb-2">
+                  <div className="flex items-center">
                     <input
-                      type="text"
-                      name="refNumber"
-                      className="recInput mb-3"
-                      onChange={handleRefChanges}
+                      type="checkbox"
+                      name="Breakfast"
+                      defaultChecked={Visits.Breakfast === true}
+                      id="Breakfast"
+                      className="mr-1"
                     />
-                  </td>
-                </tr>
-
-                <tr>
-                  <td>
-                    <label className="rlabels" htmlFor="">
-                      Issued Date:{" "}
+                    <label htmlFor="Breakfast" className="text-sm">
+                      Breakfast
                     </label>
-                  </td>
-                  <td>
+                  </div>
+                  <div className="flex items-center">
                     <input
-                      type="Date"
-                      name="issuedDate"
-                      onChange={handleRefChanges}
-                      className="recInput"
+                      type="checkbox"
+                      name="Lunch"
+                      id="Lunch"
+                      defaultChecked={Visits.Lunch === true}
+                      className="mr-1"
                     />
-                  </td>
-                </tr>
-              </table>
+                    <label htmlFor="Lunch" className="text-sm">
+                      Lunch
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="Tea"
+                      defaultChecked={Visits.Tea === true}
+                      id="Tea"
+                      className="mr-1"
+                    />
+                    <label htmlFor="Tea" className="text-sm">
+                      Tea
+                    </label>
+                  </div>
+                </div>
 
-              <div className="buttons text-center flex justify-center gap-4">
-                <button
-                  className="rbuttons text-center px-4 flex"
-                  onClick={disableSaveButton}
-                >
-                  <IoIosSend className="rIcons" onClick={handleSendEmail} />
-                  <p>Send msg</p>
-                </button>
-                <button
-                  disabled={disableSave}
-                  className="rbuttons text-center px-4 flex"
-                  onClick={handleSubmit}
-                >
-                  <IoIosSave className="rIcons" />
-                  Save
-                </button>
+                <div>
+                  <h3 className="text-sm mb-1">Additional Note</h3>
+                  <textarea
+                    rows="4"
+                    type="text"
+                    name="Remark"
+                    className="text-sm bg-white border rounded border-slate-400 p-1 w-full"
+                    defaultValue={Visits.Remark}
+                    readOnly={true}
+                  ></textarea>
+                </div>
               </div>
             </div>
-          </form>
-        </div>
 
-        <div className="">
-          {emailSuccessMsg && (
-            <p className="success font-bold">
-              {typeof emailSuccessMsg === "object"
-                ? JSON.stringify(emailSuccessMsg)
-                : emailSuccessMsg}
-            </p>
-          )}
-          {serverSideErrors && (
-            <p className="error font-bold">
-              {typeof serverSideErrors === "object"
-                ? JSON.stringify(serverSideErrors)
-                : serverSideErrors}
-            </p>
-          )}
-          {recMessages && (
-            <p className="text-blue-600 font-bold">
-              {typeof recMessages === "object"
-                ? JSON.stringify(recMessages)
-                : recMessages}
-            </p>
-          )}
-        </div>
+            {/* Right Card */}
+            <div className="bg-gradient-to-tl from-blue-300 to-blue-100 p-3 w-full rounded-lg shadow-custom1 lg:w-[49%] min-h-[330px]">
+              <h1 className="font-bold text-lg text-blue-950 mb-2">Vehicle</h1>
+              <div className="overflow-x-auto">
+                <table className="w-full tblVisitors">
+                  <thead>
+                    <tr>
+                      <th className="text-sm text-left">Vehicle Type</th>
+                      <th className="text-sm text-left">Vehicle No</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Array.isArray(Vehicles) &&
+                      Vehicles.map((vehicle) => (
+                        <tr key={vehicle.Vehicle_Id}>
+                          <td className="text-sm">{vehicle.Vehicle_No}</td>
+                          <td className="text-sm">{vehicle.Vehicle_Type}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
 
-        <div className="text-right w-full mb-6">
-          <button
-            onClick={navigateTo}
-            className="bg-green-600 mt-10 mr-3 py-1.5 px-7 rounded-md text-white hover:bg-green-800 shadow-lg"
+          <div
+            className={`${successOrError.type} === "error" ? "error" : "success"`}
           >
-            Update
-          </button>
-
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="bg-blue-600 mt-10 mr-3 py-1.5 px-7 rounded-md text-white hover:bg-blue-800 shadow-lg"
-          >
-            Back
-          </button>
+            <p className="text-center mt-4 font-bold text-sm">
+              {successOrError.msg}
+            </p>
+          </div>
+          <div className="text-center">
+            <p className="error text-sm">{errorMessages}</p>
+          </div>
         </div>
       </div>
     </div>
+  </form>
+
+  {/* Bottom Form Section */}
+  <div className="w-full px-2">
+    <div className="bg-gradient-to-b from-blue-300 to-blue-100 rounded-lg shadow-custom1 p-4">
+      <div className="text-center">
+        <h1 className="font-bold text-lg text-blue-950 mb-4">
+          Entry permit Reference & Issue
+        </h1>
+      </div>
+      <form className="w-full max-w-md mx-auto" onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 gap-4 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <label className="text-sm sm:w-1/3">
+              Reference Number:
+            </label>
+            <input
+              type="text"
+              name="refNumber"
+              className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+              onChange={handleRefChanges}
+            />
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <label className="text-sm sm:w-1/3">
+              Issued Date:
+            </label>
+            <input
+              type="Date"
+              name="issuedDate"
+              onChange={handleRefChanges}
+              className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-center gap-4 mb-4">
+          <button
+            type="button"
+            className="flex items-center text-sm px-4 py-1 bg-blue-100 rounded hover:bg-blue-300"
+            onClick={disableSaveButton}
+          >
+            <IoIosSend className="mr-1" />
+            Send msg
+          </button>
+          <button
+            disabled={disableSave}
+            type="submit"
+            className="flex items-center text-sm px-4 py-1 bg-blue-100 rounded hover:bg-blue-300 disabled:opacity-50"
+          >
+            <IoIosSave className="mr-1" />
+            Save
+          </button>
+        </div>
+      </form>
+
+      <div className="text-center">
+        {emailSuccessMsg && (
+          <p className="text-green-600 font-bold text-sm">
+            {typeof emailSuccessMsg === "object"
+              ? JSON.stringify(emailSuccessMsg)
+              : emailSuccessMsg}
+          </p>
+        )}
+        {serverSideErrors && (
+          <p className="text-red-600 font-bold text-sm">
+            {typeof serverSideErrors === "object"
+              ? JSON.stringify(serverSideErrors)
+              : serverSideErrors}
+          </p>
+        )}
+        {recMessages && (
+          <p className="text-blue-600 font-bold text-sm">
+            {typeof recMessages === "object"
+              ? JSON.stringify(recMessages)
+              : recMessages}
+          </p>
+        )}
+      </div>
+
+      <div className="flex justify-center gap-3 mt-6 pb-4">
+        <button
+          onClick={navigateTo}
+          className="bg-green-600 py-1 w-20 px-3 rounded-md text-sm text-white hover:bg-green-800 shadow-lg"
+        >
+          Update
+        </button>
+
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="bg-blue-600 py-1 w-20 px-3 rounded-md text-sm text-white hover:bg-blue-800 shadow-lg"
+        >
+          Back
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
   );
 };
 
