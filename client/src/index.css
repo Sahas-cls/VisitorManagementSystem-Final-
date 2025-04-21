@@ -10,7 +10,7 @@
 }
 
 .active-sidebar {
-  @apply bg-navyLight text-white;
+  @apply bg-[#3b82f6] text-white;
 }
 
 .hover-sidebar {

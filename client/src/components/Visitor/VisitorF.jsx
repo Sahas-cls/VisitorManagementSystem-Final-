@@ -23,6 +23,7 @@ const VisitorF = () => {
   const [factories, setFactories] = useState({}); //to store all factories
   const [departments, setDepartments] = useState({}); //to soter all departments according to the factory
   const [disableSubmitButton, setDisableSubmitButton] = useState(true);
+  const [serverSideErrors, setserverSideErrors] = useState({});
   // !to get all factory details
   const getFactories = async () => {
     // alert("getting factories");
@@ -493,7 +494,9 @@ const VisitorF = () => {
               // alert(response.errors);
               // Access validation errors sent from backend
               const validationErrors = error.response.data.errors;
-              console.log("Validation errors:", validationErrors);
+              setserverSideErrors(validationErrors);
+              console.log("server side errors", validationErrors);
+              // console.log("Validation errors:", validationErrors);
               setErrorMessages(
                 validationErrors.map((err) => err.msg).join("\n, * ")
                 // this.return
@@ -588,6 +591,14 @@ const VisitorF = () => {
               <option value="Concord Footwear">Concord Footwear</option>
               <option value="Guston Lanka">Guston Lanka</option> */}
             </select>
+            {Array.isArray(serverSideErrors) &&
+              serverSideErrors
+                .filter((err) => err.path === "departmentDetails.factory")
+                .map((err, index) => (
+                  <p className="error" key={index}>
+                    {err.msg}
+                  </p>
+                ))}
           </div>
 
           <div>
@@ -610,6 +621,14 @@ const VisitorF = () => {
                   );
                 })}
             </select>
+            {Array.isArray(serverSideErrors) &&
+              serverSideErrors
+                .filter((err) => err.path === "departmentDetails.department")
+                .map((err, index) => (
+                  <p className="error" key={index}>
+                    {err.msg}
+                  </p>
+                ))}
           </div>
         </div>
 
@@ -639,6 +658,17 @@ const VisitorF = () => {
                       {subErros.cName && (
                         <p className="error">{subErros.cName}</p>
                       )}
+
+                      {Array.isArray(serverSideErrors) &&
+                        serverSideErrors
+                          .filter(
+                            (err) => err.path === "contactPersonDetails.cName"
+                          )
+                          .map((err, index) => (
+                            <p className="error" key={index}>
+                              {err.msg}
+                            </p>
+                          ))}
                     </td>
                   </tr>
                   <tr>
@@ -655,6 +685,18 @@ const VisitorF = () => {
                         onChange={handleContactPerson}
                         placeholder="Enter NIC number"
                       />
+
+                      {Array.isArray(serverSideErrors) &&
+                        serverSideErrors
+                          .filter(
+                            (err) => err.path === "contactPersonDetails.cNIC"
+                          )
+                          .map((err, index) => (
+                            <p className="error" key={index}>
+                              {err.msg}
+                            </p>
+                          ))}
+
                       {errorsCPerson.cNIC && (
                         <p className="error">{errorsCPerson.cNIC}</p>
                       )}
@@ -678,6 +720,19 @@ const VisitorF = () => {
                         onChange={handleContactPerson}
                         placeholder="Enter mobile number"
                       />
+
+                      {Array.isArray(serverSideErrors) &&
+                        serverSideErrors
+                          .filter(
+                            (err) =>
+                              err.path === "contactPersonDetails.cMobileNo"
+                          )
+                          .map((err, index) => (
+                            <p className="error" key={index}>
+                              {err.msg}
+                            </p>
+                          ))}
+
                       {errorsCPerson.cMobileNo && (
                         <p className="error">{errorsCPerson.cMobileNo}</p>
                       )}
@@ -699,6 +754,18 @@ const VisitorF = () => {
                         onChange={handleContactPerson}
                         placeholder="Enter email"
                       />
+
+                      {Array.isArray(serverSideErrors) &&
+                        serverSideErrors
+                          .filter(
+                            (err) => err.path === "contactPersonDetails.cEmail"
+                          )
+                          .map((err, index) => (
+                            <p className="error" key={index}>
+                              {err.msg}
+                            </p>
+                          ))}
+
                       {errorsCPerson.cEmail && (
                         <p className="error">{errorsCPerson.cEmail}</p>
                       )}
@@ -731,6 +798,18 @@ const VisitorF = () => {
                           onChange={handleDate}
                           className="vInput w-full mb-1"
                         />
+
+                        {Array.isArray(serverSideErrors) &&
+                          serverSideErrors
+                            .filter(
+                              (err) => err.path === "dateTimeDetails.dateFrom"
+                            )
+                            .map((err, index) => (
+                              <p className="error" key={index}>
+                                {err.msg}
+                              </p>
+                            ))}
+
                         <p className="error">
                           {dateTimeErrors.dateFrom && dateTimeErrors.dateFrom}
                         </p>
@@ -769,6 +848,18 @@ const VisitorF = () => {
                         name="dateTo"
                         onChange={handleDate}
                       />
+
+                      {Array.isArray(serverSideErrors) &&
+                        serverSideErrors
+                          .filter(
+                            (err) => err.path === "dateTimeDetails.dateTo"
+                          )
+                          .map((err, index) => (
+                            <p className="error" key={index}>
+                              {err.msg}
+                            </p>
+                          ))}
+
                       <p className="error">
                         {dateTimeErrors.dateTo && dateTimeErrors.dateTo}
                       </p>
@@ -824,6 +915,7 @@ const VisitorF = () => {
                           value={vehicle.VehicleType} // Change defaultValue to value for controlled input
                           onChange={(e) => handleVehicleChanges(index, e)} // Pass index here to handle changes
                         />
+
                         {index === vehicles.length - 1 &&
                           vehicleErrors.VehicleType && ( // Fix condition to show error for last vehicle
                             <p className="error">{vehicleErrors.VehicleType}</p>
@@ -918,6 +1010,14 @@ const VisitorF = () => {
                   ))}
                 </tbody>
               </table>
+              {Array.isArray(serverSideErrors) &&
+                serverSideErrors
+                  .filter((err) => err.path === "visitorDetails[0].visitorNIC")
+                  .map((err, index) => (
+                    <p className="error" key={index}>
+                      {err.msg}
+                    </p>
+                  ))}
             </div>
           </div>
         </div>
@@ -945,13 +1045,11 @@ const VisitorF = () => {
           <p>.{successMessage.mail === true && "Email sent success"}</p>
         </div> */}
 
-        <div className="" id="errorMessage">
-          {/* {alert(errorMessage)} */}
-          {/* setting the error message to user */}
+        {/* <div className="" id="errorMessage">
           {errorMessages && (
             <p className="errorCenter mt-1">*{errorMessages}</p>
           )}
-        </div>
+        </div> */}
 
         <div className="">
           <p className="error text-center" style={{ textAlign: "center" }}>

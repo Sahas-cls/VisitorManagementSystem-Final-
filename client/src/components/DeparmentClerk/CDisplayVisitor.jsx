@@ -543,7 +543,7 @@ const CDisplayVisitor = () => {
                     <select
                       name="Requested_Department"
                       onChange={handleEntryPermitReq}
-                      className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+                      className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
                     >
                       <option value="">Select a Department:</option>
                       {Array.isArray(departmentList) &&
@@ -576,7 +576,7 @@ const CDisplayVisitor = () => {
                       name="Date_From"
                       onChange={handleEntryPermitReq}
                       defaultValue={reqDate}
-                      className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+                      className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
                     />
                     {errors.Date_From && (
                       <p className="mt-1 text-sm text-red-600 bg-red-100 p-1 rounded">
@@ -596,7 +596,7 @@ const CDisplayVisitor = () => {
                       name="Requested_Officer"
                       onChange={handleEntryPermitReq}
                       defaultValue={Visits.Requested_Officer}
-                      className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+                      className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
                     />
                     {errors.Requested_Officer && (
                       <p className="mt-1 text-sm text-red-600 bg-red-100 p-1 rounded">
@@ -615,7 +615,7 @@ const CDisplayVisitor = () => {
                     <select
                       name="Visitor_Category"
                       onChange={handleEntryPermitReq}
-                      className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+                      className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
                     >
                       <option selected={Visits.Visitor_Category === ""} value="">
                         Select a Category

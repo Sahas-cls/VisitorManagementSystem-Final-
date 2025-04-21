@@ -331,7 +331,7 @@ const Register = () => {
   // to get list of department id and names
 
   return (
-    <div className="main-registerDiv">
+    <div className="w-screen h-screen flex justify-center lg:py-3 overflow-x-hidden">
       {isLoading && (
         <div className="text-center w-full h-full">
           <div className="loader-overlay w-full h-full">
@@ -341,14 +341,14 @@ const Register = () => {
         </div>
       )}
       <div className="login-registration">
-        <div className="left-div" style={{ width: "35%" }}>
+        <div className="left-div w-2/6" style={{ width: "35%" }}>
           {/* <h1 className="text-3xl font-bold" style={{ marginTop: "-20px" }}>Register a user</h1> */}
         </div>
         <div className="right-div">
           <form onSubmit={handleSubmit}>
             <div className="registration" id="registration">
               <div className="text-center flex justify-center">
-                <FaRegUserCircle className="text-[70px] text-center rgIcon" />
+                <FaRegUserCircle className="text-[70px] text-center text-8xl" />
               </div>
               <h1 className="text-2xl text-center mb-4 font-bold rHeading">
                 Create New Member
@@ -584,7 +584,7 @@ const Register = () => {
 
                 <button
                   type="button"
-                  className="rButton2 mt-4"
+                  className="rButton2 mt-4 "
                   onClick={() =>
                     (window.location.href = "http://localhost:5173/")
                   }

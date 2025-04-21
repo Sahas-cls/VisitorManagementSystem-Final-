@@ -231,7 +231,7 @@ const AManageUsers = () => {
           </div>
         </div>
       )}
-      <h1 className="text-md mt-2 mb-2 font-extrabold">Users List</h1>
+      <h1 className="text-md mt-2 mb-2 font-extrabold text-blue-950">Users List</h1>
       <div className="w-full">
         <div className="flex justify-end w-full">
           <div className="">

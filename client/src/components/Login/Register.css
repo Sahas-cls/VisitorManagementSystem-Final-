@@ -121,7 +121,7 @@ td .errors {
 }
 
 .rButton1 {
-  background-color: green;
+  background-color: rgb(0, 128, 0);
   width: 90%;
   padding: 7px 0;
   color: white;

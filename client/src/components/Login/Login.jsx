@@ -211,16 +211,16 @@ const Login = () => {
   };
 
   return (
-    <div className="w-screen min-h-screen bg-gray-300 flex justify-center ">
+    <div className="w-screen min-h-screen flex justify-center ">
       <div className="w-full h-container flex justify-center md:shadow-custom md:w-3/4 md:my-3 lg:w-3/6 lg:my-3 lg:p-0">
-        <div className="left-div hidden sm:block sm:w-1/4 sm:min-h-full bg-no-repeat bg-cover bg-center">
+        <div className="left-div hidden sm:block sm:w-2/6 sm:min-h-full bg-no-repeat bg-cover bg-center">
           {/* <h1>Welcome</h1>
       <h2>to <br /> Visitor Management System</h2> */}
           {/* <img src={sidebarImg} alt=""/> */}
         </div>
 
-        <div className="right-div w-full flex flex-col items-center sm:w-3/4 lg:w-3/4">
-          <FaRegUserCircle className="text-6xl mt-3" />
+        <div className="right-div w-full flex flex-col items-center sm:w-3/4 lg:w-3/4 bg-[#dad8d7]">
+          <FaRegUserCircle className="text-8xl mt-3" />
           <h1 className="text-center mb-2">Member Login</h1>
           {Serrors != "" ?
             <div className="text-red-600 text-center">
@@ -287,13 +287,13 @@ const Login = () => {
             </div>
 
             <div className="w-full flex flex-col items-center mt-3">
-              <button className="text-center w-3/4 bg-green-600 hover:bg-green-500 text-white font-bold p-1 rounded-md mb-4" type="submit">
+              <button className="text-center w-3/4 bg-[rgb(0,128,0)] hover:bg-[rgb(5,114,5)] text-white font-bold p-1 py-2 rounded-md mb-4" type="submit">
                 Login
               </button>
               <br />
               <button
                 type="button"
-                className="text-center w-3/4 bg-blue-600 hover:bg-blue-500 text-white font-bold p-1 rounded-md mt-[-10px]"
+                className="text-center w-3/4 bg-blue-600 hover:bg-blue-500 text-white font-bold p-1 py-2 rounded-md mt-[-20px]"
                 onClick={() =>
                   (window.location.href = "http://localhost:5173/register")
                 }

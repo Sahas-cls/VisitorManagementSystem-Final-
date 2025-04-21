@@ -284,6 +284,7 @@ visiterRoutes.post(
     body("departmentDetails.factory")
       .isNumeric()
       .withMessage("Please select a factory.")
+      .bail()
       .notEmpty()
       .withMessage("Please select a factory."),
 
@@ -310,12 +311,25 @@ visiterRoutes.post(
       .optional({ checkFalsy: true })
       .matches(/^\d{9}[vV]$|^\d{12}$/)
       .withMessage("Invalid visitor NIC number format."),
+
+    // body("visitorDetails.*.Visitor_NIC")
+    //   // .optional({ checkFalsy: true })
+    //   .custom((value) => {
+    //     const valid = /^\d{9}[vV]$|^\d{12}$/.test(value);
+    //     if (!valid) {
+    //       throw new Error(
+    //         `Invalid NIC: "${value}". Must be 9 digits + v/V or 12 digits.`
+    //       );
+    //     }
+    //     return true;
+    //   }),
   ],
 
   async (req, res) => {
     console.log(req.body);
     // Handle validation errors
     const errors = validationResult(req);
+
     if (!errors.isEmpty()) {
       console.log(errors);
       return res.status(400).json({ errors: errors.array() }); // Return the error response
@@ -2209,8 +2223,15 @@ visiterRoutes.post(
 
     body("visitorDetails.*.Visitor_NIC")
       .optional({ checkFalsy: true })
-      .matches(/^\d{9}[vV]$|^\d{12}$/)
-      .withMessage("Invalid visitor NIC number format."),
+      .custom((value) => {
+        const valid = /^\d{9}[vV]$|^\d{12}$/.test(value);
+        if (!valid) {
+          throw new Error(
+            `Invalid NIC: "${value}". Must be 9 digits + v/V or 12 digits.`
+          );
+        }
+        return true;
+      }),
   ],
 
   async (req, res) => {

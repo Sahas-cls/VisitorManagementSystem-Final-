@@ -360,7 +360,7 @@ const EditUser = () => {
   };
 
   return (
-    <div className="main-registerDiv">
+    <div className="w-full flex justify-center items-center h-screen">
       {isLoading && (
         <div className="text-center w-full h-full">
           <div className="loader-overlay w-full h-full">

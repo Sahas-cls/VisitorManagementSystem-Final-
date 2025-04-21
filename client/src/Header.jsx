@@ -95,7 +95,7 @@ const Header = ({
   };
 
   return (
-    <header className=" bg-gradient-to-r from-blue-700 to-blue-900 min-h-20 flex justify-between px-9 border-b-2 border-b-white">
+    <header className=" bg-gradient-to-r from-[#3b82f6] to-blue-900 min-h-20 flex justify-between px-9 border-b-2 border-b-white">
       <div className="flex items-center ml-9">
         <GiHamburgerMenu
           className={`text-3xl text-white header-icons duration-300 ${toggleSidebar ? "rotate-180" : ""}`}
