@@ -15,14 +15,18 @@ const Header = ({
   userDepartment,
   toggleSidebar,
   setToggleSidebar,
+  displayHamb,
 }) => {
   const [csrfToken, setCsrfToken] = useState("");
   const [userVisible, setUserVisible] = useState(false);
   // console.log(toggleSidebar);
   let screenSize = UseWindowWidth();
   const vmsLogo = "../assets/vmsLogo.png";
+  const [displayHamMenu, setdisplayHamMenu] = useState(
+    displayHamb !== undefined ? displayHamb : true
+  );
   // alert(screenSize);
-
+  // alert(displayHamb);
   const navigate = useNavigate(); // Initialize navigate hook
 
   useEffect(() => {
@@ -93,14 +97,24 @@ const Header = ({
       );
     }
   };
-
+  // alert(displayHamMenu);
   return (
     <header className=" bg-gradient-to-r from-[#3b82f6] to-blue-900 min-h-20 flex justify-between px-9 border-b-2 border-b-white">
-      <div className="flex items-center ml-9">
-        <GiHamburgerMenu
-          className={`text-3xl text-white header-icons duration-300 ${toggleSidebar ? "rotate-180" : ""}`}
-          onClick={() => setToggleSidebar(!toggleSidebar)}
-        />
+      <div
+        className={`flex items-center ml-9 ${
+          displayHamMenu === false ? "hidden" : ""
+        }`}
+      >
+        {displayHamMenu === false ? (
+          ""
+        ) : (
+          <GiHamburgerMenu
+            className={`text-3xl text-white header-icons duration-300 ${
+              toggleSidebar ? "rotate-180" : ""
+            }`}
+            onClick={() => setToggleSidebar(!toggleSidebar)}
+          />
+        )}
       </div>
 
       {/* <div className="vmsLogo-div">&nbsp;</div> */}
@@ -125,8 +139,9 @@ const Header = ({
           />
         </div>
         <div
-          className={`userDropdown ${userVisible === true ? "visible" : "noneVisible"
-            }`}
+          className={`userDropdown ${
+            userVisible === true ? "visible" : "noneVisible"
+          }`}
         >
           <ul>
             {/* <li>{userName}</li> */}

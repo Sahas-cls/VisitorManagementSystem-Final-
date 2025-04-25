@@ -7,6 +7,7 @@ const { where } = require("sequelize");
 
 // *to departments according to factory code
 departmentRoutes.get("/getDep/:factoryId", async (req, res) => {
+  console.log("providing factories =========================== ");
   console.log("route was called");
   console.log("fac id: " + req.params.factoryId);
   let factoryId = req.params.factoryId;
@@ -23,10 +24,11 @@ departmentRoutes.get("/getDep/:factoryId", async (req, res) => {
   }
 });
 
-
 // *to get all factories
 departmentRoutes.get("/getAll-Factories", async (req, res) => {
-  console.log("===========================================");
+  console.log(
+    "=========================================== getting factories route called"
+  );
   try {
     const factories = await Factory.findAll();
     if (factories) {
@@ -40,8 +42,6 @@ departmentRoutes.get("/getAll-Factories", async (req, res) => {
     res.status(500).json({ error: error.message }); // Respond with error details
   }
 });
-
-
 
 //to get user categories from db
 

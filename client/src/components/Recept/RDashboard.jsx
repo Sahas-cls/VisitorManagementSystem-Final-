@@ -36,7 +36,7 @@ const RDashboard = () => {
     e.preventDefault();
 
     if (formData.dateFrom !== "" && formData.dateTo !== "") {
-      alert("Sending request to generate Excel file");
+      // alert("Sending request to generate Excel file");
 
       try {
         // Step 1: Make the request to generate the Excel file
@@ -114,7 +114,7 @@ const RDashboard = () => {
   };
 
   return (
-    <div className="w-full min-h-full">
+    <div className="w-full min-h-full flex justify-center">
       <div className="flex px-2 w-full h-100vh justify-center items-center md:h-2/4"  style={{backgroundColor:"white"}}>
         {isLoading && (
           <div className="text-center w-full h-full">

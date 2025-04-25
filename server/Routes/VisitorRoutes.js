@@ -953,6 +953,7 @@ visiterRoutes.get("/getVisitors-hr", async (req, res) => {
         where: {
           [Op.and]: [
             { Factory_Id: facId },
+            { HR_Approval: false },
             { Date_From: { [Op.gte]: Sequelize.fn("CURDATE") } }, // Filter for today
           ],
         },
@@ -1074,7 +1075,15 @@ visiterRoutes.post(
     const updateVisit = {
       HR_Approval: true,
       H_Approved_By: userId,
-      Last_Modified_By: userId,
+      Requested_Officer: Requested_Officer,
+      Purpose: Purpose,
+      Visitor_Category: Visitor_Category,
+      Breakfast: Breakfast,
+      Lunch: Lunch,
+      Tea: Tea,
+      Remark: Remark,
+
+      // Last_Modified_By: userId,
     };
 
     try {
@@ -1172,7 +1181,7 @@ visiterRoutes.get("/getVisitors-reception", async (req, res) => {
         as: "Visits", // Ensure this alias matches your model association
         where: {
           [Op.and]: [{ Factory_Id: facId }],
-          D_Head_Approval: true,
+          // D_Head_Approval: true,
           HR_Approval: true,
           Date_From: {
             [Op.gte]: Sequelize.fn("CURDATE"), // Filter for today
@@ -1550,7 +1559,6 @@ visiterRoutes.get(
             as: "Visits",
             where: {
               HR_Approval: true,
-              D_Head_Approval: true,
               [Op.and]: [
                 { Reference_No: { [Op.ne]: null } },
                 { Reference_No: { [Op.ne]: "" } },
@@ -1874,12 +1882,11 @@ visiterRoutes.get("/approvedVisitors-Hr", async (req, res) => {
         as: "Visits", // Ensure this alias matches your model association
         where: {
           [Op.and]: [{ Factory_Id: userFactoryId }],
-          D_Head_Approval: true,
           HR_Approval: true,
           H_Approved_By: userId,
-          updatedAt: {
-            [Op.between]: [oneWeekAgo, Sequelize.fn("CURDATE")], // Filter for records from the last week
-          },
+          // updatedAt: {
+          //   [Op.between]: [oneWeekAgo, Sequelize.fn("CURDATE")], // Filter for records from the last week
+          // },
         },
         required: true, // Ensures an INNER JOIN
       },
@@ -1931,10 +1938,10 @@ visiterRoutes.post(
       const visitors = await Visits.findAll({
         where: {
           Date_From: { [Op.between]: [dateFrom, dateTo] },
-          [Op.or]: [
-            { Reference_No: { [Op.ne]: "" } },
-            { Reference_No: { [Op.ne]: null } },
-          ],
+          Checkin_Time: { [Op.ne]: null },
+          // [Op.or]: [
+          //   { Reference_No: { [Op.ne]: null } },
+          // ],
         },
         include: [
           {

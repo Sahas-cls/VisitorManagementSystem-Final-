@@ -116,8 +116,8 @@
 
 /* styling user drop down - header component */
 .userDropdown {
-  top: 85px;
-  right: 5px;
+  top: 70px;
+  right: 20px;
   position: absolute;
   background-color: white;
   padding: 20px 35px;

@@ -76,10 +76,10 @@ userRoutes.post(
       .withMessage("Invalid mobile number"),
   ],
   async (req, res) => {
-    console.log(req.body);
+    // console.log(req.body);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log("errors found");
+      console.log("errors found", errors);
       return res.status(400).json({ errors: errors.array() });
     } else {
       console.log("no errors found");
@@ -142,7 +142,7 @@ userRoutes.post(
           msg: "The email or password you entered is incorrect. Please try again",
         });
       }
-      console.log(user)
+      // console.log(user)
       const isUser = await bcrypt.compare(password, user.user_password);
       if (isUser) {
         const token = jwt.sign(

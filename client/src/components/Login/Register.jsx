@@ -69,7 +69,7 @@ const Register = () => {
             `http://localhost:3000/department/getDep/${factoryId}`
           );
           if (response) {
-            console.log(response);
+            // console.log(response);
             setDepartments(response.data);
           }
         } catch (error) {
@@ -521,7 +521,10 @@ const Register = () => {
                       {Array.isArray(userCategories) &&
                         userCategories.map((userCategory) => {
                           return (
-                            <option value={userCategory.Category}>
+                            <option
+                              key={userCategory.Category_Id}
+                              value={userCategory.Category}
+                            >
                               {userCategory.Category}
                             </option>
                           );
@@ -563,10 +566,11 @@ const Register = () => {
                 <br />
               </p>
               <p
-                className={`text-center text-red-600 font-bold ${sErrors?.type === "error" || sErrors?.type === "serror"
+                className={`text-center text-red-600 font-bold ${
+                  sErrors?.type === "error" || sErrors?.type === "serror"
                     ? "error"
                     : "success"
-                  }`}
+                }`}
               >
                 {sErrors?.type === "serror" && sErrors.message}
                 {sErrors?.type === "error" && sErrors.message}

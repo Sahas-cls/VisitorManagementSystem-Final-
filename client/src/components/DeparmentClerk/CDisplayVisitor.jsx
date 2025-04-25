@@ -489,11 +489,12 @@ const CDisplayVisitor = () => {
           userName={userName}
           userCategory={userCategory}
           userDepartment={userDepartment}
+          displayHamb={false}
         />
 
         <div className="mx-auto px-4 py-6">
           {/* Header Section */}
-          <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+          <div className="flex flex-col md:flex-row  items-center mb-6 w-full md:gap-36">
             <div className="flex items-center mb-4 md:mb-0">
               <FaPersonCircleExclamation className="text-sky-600 text-4xl md:text-5xl lg:text-6xl mr-3" />
               <h1 className="text-2xl md:text-3xl font-bold text-sky-600">
@@ -505,7 +506,7 @@ const CDisplayVisitor = () => {
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
+                className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-md transition-colors"
               >
                 Back
               </button>
@@ -539,7 +540,7 @@ const CDisplayVisitor = () => {
                   <label className="text-sm sm:w-1/3">
                     Request Dep: <span className="text-red-600">*</span>
                   </label>
-                  <div className="md:col-span-3">
+                  <div className="md:col-span-3 w-full md:w-2/4">
                     <select
                       name="Requested_Department"
                       onChange={handleEntryPermitReq}
@@ -551,7 +552,9 @@ const CDisplayVisitor = () => {
                           <option
                             key={department.Department_Id}
                             value={department.Department_Id}
-                            selected={Visits.Department_Id === department.Department_Id}
+                            selected={
+                              Visits.Department_Id === department.Department_Id
+                            }
                           >
                             {department.Department_Name}
                           </option>
@@ -570,7 +573,7 @@ const CDisplayVisitor = () => {
                   <label className="text-sm sm:w-1/3">
                     Requested Date: <span className="text-red-600">*</span>
                   </label>
-                  <div className="md:col-span-3">
+                  <div className="md:col-span-3 w-full md:w-2/4">
                     <input
                       type="date"
                       name="Date_From"
@@ -591,7 +594,7 @@ const CDisplayVisitor = () => {
                   <label className="text-sm sm:w-1/3">
                     Requested Officer: <span className="text-red-600">*</span>
                   </label>
-                  <div className="md:col-span-3">
+                  <div className="md:col-span-3 w-full md:w-2/4">
                     <input
                       name="Requested_Officer"
                       onChange={handleEntryPermitReq}
@@ -611,13 +614,16 @@ const CDisplayVisitor = () => {
                   <label className="text-sm sm:w-1/3">
                     Visitor Category: <span className="text-red-600">*</span>
                   </label>
-                  <div className="md:col-span-3">
+                  <div className="md:col-span-3 w-full md:w-2/4">
                     <select
                       name="Visitor_Category"
                       onChange={handleEntryPermitReq}
                       className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
                     >
-                      <option selected={Visits.Visitor_Category === ""} value="">
+                      <option
+                        selected={Visits.Visitor_Category === ""}
+                        value=""
+                      >
                         Select a Category
                       </option>
                       <option
@@ -660,15 +666,25 @@ const CDisplayVisitor = () => {
                     onChange={handleEntryPermit}
                     className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
                   >
-                    <option value="" selected={Visits.Purpose === "" || Visits.Purpose === null}>
+                    <option
+                      value=""
+                      selected={
+                        Visits.Purpose === "" || Visits.Purpose === null
+                      }
+                    >
                       Select a Purpose
                     </option>
-                    <option value="HR Services" selected={Visits.Purpose === "HR Services"}>
+                    <option
+                      value="HR Services"
+                      selected={Visits.Purpose === "HR Services"}
+                    >
                       HR Services
                     </option>
                   </select>
                 </div>
-                {errors.Purpose && <p className="error text-sm">{errors.Purpose}</p>}
+                {errors.Purpose && (
+                  <p className="error text-sm">{errors.Purpose}</p>
+                )}
 
                 {/* Date Range */}
                 <div className="flex flex-col sm:flex-row gap-2">
@@ -698,8 +714,12 @@ const CDisplayVisitor = () => {
                     </div>
                   </div>
                 </div>
-                {errors.DateFrm && <p className="error text-sm">{errors.DateFrm}</p>}
-                {errors.Date_To && <p className="error text-sm">{errors.Date_To}</p>}
+                {errors.DateFrm && (
+                  <p className="error text-sm">{errors.DateFrm}</p>
+                )}
+                {errors.Date_To && (
+                  <p className="error text-sm">{errors.Date_To}</p>
+                )}
 
                 {/* Time Range */}
                 <div className="flex flex-col sm:flex-row gap-2">
@@ -729,11 +749,14 @@ const CDisplayVisitor = () => {
                     </div>
                   </div>
                 </div>
-                {errors.Time_From && <p className="error text-sm">{errors.Time_From}</p>}
-                {errors.Time_To && <p className="error text-sm">{errors.Time_To}</p>}
+                {errors.Time_From && (
+                  <p className="error text-sm">{errors.Time_From}</p>
+                )}
+                {errors.Time_To && (
+                  <p className="error text-sm">{errors.Time_To}</p>
+                )}
               </div>
             </div>
-
           </div>
 
           {/* Bottom Section - Two Column Layout */}
@@ -753,8 +776,8 @@ const CDisplayVisitor = () => {
                     {Array.isArray(visitorGroup) &&
                       visitorGroup.map((visitor) => (
                         <tr key={visitor.Visitor_Id}>
-                          <td className="text-sm">{visitor.Visitor_Name}</td>
-                          <td className="text-sm">{visitor.Visitor_NIC}</td>
+                          <td className="text-sm border pl-2 border-black">{visitor.Visitor_Name}</td>
+                          <td className="text-sm border pl-2 border-black">{visitor.Visitor_NIC}</td>
                         </tr>
                       ))}
                   </tbody>
@@ -762,8 +785,10 @@ const CDisplayVisitor = () => {
               </div>
 
               <div className="mt-3">
-                <h3 className="font-bold text-lg text-blue-950 mb-2 text-center">Meal Plan</h3>
-                <div className="flex justify-center gap-4 mb-2">
+                <h3 className="font-bold text-lg text-blue-950 mb-2 text-left">
+                  Meal Plan
+                </h3>
+                <div className="flex justify-start gap-4 mb-2">
                   <div className="flex items-center">
                     <input
                       type="checkbox"
@@ -833,8 +858,8 @@ const CDisplayVisitor = () => {
                     {Array.isArray(Vehicles) &&
                       Vehicles.map((vehicle) => (
                         <tr key={vehicle.Vehicle_Id}>
-                          <td className="text-sm">{vehicle.Vehicle_Type}</td>
-                          <td className="text-sm">{vehicle.Vehicle_No}</td>
+                          <td className="text-sm border pl-2 border-black">{vehicle.Vehicle_Type}</td>
+                          <td className="text-sm border pl-2 border-black">{vehicle.Vehicle_No}</td>
                         </tr>
                       ))}
                   </tbody>
@@ -843,14 +868,16 @@ const CDisplayVisitor = () => {
             </div>
           </div>
 
-
           {/* Status Messages */}
           <div className="mt-6">
             {successOrError.msg && (
-              <div className={`p-4 rounded-lg text-center font-bold ${successOrError.type === "error"
-                ? "bg-red-100 text-red-700"
-                : "bg-green-100 text-green-700"
-                }`}>
+              <div
+                className={`p-4 rounded-lg text-center font-bold ${
+                  successOrError.type === "error"
+                    ? "bg-red-100 text-red-700"
+                    : "bg-green-100 text-green-700"
+                }`}
+              >
                 {successOrError.msg}
               </div>
             )}

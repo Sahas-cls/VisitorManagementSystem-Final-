@@ -21,7 +21,7 @@ const RSidebar = ({ handleSidebarClick }) => {
 
       <button
         type="button"
-        className={`w-full min-h-14 hover:bg-[#5151A5] hover:text-gray-200  border-b-2 border-gray-400 text-gray-300 font-bold ${isActive == "New Visitors" ? "active-sidebar" : ""
+        className={`w-full min-h-14 hover:bg-[#5151A5] hover:text-gray-200 border-gray-400 text-gray-300 font-bold ${isActive == "New Visitors" ? "active-sidebar" : ""
           } lg:min-h-16`}
         onClick={() => {handleSidebarClick("visitor"); handleIsActive("New Visitors")}}
       >

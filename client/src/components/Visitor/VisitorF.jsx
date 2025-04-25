@@ -316,29 +316,58 @@ const VisitorF = () => {
   const removeVisitor = (e, index) => {
     // alert(index);
     e.preventDefault();
-    if (index <= 0) {
+    const updatedVisitors = visitors.filter((_, i) => i !== index);
+
+    if (updatedVisitors.length === 0) {
       return;
     }
-    const updatedVisitors = visitors.filter((_, i) => i !== index);
     setVisitors(updatedVisitors);
   };
 
+  // const removeVehicle = (e, index) => {
+  //   e.preventDefault();
+  //   // if (index <= 0) {
+  //   //   return;
+  //   // }
+  //   // console.log("Removing vehicle at index:", index); // Debugging line
+
+  //   // Create a new array of vehicles excluding the vehicle at the given index
+  //   const updatedVehicles = vehicles.filter((_, i) => i !== index);
+
+  //   // console.log("Updated vehicles:", updatedVehicles); // Debugging line
+  //   // console.log(updatedVehicles);
+  //   // Update the state with the new list of vehicles
+  //   setVehicles(updatedVehicles);
+
+  //   // Optional: Remove the vehicle's error from the errors state (if needed)
+
+  //   const updatedErrors = { ...vehicleErrors };
+  //   // alert(updatedVehicles.length);
+  //   alert(updatedVehicles.length)
+  //   if (updatedVehicles.length === 0) {
+  //     alert("from inside of if condition")
+  //     return;
+  //   }
+
+  //   delete updatedErrors[index];
+  //   setVehicleErrors(updatedErrors);
+  // };
+
   const removeVehicle = (e, index) => {
     e.preventDefault();
-    // if (index <= 0) {
-    //   return;
-    // }
-    // console.log("Removing vehicle at index:", index); // Debugging line
 
-    // Create a new array of vehicles excluding the vehicle at the given index
+    // Filter out the selected vehicle
     const updatedVehicles = vehicles.filter((_, i) => i !== index);
 
-    // console.log("Updated vehicles:", updatedVehicles); // Debugging line
-    // console.log(updatedVehicles);
-    // Update the state with the new list of vehicles
+    // alert(updatedVehicles.length); // For debugging
+    if (updatedVehicles.length === 0) {
+      // alert("from inside of if condition");
+      return;
+    }
+
     setVehicles(updatedVehicles);
 
-    // Optional: Remove the vehicle's error from the errors state (if needed)
+    // Optionally remove associated error
     const updatedErrors = { ...vehicleErrors };
     delete updatedErrors[index];
     setVehicleErrors(updatedErrors);
@@ -381,6 +410,8 @@ const VisitorF = () => {
 
     if (!visitorNIC) {
       visitorError.visitorNIC = "Visitor NIC required*";
+    } else if (!/^[0-9]{9}[vV]{1}$|^[0-9]{12}$/.test(visitorNIC)) {
+      visitorError.visitorNIC = "Invalid NIC format";
     } else {
       delete visitorError.visitorNIC;
     }
@@ -824,6 +855,17 @@ const VisitorF = () => {
                             name="fTimeFrom"
                             onChange={handleDate}
                           />
+                          <br />
+                          {Array.isArray(serverSideErrors) &&
+                        serverSideErrors
+                          .filter(
+                            (err) => err.path === "dateTimeDetails.fTimeFrom"
+                          )
+                          .map((err, index) => (
+                            <p className="error text-left" key={index}>
+                              {err.msg}
+                            </p>
+                          ))}
                         </span>
                         <span className="ml-6 mr-6">To</span>
 
@@ -833,6 +875,17 @@ const VisitorF = () => {
                             name="fTimeTo"
                             onChange={handleDate}
                           />
+                          {Array.isArray(serverSideErrors) &&
+                        serverSideErrors
+                          .filter(
+                            (err) => err.path === "dateTimeDetails.fTimeTo"
+                          )
+                          .map((err, index) => (
+                            <p className="error text-left" key={index}>
+                              {err.msg}
+                            </p>
+                          ))}
+                          <br />
                         </span>
                       </div>
                     </td>

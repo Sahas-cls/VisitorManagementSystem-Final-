@@ -14,6 +14,7 @@ const RMain = ({
   userDepartmentId,
   userFactoryId,
 }) => {
+  // alert(userId);
   const [view, setView] = useState("visitor");
   // alert(view);
 
@@ -64,6 +65,7 @@ const RMain = ({
         )}
         {view === "suddenVisit" && (
           <SuddenVisit
+            userId={userId}
             userFactoryId={userFactoryId}
             userName={userName}
             userCategory={userCategory}
@@ -81,7 +83,6 @@ const RMain = ({
             toggleSidebar={toggleSidebar}
           />
         )}
-        {/* Add other views as needed */}
       </div>
     </div>
   );

@@ -10,7 +10,8 @@
 }
 
 .active-sidebar {
-  @apply bg-[#3b82f6] text-white;
+  /* @apply bg-[#3b82f6] text-white; */
+  @apply bg-[#1e3a8b] text-white;
 }
 
 .hover-sidebar {

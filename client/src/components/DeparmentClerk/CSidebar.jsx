@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { FaPersonCircleExclamation } from "react-icons/fa6";
 import { FaPersonCircleCheck } from "react-icons/fa6";
 import vmsLogo from "../../assets/vmsLogo2.png";
+import { TbReportSearch } from "react-icons/tb";
 
 const CSidebar = ({ onSidebarClick }) => {
   const [isActive, setisActive] = useState("New Visitors");
@@ -17,8 +18,9 @@ const CSidebar = ({ onSidebarClick }) => {
       </div>
 
       <button
-        className={`w-full min-h-14 hover:bg-[#5151A5] hover:text-gray-200  border-b-2 border-gray-400 text-gray-300 font-bold ${isActive == "New Visitors" ? "active-sidebar" : ""
-          } lg:min-h-16`}
+        className={`w-full min-h-14 hover:bg-[#5151A5] hover:text-gray-200   border-gray-400 text-gray-300 font-bold ${
+          isActive == "New Visitors" ? "active-sidebar" : ""
+        } lg:min-h-16`}
         onClick={() => {
           handleIsActive("New Visitors");
           onSidebarClick("visitor");
@@ -31,8 +33,9 @@ const CSidebar = ({ onSidebarClick }) => {
       </button>
 
       <button
-        className={`w-full min-h-14 hover:bg-[#5151A5] hover:text-gray-200  text-gray-300 font-bold hover:hover-sidebar ${isActive == "Approved Visitors" ? "active-sidebar" : ""
-          }`}
+        className={`w-full min-h-14 hover:bg-[#5151A5] hover:text-gray-200  text-gray-300 font-bold hover:hover-sidebar ${
+          isActive == "Approved Visitors" ? "active-sidebar" : ""
+        }`}
         onClick={() => {
           handleIsActive("Approved Visitors");
           onSidebarClick("ApprovedVisitors");
@@ -41,6 +44,24 @@ const CSidebar = ({ onSidebarClick }) => {
         <div className="flex flex-row pl-2">
           <FaPersonCircleCheck className="text-2xl" />
           <span className="ml-2">Allowed Visitors</span>
+        </div>
+      </button>
+
+      <button
+        type="button"
+        className={`w-full min-h-14 hover:bg-[#5151A5] hover:text-gray-200  text-gray-300 font-bold hover:hover-sidebar ${
+          isActive == "Generate Reports" ? "active-sidebar" : ""
+        }`}
+        onClick={() => {
+          onSidebarClick("getReports");
+          handleIsActive("Generate Reports");
+        }}
+      >
+        <div className="flex flex-row pl-2">
+          <span>
+            <TbReportSearch className="text-2xl mr-2" />
+          </span>
+          Generate Reports
         </div>
       </button>
 

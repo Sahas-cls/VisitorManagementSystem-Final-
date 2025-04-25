@@ -176,99 +176,154 @@ const SConteiner = ({
   };
 
   return (
-    <div className="cContainer">
+    <div
+      className="bg-white w-screen px-2"
+      style={{ backgroundColor: "white" }}
+    >
       <form action="" onSubmit={() => alert("submitting")} className="w-full">
         <h1 className="cTitle">Incoming Visitors List.</h1>
 
-        <table className="tblVisitor">
-          <thead className="bg-gray-300">
-            <tr>
-              <th className="pt-3 pb-3">Name</th>
-              <th>NIC/PPNo</th>
-              <th>Vehicle Type</th>
-              <th>Vehicle No</th>
-              <th>Visiting Date</th>
-              <th>Reference</th>
-              <th>Check In/Out</th>
-            </tr>
-          </thead>
+        <div className="w-full overflow-x-auto">
+          <table className="tblVisitor">
+            <thead className="bg-blue-400">
+              <tr>
+                <th className="pt-3 pb-3 border-0 text-white border-b-4 border-white">
+                  Name
+                </th>
+                <th className="border-0 text-white border-b-4 border-white">
+                  NIC/PPNo
+                </th>
+                <th className="border-0 text-white border-b-4 border-white">
+                  Vehicle Type
+                </th>
+                <th className="border-0 text-white border-b-4 border-white">
+                  Vehicle No
+                </th>
+                <th className="border-0 text-white border-b-4 border-white">
+                  Visiting Date
+                </th>
+                <th className="border-0 text-white border-b-4 border-white">
+                  Reference
+                </th>
+                <th className="border-0 text-white border-b-4 border-white">
+                  Check In/Out
+                </th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {visitorList &&
-              visitorList.map((visitor) => {
-                const vehicleNumbers = visitor.Vehicles.map(
-                  (vehicle) => vehicle.Vehicle_No
-                ).join("/n");
+            <tbody>
+              {visitorList &&
+                visitorList.map((visitor) => {
+                  const vehicleNumbers = visitor.Vehicles.map(
+                    (vehicle) => vehicle.Vehicle_No
+                  ).join("/n");
 
-                const vehicleType = visitor.Vehicles.map(
-                  (vehicle) => vehicle.Vehicle_Type
-                ).join("/n");
+                  const vehicleType = visitor.Vehicles.map(
+                    (vehicle) => vehicle.Vehicle_Type
+                  ).join("/n");
 
-                const visitId = visitor.Visits[0]?.Visit_Id;
-                const isCheckedIn = checkedVisitors[visitId]?.checkedIn;
-                const isCheckedOut = checkedVisitors[visitId]?.checkedOut;
+                  const visitId = visitor.Visits[0]?.Visit_Id;
+                  const isCheckedIn = checkedVisitors[visitId]?.checkedIn;
+                  const isCheckedOut = checkedVisitors[visitId]?.checkedOut;
 
-                return (
-                  <tr key={visitor.ContactPerson_Id}>
-                    <td>{visitor.ContactPerson_Name}</td>
-                    <td>{visitor.ContactPerson_NIC}</td>
-                    <td>{vehicleType || "No vehicles"}</td>
-                    <td>{vehicleNumbers || "No vehicles"}</td>
-                    <td style={{ display: "" }}>
-                      <div className="flex h-full">
-                        <div className="w-1/2 text-center h-full border-r border-black">
-                          {new Date(
-                            visitor.Visits[0]?.Date_From
-                          ).toLocaleDateString()}{" "}
-                        </div>
-                        <div className="w-1/2 text-center h-full border-black">
-                          {visitor.Visits[0]?.Date_To &&
-                            new Date(
-                              visitor.Visits[0]?.Date_To
-                            ).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </td>
-                    <td>{visitor.Visits[0].Reference_No}</td>
-                    <td
-                      style={{
-                        borderRight: "1px solid black",
-                        borderLeft: "1px solid white",
-                        borderTop: "1px solid white",
-                      }}
-                      className="flex flex-col items-center gap-[-10px]"
+                  return (
+                    <tr
+                      className="odd:bg-blue-100 even:bg-blue-200 border-b border-white hover:border-black hover:border-2 hover:text-black"
+                      key={visitor.ContactPerson_Id}
                     >
-                      {isCheckedIn ? (
-                        <div className="py-1 px-1 w-30 rounded-lg text-center">
-                          {isCheckedIn}
+                      <td
+                        className="border border-white"
+                        style={{ border: "0", textAlign: "left" }}
+                      >
+                        {visitor.ContactPerson_Name}
+                      </td>
+                      <td
+                        className="border border-white"
+                        style={{ border: "0", borderLeft: "1px solid white" }}
+                      >
+                        {visitor.ContactPerson_NIC}
+                      </td>
+                      <td
+                        className="border border-white"
+                        style={{ border: "0", borderLeft: "1px solid white" }}
+                      >
+                        {vehicleType || "No vehicles"}
+                      </td>
+                      <td
+                        className="border border-white"
+                        style={{ border: "0", borderLeft: "1px solid white" }}
+                      >
+                        {vehicleNumbers || "No vehicles"}
+                      </td>
+                      <td
+                        className="border border-white"
+                        style={{
+                          display: "",
+                          border: "0",
+                          borderLeft: "1px solid white",
+                        }}
+                      >
+                        <div className="flex h-full">
+                          <div className="w-1/2 text-center h-full border-r border-black">
+                            {new Date(
+                              visitor.Visits[0]?.Date_From
+                            ).toLocaleDateString()}{" "}
+                          </div>
+                          <div className="w-1/2 text-center h-full border-black">
+                            {visitor.Visits[0]?.Date_To &&
+                              new Date(
+                                visitor.Visits[0]?.Date_To
+                              ).toLocaleDateString()}
+                          </div>
                         </div>
-                      ) : (
-                        <button
-                          className="py-1 px-1 w-20 bg-slate-400 mb-2 hover:bg-slate-500 rounded-lg hover:text-white"
-                          onClick={(e) => handleCheckIn(e, visitor.Visits[0])}
-                        >
-                          Check in
-                        </button>
-                      )}
-                      <br />
-                      {isCheckedOut ? (
-                        <div className="py-1 px-1 w-30 rounded-lg text-center">
-                          {isCheckedOut}
+                      </td>
+                      <td
+                        style={{ border: "0", borderLeft: "1px solid white" }}
+                      >
+                        {visitor.Visits[0].Reference_No}
+                      </td>
+                      <td
+                        style={{ border: "0", borderLeft: "1px solid white" }}
+                        className="flex flex-col items-center gap-[-10px]"
+                      >
+                        <div className=" flex w-full justify-around">
+                          {isCheckedIn ? (
+                            <div className="py-1 px-1 w-1/2 rounded-lg text-center">
+                              {isCheckedIn}
+                            </div>
+                          ) : (
+                            <button
+                              className="bg-blue-300 px-2 py-1 rounded-md hover:bg-blue-500 hover:text-white"
+                              onClick={(e) =>
+                                handleCheckIn(e, visitor.Visits[0])
+                              }
+                            >
+                              Check in
+                            </button>
+                          )}
+                          <br />
+                          {isCheckedOut ? (
+                            <div className="py-1 px-1 w-1/2 rounded-lg text-center">
+                              {isCheckedOut}
+                            </div>
+                          ) : (
+                            <button
+                              onClick={(e) =>
+                                handleCheckOut(e, visitor.Visits[0])
+                              }
+                              className="bg-blue-300 px-2 py-1 rounded-md hover:bg-blue-500 hover:text-white"
+                            >
+                              Check out
+                            </button>
+                          )}
                         </div>
-                      ) : (
-                        <button
-                          onClick={(e) => handleCheckOut(e, visitor.Visits[0])}
-                          className="py-1 px-1 w-20 mt-[-15px] bg-slate-400 hover:bg-slate-500 rounded-lg hover:text-white"
-                        >
-                          Check out
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-          </tbody>
-        </table>
+                      </td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
+        </div>
 
         {errorMessages && <p className="error text-red-600">{errorMessages}</p>}
       </form>

@@ -402,8 +402,8 @@ const DDisplayVisitor = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen">
-      <form onSubmit={handleSubmit} className="max-w-7xl mx-auto">
+    <div className="bg-gray-100 min-h-screen w-full">
+      <form onSubmit={handleSubmit} className="mx-auto w-full m-0">
         <Header
           userName={userName}
           userCategory={userCategory}
@@ -420,29 +420,36 @@ const DDisplayVisitor = () => {
           )}
 
           {/* Header Section */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row justify-center gap-20 items-start sm:items-center mb-2 w-full">
+            {/* <div className="flex items-center gap-3">
               <FaPersonCircleExclamation className="text-black text-3xl md:text-4xl" />
               <h1 className="text-sky-600 text-xl md:text-2xl font-semibold">
                 {Visitor.ContactPerson_Name}
               </h1>
-            </div>
-          </div>
+            </div> */}
 
-          <div className="flex gap-2 sm:w-auto w-2/4 mb-2 float-right pr-8">
-            <button
-              className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1.5 md:px-4 md:py-2 rounded-md font transition-colors w-full sm:w-auto md:text-sm"
-              type="button"
-              onClick={() => navigate(-1)}
-            >
-              Back
-            </button>
-            <button
-              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md font transition-colors w-full sm:w-auto"
-              type="submit"
-            >
-              Approve
-            </button>
+            <div className="flex items-center mb-4 md:mb-0">
+              <FaPersonCircleExclamation className="text-sky-600 text-4xl md:text-5xl lg:text-6xl mr-3" />
+              <h1 className="text-2xl md:text-3xl font-bold text-sky-600">
+                {Visitor.ContactPerson_Name}
+              </h1>
+            </div>
+
+            <div className="flex gap-2 sm:w-auto w-2/4 mb-2 float-right pr-8">
+              <button
+                className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1.5 md:px-4 md:py-2 rounded-md font transition-colors w-full sm:w-auto md:text-sm"
+                type="button"
+                onClick={() => navigate(-1)}
+              >
+                Back
+              </button>
+              <button
+                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md font transition-colors w-full sm:w-auto"
+                type="submit"
+              >
+                Approve
+              </button>
+            </div>
           </div>
 
           {/* Top Section - Two Columns */}
@@ -471,7 +478,9 @@ const DDisplayVisitor = () => {
                           <option
                             key={department.Department_Id}
                             value={department.Department_Id}
-                            selected={Visits.Department_Id === department.Department_Id}
+                            selected={
+                              Visits.Department_Id === department.Department_Id
+                            }
                           >
                             {department.Department_Name}
                           </option>
@@ -537,7 +546,10 @@ const DDisplayVisitor = () => {
                       onChange={handleEntryPermitReq}
                       className="w-full text-sm bg-white border rounded border-slate-400 p-1 flex-1"
                     >
-                      <option selected={Visits.Visitor_Category === ""} value="">
+                      <option
+                        selected={Visits.Visitor_Category === ""}
+                        value=""
+                      >
                         Select a Category
                       </option>
                       <option
@@ -563,10 +575,11 @@ const DDisplayVisitor = () => {
               </div>
             </div>
 
-
             {/* Right Column - Permit Details */}
             <div className="bg-blue-200 p-3 w-full rounded-lg shadow-custom1 h-auto min-h-[190px] lg:w-full">
-              <h1 className="font-bold text-lg text-blue-950 mb-2">Entry Permit Details</h1>
+              <h1 className="font-bold text-lg text-blue-950 mb-2">
+                Entry Permit Details
+              </h1>
 
               <div className="grid grid-cols-1 gap-2">
                 {/* Purpose */}
@@ -579,15 +592,25 @@ const DDisplayVisitor = () => {
                     onChange={handleEntryPermit}
                     className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
                   >
-                    <option value="" selected={Visits.Purpose === "" || Visits.Purpose === null}>
+                    <option
+                      value=""
+                      selected={
+                        Visits.Purpose === "" || Visits.Purpose === null
+                      }
+                    >
                       Select a Purpose
                     </option>
-                    <option value="HR Services" selected={Visits.Purpose === "HR Services"}>
+                    <option
+                      value="HR Services"
+                      selected={Visits.Purpose === "HR Services"}
+                    >
                       HR Services
                     </option>
                   </select>
                 </div>
-                {errors.Purpose && <p className="error text-sm">{errors.Purpose}</p>}
+                {errors.Purpose && (
+                  <p className="error text-sm">{errors.Purpose}</p>
+                )}
 
                 {/* Date Range */}
                 <div className="flex flex-col sm:flex-row gap-2">
@@ -617,8 +640,12 @@ const DDisplayVisitor = () => {
                     </div>
                   </div>
                 </div>
-                {errors.DateFrm && <p className="error text-sm">{errors.DateFrm}</p>}
-                {errors.Date_To && <p className="error text-sm">{errors.Date_To}</p>}
+                {errors.DateFrm && (
+                  <p className="error text-sm">{errors.DateFrm}</p>
+                )}
+                {errors.Date_To && (
+                  <p className="error text-sm">{errors.Date_To}</p>
+                )}
 
                 {/* Time Range */}
                 <div className="flex flex-col sm:flex-row gap-2">
@@ -648,11 +675,14 @@ const DDisplayVisitor = () => {
                     </div>
                   </div>
                 </div>
-                {errors.Time_From && <p className="error text-sm">{errors.Time_From}</p>}
-                {errors.Time_To && <p className="error text-sm">{errors.Time_To}</p>}
+                {errors.Time_From && (
+                  <p className="error text-sm">{errors.Time_From}</p>
+                )}
+                {errors.Time_To && (
+                  <p className="error text-sm">{errors.Time_To}</p>
+                )}
               </div>
             </div>
-
           </div>
 
           {/* Bottom Section - Two Columns */}
@@ -682,7 +712,9 @@ const DDisplayVisitor = () => {
               </div>
 
               <div className="mt-3">
-                <h3 className="font-bold text-lg text-blue-950 mb-2 text-center">Meal Plan</h3>
+                <h3 className="font-bold text-lg text-blue-950 mb-2 text-center">
+                  Meal Plan
+                </h3>
                 <div className="flex justify-center gap-4 mb-2">
                   <div className="flex items-center">
                     <input
@@ -693,7 +725,9 @@ const DDisplayVisitor = () => {
                       id="Breakfast"
                       className="mr-1"
                     />
-                    <label htmlFor="Breakfast" className="text-sm">Breakfast</label>
+                    <label htmlFor="Breakfast" className="text-sm">
+                      Breakfast
+                    </label>
                   </div>
                   <div className="flex items-center">
                     <input
@@ -704,7 +738,9 @@ const DDisplayVisitor = () => {
                       id="Lunch"
                       className="mr-1"
                     />
-                    <label htmlFor="Lunch" className="text-sm">Lunch</label>
+                    <label htmlFor="Lunch" className="text-sm">
+                      Lunch
+                    </label>
                   </div>
                   <div className="flex items-center">
                     <input
@@ -715,7 +751,9 @@ const DDisplayVisitor = () => {
                       id="Tea"
                       className="mr-1"
                     />
-                    <label htmlFor="Tea" className="text-sm">Tea</label>
+                    <label htmlFor="Tea" className="text-sm">
+                      Tea
+                    </label>
                   </div>
                 </div>
 
@@ -731,7 +769,6 @@ const DDisplayVisitor = () => {
                 </div>
               </div>
             </div>
-
 
             {/* Vehicle Details */}
             <div className="bg-blue-200 p-3 w-full rounded-lg shadow-custom1 lg:w-full min-h-[330px] mt-5 lg:mt-0">
@@ -757,16 +794,18 @@ const DDisplayVisitor = () => {
                 </table>
               </div>
             </div>
-
           </div>
 
           {/* Status Messages */}
           <div className="mt-6 space-y-2">
             {successOrError?.msg && (
-              <div className={`p-3 rounded-md text-center ${successOrError.type === "error"
-                ? "bg-red-100 text-red-700"
-                : "bg-green-100 text-green-700"
-                }`}>
+              <div
+                className={`p-3 rounded-md text-center ${
+                  successOrError.type === "error"
+                    ? "bg-red-100 text-red-700"
+                    : "bg-green-100 text-green-700"
+                }`}
+              >
                 <p className="font-medium">{successOrError.msg}</p>
               </div>
             )}
@@ -790,7 +829,6 @@ const DDisplayVisitor = () => {
       </form>
     </div>
   );
-
 };
 
 export default DDisplayVisitor;

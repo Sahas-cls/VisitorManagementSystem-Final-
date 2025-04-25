@@ -21,7 +21,7 @@ const HSidebar = ({ onSidebarClick }) => {
         <img src={vmsLogo} alt="vms Logo" width="170px" />
       </div>
 
-      <button className={`w-full min-h-14 hover:bg-[#5151A5] hover:text-gray-200  border-b-2 border-gray-400 text-gray-300 font-bold ${isActive == "New Visitors" ? "active-sidebar" : ""
+      <button className={`w-full min-h-14 hover:bg-[#5151A5] hover:text-gray-200 border-gray-400 text-gray-300 font-bold ${isActive == "New Visitors" ? "active-sidebar" : ""
         } lg:min-h-16`} onClick={() => {onSidebarClick("visitor"); handleIsActive("New Visitors")}} >
         <span className="flex gap-3"><HiUserGroup className="text-2xl ml-2" />&nbsp; Visitor</span>
       </button>

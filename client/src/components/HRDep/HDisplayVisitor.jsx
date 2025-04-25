@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../../Header";
+import swal from "sweetalert2";
 // import CSidebar from "./CSidebar";
 // import "./HDisplayVisitor.css";
 import axios from "axios";
@@ -34,6 +35,7 @@ const HDisplayVisitor = () => {
   const [departmentList, setDepartmentList] = useState({});
   const [csrfToken, setCsrfToken] = useState("");
   const [errorMessages, setErrorMessages] = useState();
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -194,17 +196,17 @@ const HDisplayVisitor = () => {
     getDepartments();
 
     // disabling all input fields
-    const inputBoxes = document.querySelectorAll(
-      ".cdInput, .select-input, .text-area"
-    );
-    inputBoxes.forEach((input) => {
-      input.readOnly = true;
-    });
+    // const inputBoxes = document.querySelectorAll(
+    //   ".cdInput, .select-input, .text-area"
+    // );
+    // inputBoxes.forEach((input) => {
+    //   input.readOnly = true;
+    // });
 
-    const selectBoxes = document.querySelectorAll(".select-input");
-    selectBoxes.forEach((input) => {
-      input.disabled = true;
-    });
+    // const selectBoxes = document.querySelectorAll(".select-input");
+    // selectBoxes.forEach((input) => {
+    //   input.disabled = true;
+    // });
   }, []);
 
   // (departmentList && console.log(departmentList))
@@ -293,6 +295,7 @@ const HDisplayVisitor = () => {
 
     if (Object.keys(errorObj).length === 0) {
       try {
+        setIsLoading(true);
         const response = await axios.post(
           "http://localhost:3000/visitor/updateVisitor-hr",
           formData,
@@ -305,17 +308,26 @@ const HDisplayVisitor = () => {
 
         if (response) {
           if (response.status === 200) {
-            alert("Update success");
+            setIsLoading(false);
+            swal.fire({
+              title: "Approval success",
+              text: "",
+              icon: "success",
+              confirmButtonText: "OK",
+              showConfirmButton: true,
+            });
             successOrError = {
               type: "success",
               msg: "Visitor Updated Successfully",
             };
           } else if (response.status === 500) {
+            setIsLoading(false);
             successOrError = {
               type: "error",
               msg: "Visitor update failed with error code 500",
             };
           } else {
+            setIsLoading(false);
             successOrError = {
               type: "error",
               msg: "Unknown error occurred",
@@ -323,6 +335,7 @@ const HDisplayVisitor = () => {
           }
         }
       } catch (error) {
+        setIsLoading(false);
         // Setting-up errors
         if (error.isAxiosError) {
           let errorMessage = "An error occurred.";
@@ -401,27 +414,32 @@ const HDisplayVisitor = () => {
           userDepartment={userDepartment}
         />
         <div className="mx-auto px-4 py-6">
+          {isLoading && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          )}
+
           {/* <CSidebar /> */}
           <div className="flex flex-col md:flex-col justify-between mb-6">
-            <div className="ml-5 rounded-m flex justify-between">
+            <div className="ml-5 rounded-m flex justify-center gap-20">
               <div className="flex items-center mb-4 md:mb-0">
-                <FaPersonCircleExclamation className="lg:text-5xl md:text-5xl sm:text-3xl hd-visitor-icon" />
-                <h1 className="visitor-name" style={{ fontSize: "1.5rem" }}>
-                  <span className="text-sky-700">
-                    {Visitor.ContactPerson_Name}
-                  </span>
+                <FaPersonCircleExclamation className="text-sky-600 text-4xl md:text-5xl lg:text-6xl mr-3" />
+                <h1 className="text-2xl md:text-3xl font-bold text-sky-600">
+                  {Visitor.ContactPerson_Name}
                 </h1>
               </div>
-
               <div className="button-div mb-2 mr-2">
                 <button
-                  className="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-lg text-black font-[900] mr-2"
+                  className="bg-gray-300 hover:bg-gray-400 text-black px-3 py-1.5 md:px-4 md:py-2 rounded-md font transition-colors w-full sm:w-auto mr-2"
                   type="button"
                   onClick={() => navigate(-1)}
                 >
                   Back
                 </button>
-                <button className="bg-green-400 hover:bg-green-500 px-3 py-1 rounded-lg text-black font-[900]">Approve</button>
+                <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md font transition-colors w-full sm:w-auto">
+                  Approve
+                </button>
               </div>
             </div>
 
@@ -450,7 +468,10 @@ const HDisplayVisitor = () => {
                               <option
                                 key={department.Department_Id}
                                 value={department.Department_Id}
-                                selected={Visits.Department_Id === department.Department_Id}
+                                selected={
+                                  Visits.Department_Id ===
+                                  department.Department_Id
+                                }
                               >
                                 {department.Department_Name}
                               </option>
@@ -473,7 +494,7 @@ const HDisplayVisitor = () => {
                         <input
                           type="date"
                           name="Date_From"
-                          readOnly={true}
+                          readOnly={false}
                           onChange={handleEntryPermitReq}
                           defaultValue={`${reqDate}`}
                           className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
@@ -489,12 +510,13 @@ const HDisplayVisitor = () => {
                     {/* Requested Officer */}
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                       <label className="text-sm sm:w-1/3">
-                        Requested Officer: <span className="text-red-600">*</span>
+                        Requested Officer:{" "}
+                        <span className="text-red-600">*</span>
                       </label>
                       <div className="md:col-span-3">
                         <input
                           type="text"
-                          readOnly={true}
+                          readOnly={false}
                           name="Requested_Officer"
                           onChange={handleEntryPermitReq}
                           defaultValue={Visits.Requested_Officer}
@@ -511,7 +533,8 @@ const HDisplayVisitor = () => {
                     {/* Visitor Category */}
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                       <label className="text-sm sm:w-1/3">
-                        Visitor Category: <span className="text-red-600">*</span>
+                        Visitor Category:{" "}
+                        <span className="text-red-600">*</span>
                       </label>
                       <div className="md:col-span-3">
                         <select
@@ -519,7 +542,10 @@ const HDisplayVisitor = () => {
                           onChange={handleEntryPermitReq}
                           className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
                         >
-                          <option selected={Visits.Visitor_Category === ""} value="">
+                          <option
+                            selected={Visits.Visitor_Category === ""}
+                            value=""
+                          >
                             Select a Category
                           </option>
                           <option
@@ -550,7 +576,9 @@ const HDisplayVisitor = () => {
                 </div>
 
                 <div className="bg-blue-200 p-3 w-full rounded-lg shadow-custom1 lg:w-[49%] h-auto min-h-[190px]">
-                  <h1 className="font-bold text-lg text-blue-950 mb-2">Entry Permit Details</h1>
+                  <h1 className="font-bold text-lg text-blue-950 mb-2">
+                    Entry Permit Details
+                  </h1>
 
                   <div className="grid grid-cols-1 gap-2">
                     {/* Purpose */}
@@ -563,16 +591,26 @@ const HDisplayVisitor = () => {
                         className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
                         onChange={handleEntryPermit}
                       >
-                        <option value="" selected={Visits.Purpose === "" || Visits.Purpose === null}>
+                        <option
+                          value=""
+                          selected={
+                            Visits.Purpose === "" || Visits.Purpose === null
+                          }
+                        >
                           Select a Purpose
                         </option>
-                        <option value="HR Services" selected={Visits.Purpose === "HR Services"}>
+                        <option
+                          value="HR Services"
+                          selected={Visits.Purpose === "HR Services"}
+                        >
                           HR Services
                         </option>
                       </select>
                     </div>
                     {errors.Purpose && (
-                      <p className="mt-1 text-sm text-red-600 bg-red-100 p-1 rounded">{errors.Purpose}</p>
+                      <p className="mt-1 text-sm text-red-600 bg-red-100 p-1 rounded">
+                        {errors.Purpose}
+                      </p>
                     )}
 
                     {/* Date Range */}
@@ -586,13 +624,15 @@ const HDisplayVisitor = () => {
                           <input
                             className="text-sm w-full bg-white border rounded border-slate-400 p-1"
                             type="date"
-                            readOnly={true}
+                            readOnly={false}
                             name="Date_From"
                             onChange={handleEntryPermit}
                             defaultValue={reqDate}
                           />
                           {errors.DateFrm && (
-                            <p className="mt-1 text-sm text-red-600 bg-red-100 p-1 rounded">{errors.DateFrm}</p>
+                            <p className="mt-1 text-sm text-red-600 bg-red-100 p-1 rounded">
+                              {errors.DateFrm}
+                            </p>
                           )}
                         </div>
 
@@ -601,13 +641,15 @@ const HDisplayVisitor = () => {
                           <input
                             className="text-sm w-full bg-white border rounded border-slate-400 p-1"
                             type="date"
-                            readOnly={true}
+                            readOnly={false}
                             name="Date_To"
                             onChange={handleEntryPermit}
                             defaultValue={dateTo >= today ? dateTo : null}
                           />
                           {errors.Date_To && (
-                            <p className="mt-1 text-sm text-red-600 bg-red-100 p-1 rounded">{errors.Date_To}</p>
+                            <p className="mt-1 text-sm text-red-600 bg-red-100 p-1 rounded">
+                              {errors.Date_To}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -624,13 +666,15 @@ const HDisplayVisitor = () => {
                           <input
                             className="text-sm w-full bg-white border rounded border-slate-400 p-1"
                             type="time"
-                            readOnly={true}
+                            readOnly={false}
                             name="Time_From"
                             onChange={handleEntryPermit}
                             defaultValue={timeFrom}
                           />
                           {errors.Time_From && (
-                            <p className="mt-1 text-sm text-red-600 bg-red-100 p-1 rounded">{errors.Time_From}</p>
+                            <p className="mt-1 text-sm text-red-600 bg-red-100 p-1 rounded">
+                              {errors.Time_From}
+                            </p>
                           )}
                         </div>
 
@@ -639,13 +683,15 @@ const HDisplayVisitor = () => {
                           <input
                             className="text-sm w-full bg-white border rounded border-slate-400 p-1"
                             type="time"
-                            readOnly={true}
+                            readOnly={false}
                             name="Time_To"
                             onChange={handleEntryPermit}
                             defaultValue={timeTo}
                           />
                           {errors.Time_To && (
-                            <p className="mt-1 text-sm text-red-600 bg-red-100 p-1 rounded">{errors.Time_To}</p>
+                            <p className="mt-1 text-sm text-red-600 bg-red-100 p-1 rounded">
+                              {errors.Time_To}
+                            </p>
                           )}
                         </div>
                       </div>
@@ -653,14 +699,15 @@ const HDisplayVisitor = () => {
                   </div>
                 </div>
 
-
                 {/* top-div end */}
               </div>
 
               {/* bottom div start*/}
               <div className="flex flex-col lg:flex-row lg:gap-[2%] w-full mt-5">
                 <div className="bg-blue-200 p-3 w-full rounded-lg shadow-custom1 lg:w-[49%] min-h-[330px]">
-                  <h1 className="font-bold text-lg text-blue-950 mb-2">Person</h1>
+                  <h1 className="font-bold text-lg text-blue-950 mb-2">
+                    Person
+                  </h1>
 
                   <div className="overflow-x-auto">
                     <table className="w-full tblVisitors">
@@ -674,8 +721,12 @@ const HDisplayVisitor = () => {
                         {Array.isArray(visitorGroup) &&
                           visitorGroup.map((visitor) => (
                             <tr key={visitor.Visitor_Id}>
-                              <td className="text-sm">{visitor.Visitor_Name}</td>
-                              <td className="text-sm">{visitor.Visitor_NIC}</td>
+                              <td className="text-sm border border-black">
+                                {visitor.Visitor_Name}
+                              </td>
+                              <td className="text-sm border border-black">
+                                {visitor.Visitor_NIC}
+                              </td>
                             </tr>
                           ))}
                       </tbody>
@@ -683,16 +734,18 @@ const HDisplayVisitor = () => {
                   </div>
 
                   <div className="mt-3">
-                    <h3 className="font-bold text-lg text-blue-950 mb-2 text-center">Meal Plan</h3>
-                    <div className="flex justify-center gap-4 mb-2">
+                    <h3 className="font-bold text-lg text-blue-950 mb-2 text-left">
+                      Meal Plan
+                    </h3>
+                    <div className="flex justify-start gap-4 mb-2">
                       <div className="flex items-center">
                         <input
                           type="checkbox"
                           name="Breakfast"
                           onChange={handlePerson}
-                          checked={Visits.Breakfast === true}
+                          defaultChecked={Visits.Breakfast === true}
                           id="Breakfast"
-                          className="mr-1"
+                          className="mr-1 scale-150"
                         />
                         <label htmlFor="Breakfast" className="text-sm">
                           Breakfast
@@ -703,9 +756,9 @@ const HDisplayVisitor = () => {
                           type="checkbox"
                           name="Lunch"
                           onChange={handlePerson}
-                          checked={Visits.Lunch === true}
+                          defaultChecked={Visits.Lunch === true}
                           id="Lunch"
-                          className="mr-1"
+                          className="mr-1 scale-150"
                         />
                         <label htmlFor="Lunch" className="text-sm">
                           Lunch
@@ -716,9 +769,9 @@ const HDisplayVisitor = () => {
                           type="checkbox"
                           name="Tea"
                           onChange={handlePerson}
-                          checked={Visits.Tea === true}
+                          defaultChecked={Visits.Tea === true}
                           id="Tea"
-                          className="mr-1"
+                          className="mr-1 scale-150"
                         />
                         <label htmlFor="Tea" className="text-sm">
                           Tea
@@ -739,9 +792,10 @@ const HDisplayVisitor = () => {
                   </div>
                 </div>
 
-
                 <div className="bg-blue-200 p-3 w-full rounded-lg shadow-custom1 lg:w-[49%] min-h-[230px] mt-5 lg:mt-0">
-                  <h1 className="font-bold text-lg text-blue-950 mb-2">Vehicle</h1>
+                  <h1 className="font-bold text-lg text-blue-950 mb-2">
+                    Vehicle
+                  </h1>
 
                   <div className="overflow-x-auto">
                     <table className="w-full tblVisitors">
@@ -755,15 +809,18 @@ const HDisplayVisitor = () => {
                         {Array.isArray(Vehicles) &&
                           Vehicles.map((vehicle) => (
                             <tr key={vehicle.Vehicle_Id}>
-                              <td className="text-sm">{vehicle.Vehicle_Type}</td>
-                              <td className="text-sm">{vehicle.Vehicle_No}</td>
+                              <td className="text-sm border border-black">
+                                {vehicle.Vehicle_Type}
+                              </td>
+                              <td className="text-sm border border-black">
+                                {vehicle.Vehicle_No}
+                              </td>
                             </tr>
                           ))}
                       </tbody>
                     </table>
                   </div>
                 </div>
-
 
                 {/* top-div end */}
               </div>

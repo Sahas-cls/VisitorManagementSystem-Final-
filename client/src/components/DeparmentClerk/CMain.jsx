@@ -5,6 +5,7 @@ import CReport from "./CReport";
 import Header from "../../Header";
 import CApprovedVisitors from "./CApprovedVisitors";
 import UseWindowWidth from "../UseWindowWidth";
+import RDashboard from "../Recept/RDashboard";
 
 const CMain = ({
   userId,
@@ -43,7 +44,7 @@ const CMain = ({
         toggleSidebar={toggleSidebar}
         setToggleSidebar={setToggleSidebar}
       />
-      <div className="mainContainer flex" style={{ backgroundColor: "" }}>
+      <div className={`mainContainer flex`} style={{ backgroundColor: "" }}>
         {toggleSidebar ? (
           <CSidebar onSidebarClick={handleSidebarClick} />
         ) : null}
@@ -68,6 +69,15 @@ const CMain = ({
             userDepartmentId={userDepartmentId}
             userFactoryId={userFactoryId}
             // setToggleSidebar={setToggleSidebar}
+          />
+        )}
+        {view === "getReports" && (
+          <RDashboard
+            userFactoryId={userFactoryId}
+            userName={userName}
+            userCategory={userCategory}
+            userDepartment={userDepartment}
+            toggleSidebar={toggleSidebar}
           />
         )}
       </div>

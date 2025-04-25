@@ -7,7 +7,7 @@ import axios from "axios";
 import { FaRegUserCircle } from "react-icons/fa";
 import { GrCopy } from "react-icons/gr";
 import swal from "sweetalert2";
-import sidebarImg from '../../assets/sidebarImg6.jpg'
+import sidebarImg from "../../assets/sidebarImg6.jpg";
 
 const Login = () => {
   const [csrfToken, setCsrfToken] = useState("");
@@ -24,7 +24,7 @@ const Login = () => {
         if (response) {
           // alert(response.data.csrfToken);
           const csrf = await response.data.csrfToken;
-          console.log(csrf);
+          // console.log(csrf);
           setCsrfToken(csrf);
         }
       } catch (error) {
@@ -92,7 +92,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    // console.log(formData);
 
     //validating email
     if (!formData.email) {
@@ -147,7 +147,7 @@ const Login = () => {
           // alert(response.data.msg);
           // console.log(response.data);
           const userCategory = response.data.data.userCategory || "unknown";
-          console.log(userCategory);
+          // console.log(userCategory);
           // alert(userCategory);
           // alert(`response data: ${userCategory}`);
 
@@ -183,7 +183,7 @@ const Login = () => {
         }
 
         // alert(response.data);
-        console.log(response.data);
+        // console.log(response.data);
       } catch (error) {
         // alert(error);
         const errorMessage =
@@ -222,13 +222,15 @@ const Login = () => {
         <div className="right-div w-full flex flex-col items-center sm:w-3/4 lg:w-3/4 bg-[#dad8d7]">
           <FaRegUserCircle className="text-8xl mt-3" />
           <h1 className="text-center mb-2">Member Login</h1>
-          {Serrors != "" ?
-            <div className="text-red-600 text-center">
-              {Serrors?.text}
-            </div>
-
-            : ""}
-          <form className="flex flex-col w-full px-8 items-center" onSubmit={handleSubmit}>
+          {Serrors != "" ? (
+            <div className="text-red-600 text-center">{Serrors?.text}</div>
+          ) : (
+            ""
+          )}
+          <form
+            className="flex flex-col w-full px-8 items-center"
+            onSubmit={handleSubmit}
+          >
             <div className="w-full px-2">
               <label htmlFor="email">Email: </label>
               <div className="bg-white flex items-center w-full p-1 rounded-md ">
@@ -243,7 +245,10 @@ const Login = () => {
               </div>
               <br />
               {errors.email && (
-                <p className="text-red-600 text-center" style={{ marginTop: "-25px" }}>
+                <p
+                  className="text-red-600 text-center"
+                  style={{ marginTop: "-25px" }}
+                >
                   {errors.email}
                 </p>
               )}
@@ -264,7 +269,10 @@ const Login = () => {
               <br />
               <p>
                 {errors.password && (
-                  <p className="text-red-600 text-center" style={{ marginTop: "-25px" }}>
+                  <p
+                    className="text-red-600 text-center"
+                    style={{ marginTop: "-25px" }}
+                  >
                     {errors.password}
                   </p>
                 )}
@@ -279,7 +287,10 @@ const Login = () => {
 
               <div>
                 <p>
-                  <a className="text-center text-blue-700 hover:text-red-500 hover:underline duration-150" href="/forgot-password">
+                  <a
+                    className="text-center text-blue-700 hover:text-red-500 hover:underline duration-150"
+                    href="/forgot-password"
+                  >
                     Forgot Password?
                   </a>
                 </p>
@@ -287,7 +298,10 @@ const Login = () => {
             </div>
 
             <div className="w-full flex flex-col items-center mt-3">
-              <button className="text-center w-3/4 bg-[rgb(0,128,0)] hover:bg-[rgb(5,114,5)] text-white font-bold p-1 py-2 rounded-md mb-4" type="submit">
+              <button
+                className="text-center w-3/4 bg-[rgb(0,128,0)] hover:bg-[rgb(5,114,5)] text-white font-bold p-1 py-2 rounded-md mb-4"
+                type="submit"
+              >
                 Login
               </button>
               <br />
@@ -318,7 +332,9 @@ const Login = () => {
         </div> */}
 
             <div className="mb-2">
-              <p className="text-center mt-3 text-base">Please send below link to visitor</p>
+              <p className="text-center mt-3 text-base">
+                Please send below link to visitor
+              </p>
               <span className="flex mt-2 items-center ">
                 <GrCopy
                   className="mr-1 hover:text-red-600 hover:font-bold text-xl"
@@ -340,10 +356,9 @@ const Login = () => {
           </form>
         </div>
       </div>
+      <footer></footer>
     </div>
-
   );
-
 };
 
 export default Login;
