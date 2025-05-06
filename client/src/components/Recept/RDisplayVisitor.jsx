@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../../Header";
+import { FaPersonCircleExclamation } from "react-icons/fa6";
+import { LuMessageSquareText } from "react-icons/lu";
+import { FaWhatsapp } from "react-icons/fa6";
+import { MdOutlineMail } from "react-icons/md";
 // import CSidebar from "./CSidebar";
 // import "./RDisplayVisitor.css";
 import axios from "axios";
@@ -52,6 +56,7 @@ const RDisplayVisitor = () => {
   const [errorMessages, setErrorMessages] = useState();
   const [serverErroors, setServerErrors] = useState({});
   const [vehicleErrors, setVehicleErrors] = useState({});
+  const [isSaved, setisSaved] = useState(false);
 
   const navigate = useNavigate();
 
@@ -111,6 +116,42 @@ const RDisplayVisitor = () => {
     return;
     setVisitorGroup(...visitorGroup, { Name: "", NIC: "" });
   };
+
+  const handleWhatsappMessage = () => {
+    const ufMobileNo = Visitor.ContactPerson_ContactNo;
+
+    const formatMNo = (ufMNo) => {
+      if (ufMNo.startsWith("0")) {
+        return "94" + ufMNo.slice(1);
+      }
+      return ufMNo;
+    };
+
+    const fMobileNo = formatMNo(ufMobileNo);
+    const phoneNumber = fMobileNo;
+
+    const message = `${Visitor.ContactPerson_Name}, this is your reference number for BOI entry pass *${entryPermitReference.refNumber}*`;
+
+    // Copy message to clipboard
+    navigator.clipboard
+      .writeText(message)
+      .then(() => {
+        // alert(
+        //   "Message copied to clipboard. If it doesn't appear in WhatsApp, just paste it manually."
+        // );
+      })
+      .catch((err) => {
+        console.error("Clipboard copy failed:", err);
+        // alert("Failed to copy the message. Please paste it manually.");
+      });
+
+    // Open WhatsApp
+    const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
+      message
+    )}`;
+    window.open(url, "_blank");
+  };
+
   // alert(timeFrom);
   // alert(timeFrom);
 
@@ -192,7 +233,7 @@ const RDisplayVisitor = () => {
           }
         );
         console.log("response ", response);
-
+        setisSaved(true);
         if (response) {
           if (response.status === 200) {
             // alert("Update success");
@@ -451,9 +492,16 @@ const RDisplayVisitor = () => {
           )}
 
           <div className="mb-0 bg-white w-full">
-            <h1 className="text-left ml-2 text-md mt-2 mb-2 font-extrabold">
+            {/* <h1 className="text-left ml-2 text-md mt-2 mb-2 font-extrabold">
               {Visitor.ContactPerson_Name}
-            </h1>
+            </h1> */}
+
+            <div className="flex items-center mb-4 md:mb-0 gap-5 my-3">
+              <FaPersonCircleExclamation className="text-sky-600 text-4xl md:text-5xl lg:text-6xl mr-3" />
+              <h1 className="text-2xl md:text-3xl font-bold text-sky-600">
+                {Visitor.ContactPerson_Name}
+              </h1>
+            </div>
 
             <div className="p-0">
               {/* Top Section - Two Columns */}
@@ -766,8 +814,10 @@ const RDisplayVisitor = () => {
                         {Array.isArray(Vehicles) &&
                           Vehicles.map((vehicle) => (
                             <tr key={vehicle.Vehicle_Id}>
-                              <td className="text-sm">{vehicle.Vehicle_No}</td>
-                              <td className="text-sm">
+                              <td className="text-sm border border-black">
+                                {vehicle.Vehicle_No}
+                              </td>
+                              <td className="text-sm border border-black">
                                 {vehicle.Vehicle_Type}
                               </td>
                             </tr>
@@ -794,7 +844,7 @@ const RDisplayVisitor = () => {
       </form>
 
       {/* Bottom Form Section */}
-      <div className="w-full px-2 w-full flex justify-center">
+      <div className="w-full px-2 w-full flex justify-center md:mt-0 mt-[-5px]">
         {/* old background color:- bg-gradient-to-br from-blue-300 to-blue-200 */}
         <div className="bg-gradient-to-tr from-sky-100 to-sky-200 rounded-lg shadow-custom1 p-4 w-full lg:w-6/6   ">
           <div className="text-center">
@@ -825,23 +875,39 @@ const RDisplayVisitor = () => {
               </div>
             </div>
 
-            <div className="flex justify-center gap-4 mb-4">
+            <div className="flex justify-center gap-4 mb-4 pt-3">
+              {/* Save Button */}
               <button
-                type="button"
-                className="flex items-center text-sm px-4 py-1 bg-gray-300 border-black border rounded hover:bg-blue-300"
-                onClick={disableSaveButton}
-              >
-                <IoIosSend className="mr-1" />
-                Send message
-              </button>
-              <button
-                disabled={disableSave}
                 type="submit"
-                className="flex items-center text-sm px-4 py-1 bg-gray-300 border-black border rounded hover:bg-blue-300 disabled:opacity-50"
+                className="flex items-center text-sm px-4 py-1 border-2 border-black/50 shadow-custom1 bg-gray-300 rounded hover:bg-blue-200 disabled:opacity-50 hover:scale-105"
               >
-                <IoIosSave className="mr-1" />
-                Save
+                <IoIosSave className="mr-1 text-3xl" />
               </button>
+
+              {/* Send Button — Only enabled when isSaved is true */}
+
+              {isSaved && (
+                <button
+                  type="button"
+                  disabled={!isSaved}
+                  className="flex items-center justify-center text-sm px-4 py-1 border-black/50 shadow-custom1 border-2 bg-gray-300 rounded hover:bg-blue-300 hover:scale-105 disabled:opacity-50"
+                  onClick={disableSaveButton}
+                >
+                  {/* <IoIosSend className="mr-1 text-3xl text-blue-700" /> */}
+                  <MdOutlineMail className="mr-1 text-3xl text-[#1A73E8]"/>
+                </button>
+              )}
+
+              {/* WhatsApp Button — Only rendered when isSaved is true */}
+              {isSaved && (
+                <button
+                  type="button"
+                  className="flex items-center text-sm px-4 py-1 border-black/50 shadow-custom1 bg-gray-300 border-2 rounded hover:bg-green-300/40 hover:scale-105 hover:text-white"
+                  onClick={handleWhatsappMessage}
+                >
+                  <FaWhatsapp className="text-3xl text-green-700" />
+                </button>
+              )}
             </div>
           </form>
 

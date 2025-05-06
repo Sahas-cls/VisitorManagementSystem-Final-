@@ -344,7 +344,13 @@ const Register = () => {
         <div className="left-div w-2/6" style={{ width: "35%" }}>
           {/* <h1 className="text-3xl font-bold" style={{ marginTop: "-20px" }}>Register a user</h1> */}
         </div>
-        <div className="right-div">
+        <div
+          className="right-div md:bg-gradient-to-b from-blue-300 via-gray-400/50 to-blue-300"
+          style={{
+            background:
+              "linear-gradient(to bottom, #93c5fd, rgba(156, 163, 175, 0.5), #93c5fd)",
+          }}
+        >
           <form onSubmit={handleSubmit}>
             <div className="registration" id="registration">
               <div className="text-center flex justify-center">
@@ -582,13 +588,13 @@ const Register = () => {
                     Already have an account? Login
                   </p>
                 </a> */}
-                <button className="rButton1" type="submit">
+                <button className="rButton1 hover:scale-105 duration-300 hover:tracking-wider" type="submit">
                   Register
                 </button>
 
                 <button
                   type="button"
-                  className="rButton2 mt-4 "
+                  className="rButton2 mt-4 hover:scale-105 duration-300 hover:tracking-wider"
                   onClick={() =>
                     (window.location.href = "http://localhost:5173/")
                   }

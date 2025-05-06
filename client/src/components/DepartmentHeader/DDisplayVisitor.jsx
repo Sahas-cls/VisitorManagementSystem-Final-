@@ -332,6 +332,33 @@ const DDisplayVisitor = () => {
           }
         }
       } catch (error) {
+        switch (error.response.status) {
+          case 401:
+            swal.fire({
+              title: "You don't have permission to perform this acction",
+              text: "Please loging to the system using login page again",
+              icon: "warning",
+              confirmButtonAriaLabel: "Ok",
+              showCancelButton: false,
+            });
+            setErrorMessages(
+              "You don't have a permission to perform this action, please login again using loging page"
+            );
+            navigate("/");
+            break;
+
+          case 403:
+            swal.fire({
+              title: "Your session has been expired",
+              text: "Your current session has been expired, please login again using your credentials",
+              icon: "warning",
+              confirmButtonText: "Ok",
+              showCancelButton: false,
+            });
+            navigate("/");
+            break;
+          default:
+        }
         setIsLoading(false);
         // Setting-up errors
         if (error.isAxiosError) {
@@ -359,10 +386,33 @@ const DDisplayVisitor = () => {
                 }
                 break;
 
+              case 401:
+                swal.fire({
+                  title: "You don't have permission to perform this acction",
+                  text: "Please loging to the system using login page again",
+                  icon: "warning",
+                  confirmButtonAriaLabel: "Ok",
+                  showCancelButton: false,
+                });
+                setErrorMessages(
+                  "You don't have a permission to perform this action, please login again using loging page"
+                );
+                navigate("/");
+
               case 404:
                 setErrorMessages("Resource page not found. error code 404");
                 errorMessage = "Resource not found.";
                 break;
+
+              case 403:
+                swal.fire({
+                  title: "Your session has been expired",
+                  text: "Your current session has been expired, please login again using your credentials",
+                  icon: "warning",
+                  confirmButtonText: "Ok",
+                  showCancelButton: false,
+                });
+                navigate("/");
 
               case 500:
                 setErrorMessages(
@@ -386,7 +436,7 @@ const DDisplayVisitor = () => {
               "Network error. Please check your internet connection.";
           }
 
-          alert(errorMessage); // Show the error message to the user
+          // alert(errorMessage); // Show the error message to the user
         } else {
           // Non-Axios error (e.g., programming errors)
           setErrorMessages("An unexpected error occurred.");
@@ -703,8 +753,12 @@ const DDisplayVisitor = () => {
                     {Array.isArray(visitorGroup) &&
                       visitorGroup.map((visitor) => (
                         <tr key={visitor.Visitor_Id}>
-                          <td className="text-sm">{visitor.Visitor_Name}</td>
-                          <td className="text-sm">{visitor.Visitor_NIC}</td>
+                          <td className="text-sm border border-black">
+                            {visitor.Visitor_Name}
+                          </td>
+                          <td className="text-sm border border-black">
+                            {visitor.Visitor_NIC}
+                          </td>
                         </tr>
                       ))}
                   </tbody>
@@ -712,10 +766,10 @@ const DDisplayVisitor = () => {
               </div>
 
               <div className="mt-3">
-                <h3 className="font-bold text-lg text-blue-950 mb-2 text-center">
+                <h3 className="font-bold text-lg text-blue-950 mb-2 text-left">
                   Meal Plan
                 </h3>
-                <div className="flex justify-center gap-4 mb-2">
+                <div className="flex justify-start gap-4 mb-2">
                   <div className="flex items-center">
                     <input
                       type="checkbox"
@@ -770,7 +824,7 @@ const DDisplayVisitor = () => {
               </div>
             </div>
 
-            {/* Vehicle Details */}
+            {/*  border border-black Details */}
             <div className="bg-blue-200 p-3 w-full rounded-lg shadow-custom1 lg:w-full min-h-[330px] mt-5 lg:mt-0">
               <h1 className="font-bold text-lg text-blue-950 mb-2">Vehicle</h1>
 
@@ -786,8 +840,12 @@ const DDisplayVisitor = () => {
                     {Array.isArray(Vehicles) &&
                       Vehicles.map((vehicle) => (
                         <tr key={vehicle.Vehicle_Id}>
-                          <td className="text-sm">{vehicle.Vehicle_Type}</td>
-                          <td className="text-sm">{vehicle.Vehicle_No}</td>
+                          <td className="text-sm border border-black">
+                            {vehicle.Vehicle_Type}
+                          </td>
+                          <td className="text-sm border border-black">
+                            {vehicle.Vehicle_No}
+                          </td>
                         </tr>
                       ))}
                   </tbody>

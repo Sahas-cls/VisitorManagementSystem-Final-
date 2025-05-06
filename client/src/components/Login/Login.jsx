@@ -218,8 +218,8 @@ const Login = () => {
       <h2>to <br /> Visitor Management System</h2> */}
           {/* <img src={sidebarImg} alt=""/> */}
         </div>
-
-        <div className="right-div w-full flex flex-col items-center sm:w-3/4 lg:w-3/4 bg-[#dad8d7]">
+        <div className="right-div w-full flex flex-col items-center sm:w-3/4 lg:w-3/4 md:bg-gradient-to-b from-blue-300 via-gray-400/50 to-blue-300">
+          {/* old bg : bg-[#dad8d7] */}
           <FaRegUserCircle className="text-8xl mt-3" />
           <h1 className="text-center mb-2">Member Login</h1>
           {Serrors != "" ? (
@@ -299,7 +299,7 @@ const Login = () => {
 
             <div className="w-full flex flex-col items-center mt-3">
               <button
-                className="text-center w-3/4 bg-[rgb(0,128,0)] hover:bg-[rgb(5,114,5)] text-white font-bold p-1 py-2 rounded-md mb-4"
+                className="text-center w-3/4 bg-[rgb(0,128,0)] hover:bg-[rgb(5,114,5)] text-white font-bold p-1 py-2 rounded-md hover:tracking-wider hover:scale-105 duration-300"
                 type="submit"
               >
                 Login
@@ -307,7 +307,7 @@ const Login = () => {
               <br />
               <button
                 type="button"
-                className="text-center w-3/4 bg-blue-600 hover:bg-blue-500 text-white font-bold p-1 py-2 rounded-md mt-[-20px]"
+                className="text-center w-3/4 bg-blue-600 hover:bg-blue-700 text-white font-bold p-1 py-2 rounded-md hover:tracking-wider hover:scale-105 duration-300"
                 onClick={() =>
                   (window.location.href = "http://localhost:5173/register")
                 }

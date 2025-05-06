@@ -32,7 +32,14 @@
   align-items: center;
   justify-content: center;
   padding-top: 20px;
-  background: #dad8d7;
+  /* background: #dad8d7; */
+  background: linear-gradient(
+    to bottom,
+    #93c5fd,
+    rgba(156, 163, 175, 0.5),
+    #93c5fd
+  );
+  @apply md:bg-gradient-to-b from-blue-300 via-gray-400/50 to-blue-300;
 }
 
 .input {

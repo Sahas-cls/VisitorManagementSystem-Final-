@@ -22,13 +22,14 @@ const sendEmail = require("../utils/SendEmail");
 const { error } = require("console");
 // const Factory = require("../models/Factory");
 require("dotenv").config();
+const checkAuthToken = require("../middlewares/authonticationToken.js"); //middleware to check author jwt token
 
 userRoutes.use(cookieParser());
-userRoutes.get("/", csrfProtection, (req, res) => {
-  // console.log(csrfProtection);
-  // console.log(req.headers);
-  res.send("sending all details of users");
-});
+// userRoutes.get("/", csrfProtection, (req, res) => {
+//   // console.log(csrfProtection);
+//   // console.log(req.headers);
+//   res.send("sending all details of users");
+// });
 
 userRoutes.post(
   "/register",
@@ -154,13 +155,13 @@ userRoutes.post(
             departmentId: user.Department_Id,
             factoryId: user.factory_Id,
           },
-          "Y3J5P2l!aS@N%hUv$1aKeT@9dXqL&8Rz#xWmO*4bQfG",
-          { expiresIn: "1h" }
+          process.env.JWT_SECRET,
+          { expiresIn: "3sec" }
         );
         // console.log(token);
 
         res.cookie("authToken", token, { httpOnly: true, secure: true });
-        console.log("Login success--------------------")
+        console.log("Login success-------------------->cms");
         res.status(200).json({
           msg: "Login success",
           data: {
@@ -262,7 +263,7 @@ userRoutes.post(
           userEmail: user.user_email,
         },
         "jklmno12345pqrs67890tuv",
-        { expiresIn: "15m" }
+        { expiresIn: "30min" }
       );
 
       const expireTime = new Date(Date.now() + 15 * 60 * 1000);
@@ -399,32 +400,39 @@ userRoutes.post(
   }
 );
 
-userRoutes.get("/get-all-users", csrfProtection, async (req, res) => {
-  try {
-    const userList = await User.findAll({
-      include: [
-        {
-          model: Department, // Correct model reference
-          as: "Department", // Ensure alias matches the one defined in the association
-        },
-      ],
-    });
-    if (userList) {
-      return res.status(200).json({ UserList: userList });
-    } else {
-      return res
-        .status(500)
-        .json({ error: "Data fetch failed, please try again later" });
+userRoutes.get(
+  "/get-all-users",
+  csrfProtection,
+  checkAuthToken,
+  async (req, res) => {
+    //! to retive all users details for admin panel
+    try {
+      const userList = await User.findAll({
+        include: [
+          {
+            model: Department, // Correct model reference
+            as: "Department", // Ensure alias matches the one defined in the association
+          },
+        ],
+      });
+      if (userList) {
+        return res.status(200).json({ UserList: userList });
+      } else {
+        return res
+          .status(500)
+          .json({ error: "Data fetch failed, please try again later" });
+      }
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Error found ", error });
     }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Error found ", error });
   }
-});
+);
 
 userRoutes.put(
   "/update/:id",
   csrfProtection,
+  checkAuthToken,
   [
     // Validate username, email, etc.
     body("userName")
@@ -555,89 +563,104 @@ userRoutes.put(
 );
 
 // to delete existing user
-userRoutes.delete("/delete/:id", csrfProtection, async (req, res) => {
-  const { id } = req.params;
+userRoutes.delete(
+  "/delete/:id",
+  csrfProtection,
+  checkAuthToken,
+  async (req, res) => {
+    const { id } = req.params;
 
-  try {
-    const user = await User.findByPk(id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    try {
+      const user = await User.findByPk(id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      await User.destroy({
+        where: { user_Id: id },
+      });
+
+      res.status(200).json({ message: "User deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ message: "Failed to delete user" });
     }
-
-    await User.destroy({
-      where: { user_Id: id },
-    });
-
-    res.status(200).json({ message: "User deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    res.status(500).json({ message: "Failed to delete user" });
   }
-});
+);
 
 // select users by factory id
-userRoutes.get("/getUsers/:id", csrfProtection, async (req, res) => {
-  const factory_Id = req.params.id; // Correctly extracting 'id' from the params
-  console.log(factory_Id);
+userRoutes.get(
+  "/getUsers/:id",
+  csrfProtection,
+  checkAuthToken,
+  async (req, res) => {
+    const factory_Id = req.params.id; // Correctly extracting 'id' from the params
+    console.log(factory_Id);
 
-  try {
-    const users = await User.findAll({
-      where: {
-        factory_Id: factory_Id, // Ensure this is the correct column name in your User model
-      },
-      include: [
-        {
-          model: Department, // Correct model reference
-          as: "Department", // Ensure alias matches the one defined in the association
+    try {
+      const users = await User.findAll({
+        where: {
+          factory_Id: factory_Id, // Ensure this is the correct column name in your User model
         },
-      ],
-    });
+        include: [
+          {
+            model: Department, // Correct model reference
+            as: "Department", // Ensure alias matches the one defined in the association
+          },
+        ],
+      });
 
-    if (users) {
-      // console.log(users);
-      // return;
-      return res.status(200).json({ data: users }); // Respond with the users data
-    } else {
-      console.log("No data found");
-      return res.status(404).send("No users found"); // Send a 404 status if no users found
+      if (users) {
+        // console.log(users);
+        // return;
+        return res.status(200).json({ data: users }); // Respond with the users data
+      } else {
+        console.log("No data found");
+        return res.status(404).send("No users found"); // Send a 404 status if no users found
+      }
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send("Server error"); // Send a 500 status if an error occurs
     }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).send("Server error"); // Send a 500 status if an error occurs
   }
-});
+);
 
 // searching by user name
-userRoutes.get("/getUsersByName", csrfProtection, async (req, res) => {
-  const searchKey = req.query.searchKey; // Decode the URL parameter
-  console.log("user name ================= ", searchKey); // Log the decoded name
+userRoutes.get(
+  "/getUsersByName",
+  csrfProtection,
+  checkAuthToken,
+  async (req, res) => {
+    const searchKey = req.query.searchKey; // Decode the URL parameter
+    console.log("user name ================= ", searchKey); // Log the decoded name
 
-  try {
-    const users = await User.findAll({
-      where: {
-        user_Name: {
-          [Op.like]: `%${searchKey}%`, // Use Op.like with wildcards for substring search
+    try {
+      const users = await User.findAll({
+        where: {
+          user_Name: {
+            [Op.like]: `%${searchKey}%`, // Use Op.like with wildcards for substring search
+          },
         },
-      },
-      include: [
-        {
-          model: Department,
-          as: "Department",
-        },
-      ],
-      logging: console.log, // Enable logging to see the generated SQL query
-    });
+        include: [
+          {
+            model: Department,
+            as: "Department",
+          },
+        ],
+        logging: console.log, // Enable logging to see the generated SQL query
+      });
 
-    if (users && users.length > 0) {
-      return res.status(200).json({ data: users });
-    } else {
-      console.log("No data found");
-      return res.status(404).send("No users found");
+      if (users && users.length > 0) {
+        return res.status(200).json({ data: users });
+      } else {
+        console.log("No data found");
+        return res.status(404).send("No users found");
+      }
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send("Server error");
     }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).send("Server error");
   }
-});
+);
 
 module.exports = userRoutes;

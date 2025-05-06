@@ -335,6 +335,33 @@ const HDisplayVisitor = () => {
           }
         }
       } catch (error) {
+        switch (error.response.status) {
+          case 401:
+            swal.fire({
+              title: "You don't have permission to perform this acction",
+              text: "Please loging to the system using login page again",
+              icon: "warning",
+              confirmButtonAriaLabel: "Ok",
+              showCancelButton: false,
+            });
+            setErrorMessages(
+              "You don't have a permission to perform this action, please login again using loging page"
+            );
+            navigate("/");
+            break;
+
+          case 403:
+            swal.fire({
+              title: "Your session has been expired",
+              text: "Your current session has been expired, please login again using your credentials",
+              icon: "warning",
+              confirmButtonText: "Ok",
+              showCancelButton: false,
+            });
+            navigate("/");
+            break;
+          default:
+        }
         setIsLoading(false);
         // Setting-up errors
         if (error.isAxiosError) {
@@ -393,7 +420,7 @@ const HDisplayVisitor = () => {
         } else {
           // Non-Axios error (e.g., programming errors)
           setErrorMessages("An unexpected error occurred.");
-          alert("An unexpected error occurred.");
+          // alert("An unexpected error occurred.");
           console.error("Error:", error);
         }
       }

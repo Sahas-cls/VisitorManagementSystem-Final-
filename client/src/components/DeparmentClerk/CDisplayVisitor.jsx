@@ -386,10 +386,33 @@ const CDisplayVisitor = () => {
                 }
                 break;
 
+              case 401:
+                swal.fire({
+                  title: "You don't have permission to perform this acction",
+                  text: "Please loging to the system using login page again",
+                  icon: "warning",
+                  confirmButtonAriaLabel: "Ok",
+                  showCancelButton: false,
+                });
+                setErrorMessages(
+                  "You don't have permission to perform this action, please login again using loging page"
+                );
+                navigate("/");
+
               case 404:
                 setErrorMessages("Resource page not found. error code 404");
                 errorMessage = "Resource not found.";
                 break;
+
+              case 403:
+                swal.fire({
+                  title: "Your session has been expired",
+                  text: "Your current session has been expired, please login again using your credentials",
+                  icon: "warning",
+                  confirmButtonText: "Ok",
+                  showCancelButton: false,
+                });
+                navigate("/");
 
               case 500:
                 setErrorMessages(
@@ -413,7 +436,7 @@ const CDisplayVisitor = () => {
               "Network error. Please check your internet connection.";
           }
 
-          alert(errorMessage); // Show the error message to the user
+          // alert(errorMessage); // Show the error message to the user
         } else {
           // Non-Axios error (e.g., programming errors)
           setErrorMessages("An unexpected error occurred.");
@@ -433,46 +456,78 @@ const CDisplayVisitor = () => {
   // ! to delete visit
   const deleteRecord = async (e) => {
     e.preventDefault();
-    swal
-      .fire({
-        title: "Are you sure?",
-        text: "This action cannot be undone.",
-        icon: "question", // You can use 'question', 'warning', 'info', etc.
-        showCancelButton: true,
-        confirmButtonText: "Yes, delete it!",
-        cancelButtonText: "No, cancel!",
-        confirmButtonColor: "#d33", // Custom confirm button color (red in this case)
-        cancelButtonColor: "#3085d6", // Custom cancel button color (blue)
-      })
-      .then(async (result) => {
-        if (result.isConfirmed) {
-          console.log(Visitor);
-          // alert(`deleting ${Visitor.ContactPerson_Id}`);
-          const response = await axios.delete(
-            `http://localhost:3000/visitor/delete-visit-dUser/${Visitor.ContactPerson_Id}`,
-            { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true }
-          );
+    try {
+      swal
+        .fire({
+          title: "Are you sure?",
+          text: "This action cannot be undone.",
+          icon: "question", // You can use 'question', 'warning', 'info', etc.
+          showCancelButton: true,
+          confirmButtonText: "Yes, delete it!",
+          cancelButtonText: "No, cancel!",
+          confirmButtonColor: "#d33", // Custom confirm button color (red in this case)
+          cancelButtonColor: "#3085d6", // Custom cancel button color (blue)
+        })
+        .then(async (result) => {
+          if (result.isConfirmed) {
+            // console.log(Visitor);
+            // alert(`deleting ${Visitor.ContactPerson_Id}`);
 
-          if (response.status === 200) {
-            swal.fire({
-              title: "Visit delete success...!",
-              text: "",
-              icon: "success", // You can use 'question', 'warning', 'info', etc.
-              showCancelButton: false,
-              confirmButtonText: "Ok",
-              cancelButtonText: "No, cancel!",
-              confirmButtonColor: "#d33", // Custom confirm button color (red in this case)
-              cancelButtonColor: "#3085d6", // Custom cancel button color (blue)
-            });
+            const response = await axios.delete(
+              `http://localhost:3000/visitor/delete-visit-dUser/${Visitor.ContactPerson_Id}`,
+              { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true }
+            );
 
-            navigate(-1);
+            if (response.status === 200) {
+              swal.fire({
+                title: "Visit delete success...!",
+                text: "",
+                icon: "success", // You can use 'question', 'warning', 'info', etc.
+                showCancelButton: false,
+                confirmButtonText: "Ok",
+                cancelButtonText: "No, cancel!",
+                confirmButtonColor: "#d33", // Custom confirm button color (red in this case)
+                cancelButtonColor: "#3085d6", // Custom cancel button color (blue)
+              });
+
+              navigate(-1);
+            }
+
+            // Perform the delete operation
+          } else {
+            console.log("User canceled deletion.");
           }
+        });
+    } catch (error) {
+      switch (error.response.status) {
+        case 401:
+          swal.fire({
+            title: "You don't have permission to perform this acction",
+            text: "Please loging to the system using login page again",
+            icon: "warning",
+            confirmButtonAriaLabel: "Ok",
+            showCancelButton: false,
+          });
+          setErrorMessages(
+            "You don't have a permission to perform this action, please login again using loging page"
+          );
+          navigate("/");
+          break;
 
-          // Perform the delete operation
-        } else {
-          console.log("User canceled deletion.");
-        }
-      });
+        case 403:
+          swal.fire({
+            title: "Your session has been expired",
+            text: "Your current session has been expired, please login again using your credentials",
+            icon: "warning",
+            confirmButtonText: "Ok",
+            showCancelButton: false,
+          });
+          navigate("/");
+          break;
+
+        default:
+      }
+    }
   };
 
   return (
@@ -776,8 +831,12 @@ const CDisplayVisitor = () => {
                     {Array.isArray(visitorGroup) &&
                       visitorGroup.map((visitor) => (
                         <tr key={visitor.Visitor_Id}>
-                          <td className="text-sm border pl-2 border-black">{visitor.Visitor_Name}</td>
-                          <td className="text-sm border pl-2 border-black">{visitor.Visitor_NIC}</td>
+                          <td className="text-sm border pl-2 border-black">
+                            {visitor.Visitor_Name}
+                          </td>
+                          <td className="text-sm border pl-2 border-black">
+                            {visitor.Visitor_NIC}
+                          </td>
                         </tr>
                       ))}
                   </tbody>
@@ -858,8 +917,12 @@ const CDisplayVisitor = () => {
                     {Array.isArray(Vehicles) &&
                       Vehicles.map((vehicle) => (
                         <tr key={vehicle.Vehicle_Id}>
-                          <td className="text-sm border pl-2 border-black">{vehicle.Vehicle_Type}</td>
-                          <td className="text-sm border pl-2 border-black">{vehicle.Vehicle_No}</td>
+                          <td className="text-sm border pl-2 border-black">
+                            {vehicle.Vehicle_Type}
+                          </td>
+                          <td className="text-sm border pl-2 border-black">
+                            {vehicle.Vehicle_No}
+                          </td>
                         </tr>
                       ))}
                   </tbody>

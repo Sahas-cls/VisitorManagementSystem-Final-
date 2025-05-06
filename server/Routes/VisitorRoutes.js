@@ -6,14 +6,15 @@ const csrfProtection = csrf({ cookie: true });
 const { body, validationResult } = require("express-validator");
 const nodemailer = require("nodemailer");
 const exceljs = require("exceljs");
+const authToken = require("../middlewares/authonticationToken");
 
-const sequelize = new Sequelize({
-  dialect: "mysql", // Change this based on your DB type (mysql, postgres, etc.)
-  host: "localhost", // Your DB host
-  username: "root", // Your DB username
-  password: "", // Your DB password
-  database: "db_vm_sys", // Your DB name
-});
+// const sequelize = new Sequelize({
+//   dialect: "mysql", // Change this based on your DB type (mysql, postgres, etc.)
+//   host: "localhost", // Your DB host
+//   username: "root", // Your DB username
+//   password: "", // Your DB password
+//   database: "db_vm_sys", // Your DB name
+// });
 
 const {
   ContactPersons,
@@ -530,7 +531,7 @@ visiterRoutes.get("/getDepartments/:factoryId", async (req, res) => {
 });
 
 //to get all the visitors details according to the department
-visiterRoutes.get("/getDepartmentVisitors", async (req, res) => {
+visiterRoutes.get("/getDepartmentVisitors", authToken, async (req, res) => {
   console.log("get all called");
   //taking sended parameters to const
   const depId = req.query.userDepartmentId;
@@ -581,9 +582,9 @@ visiterRoutes.get("/getDepartmentVisitors", async (req, res) => {
 });
 
 //to update exisiting visitor using department clerk dashboard
-
 visiterRoutes.post(
   "/updateVisitor",
+  authToken,
   [
     // Entry_Request Validation
     body("Entry_Request.Requested_Department")
@@ -767,6 +768,7 @@ visiterRoutes.post(
 //to update data in department head dashboard
 visiterRoutes.post(
   "/updateVisitor-dhead",
+  authToken,
   [
     // Entry_Request Validation
     body("Entry_Request.Requested_Department")
@@ -994,6 +996,7 @@ visiterRoutes.get("/getVisitors-hr", async (req, res) => {
 // updating specific visit usign hr user account
 visiterRoutes.post(
   "/updateVisitor-hr",
+  authToken,
   [
     // Entry_Request Validation
     body("Entry_Request.Requested_Department")
@@ -2066,6 +2069,7 @@ visiterRoutes.post(
 visiterRoutes.delete(
   "/delete-visit-dUser/:cPerson_Id",
   csrfProtection,
+  authToken,
   async (req, res) => {
     const cPerson_Id = req.params.cPerson_Id || null;
 

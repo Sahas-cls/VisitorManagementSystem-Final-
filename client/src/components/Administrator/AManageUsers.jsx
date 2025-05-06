@@ -169,6 +169,34 @@ const AManageUsers = () => {
         }
         setSelectedFactory(false);
       } catch (error) {
+        switch (error.response.status) {
+          case 401:
+            swal.fire({
+              title: "You don't have permission to perform this acction",
+              text: "Please loging to the system using login page again",
+              icon: "warning",
+              confirmButtonAriaLabel: "Ok",
+              showCancelButton: false,
+            });
+            setErrorMessages(
+              "You don't have a permission to perform this action, please login again using loging page"
+            );
+            navigate("/");
+            break;
+
+          case 403:
+            swal.fire({
+              title: "Your session has been expired",
+              text: "Your current session has been expired, please login again using your credentials",
+              icon: "warning",
+              confirmButtonText: "Ok",
+              showCancelButton: false,
+            });
+            navigate("/");
+            break;
+
+          default:
+        }
         setSelectedFactory(false);
       }
     } else {
@@ -208,12 +236,41 @@ const AManageUsers = () => {
             },
           }
         );
+        // alert(response.status);
         if (response.status === 200) {
           setIsLoading(false);
           setUserList(response.data.data);
         }
         setSelectedFactory(false);
       } catch (error) {
+        alert(error.response.status);
+        switch (error.response.status) {
+          case 401:
+            swal.fire({
+              title: "You don't have permission to perform this acction",
+              text: "Please loging to the system using login page again",
+              icon: "warning",
+              confirmButtonAriaLabel: "Ok",
+              showCancelButton: false,
+            });
+            setErrorMessages(
+              "You don't have a permission to perform this action, please login again using loging page"
+            );
+            navigate("/");
+            break;
+
+          case 403:
+            swal.fire({
+              title: "Your session has been expired",
+              text: "Your current session has been expired, please login again using your credentials",
+              icon: "warning",
+              confirmButtonText: "Ok",
+              showCancelButton: false,
+            });
+            navigate("/");
+          default:
+            break;
+        }
         setSelectedFactory(false);
       }
     } else {
@@ -231,7 +288,9 @@ const AManageUsers = () => {
           </div>
         </div>
       )}
-      <h1 className="text-md mt-2 mb-2 font-extrabold text-blue-950">Users List</h1>
+      <h1 className="text-md mt-2 mb-2 font-extrabold text-blue-950">
+        Users List
+      </h1>
       <div className="w-full">
         <div className="flex justify-end w-full">
           <div className="">
@@ -249,9 +308,7 @@ const AManageUsers = () => {
         <div className="flex justify-between mb-4">
           <div className="flex">
             <fieldset className="flex">
-            <div className="">
-
-            </div>
+              <div className=""></div>
               <label htmlFor="factory">Select Factory: </label>
               <select
                 name=""
