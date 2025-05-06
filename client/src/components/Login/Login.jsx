@@ -297,19 +297,17 @@ const Login = () => {
               </div>
             </div>
 
-            <div className="w-full flex flex-col items-center mt-3">
+            <div className="w-full flex flex-col items-center mt-1">
               <button
-                className="text-center w-3/4 bg-[rgb(0,128,0)] hover:bg-[rgb(5,114,5)] text-white font-bold p-1 py-2 rounded-md hover:tracking-wider hover:scale-105 duration-300"
+                className="text-center w-3/4 bg-[rgb(0,128,0)] mb-2 hover:bg-[rgb(5,114,5)] text-white font-bold p-1 py-2 rounded-md hover:tracking-wider hover:scale-105 duration-300"
                 type="submit"
               >
                 Login
               </button>
-              <br />
               <button
                 type="button"
                 className="text-center w-3/4 bg-blue-600 hover:bg-blue-700 text-white font-bold p-1 py-2 rounded-md hover:tracking-wider hover:scale-105 duration-300"
-                onClick={() =>
-                  (window.location.href = "http://localhost:5173/register")
+                onClick={(e) => { e.preventDefault(), (window.location.href = "http://localhost:5173/register") }
                 }
               >
                 Create an Account

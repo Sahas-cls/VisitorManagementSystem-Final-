@@ -331,278 +331,227 @@ const Register = () => {
   // to get list of department id and names
 
   return (
-    <div className="w-screen h-screen flex justify-center lg:py-3 overflow-x-hidden">
+    <div className="w-full min-h-screen flex justify-center overflow-x-hidden">
       {isLoading && (
-        <div className="text-center w-full h-full">
-          <div className="loader-overlay w-full h-full">
-            <div className="loader"></div>
-            {/* <h1 className="text-center">Loading</h1> */}
-          </div>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="loader"></div>
         </div>
       )}
-      <div className="login-registration">
-        <div className="left-div w-2/6" style={{ width: "35%" }}>
-          {/* <h1 className="text-3xl font-bold" style={{ marginTop: "-20px" }}>Register a user</h1> */}
+
+      <div className="w-full h-container flex justify-center md:shadow-custom md:w-3/4 md:my-3 lg:w-3/6 lg:my-3 lg:p-0 ">
+        {/* Left Div - Can be used for image or branding */}
+        <div className="left-div hidden sm:block sm:w-2/6 sm:min-h-full bg-no-repeat bg-cover bg-top">
+          {/* Add any content you want here */}
         </div>
-        <div
-          className="right-div md:bg-gradient-to-b from-blue-300 via-gray-400/50 to-blue-300"
-          style={{
-            background:
-              "linear-gradient(to bottom, #93c5fd, rgba(156, 163, 175, 0.5), #93c5fd)",
-          }}
-        >
-          <form onSubmit={handleSubmit}>
-            <div className="registration" id="registration">
-              <div className="text-center flex justify-center">
-                <FaRegUserCircle className="text-[70px] text-center text-8xl" />
+
+        {/* Right Div - Form */}
+        <div className="w-full md:w-4/5 lg:w-3/4 p-6 md:p-8 bg-gradient-to-b from-blue-300 via-gray-400/50 to-blue-300">
+          <form onSubmit={handleSubmit} className="w-full">
+            <div className="registration">
+              <div className="flex justify-center mb-4">
+                <FaRegUserCircle className="text-6xl md:text-7xl text-blue-700" />
               </div>
-              <h1 className="text-2xl text-center mb-4 font-bold rHeading">
+              <h1 className="text-2xl md:text-3xl text-center mb-6 font-bold text-gray-800">
                 Create New Member
               </h1>
 
-              <table className="tblInputs">
-                <tr>
-                  <td clssName="td">
-                    {/* //r1 col1  */}
-                    <input
-                      type="text"
-                      className="input"
-                      name="userName"
-                      placeholder="Enter your name"
-                      onChange={handleChanges}
-                      autoComplete="off"
-                    />
-                    <p className="errors">
-                      {errors.userName && errors.userName}
-                    </p>
-                    {/* <p className="errors">{errors.userName && (
-                      <p className="errors">{errors.userName}</p>
-                    )}{" "}</p> */}
-                  </td>
-                  {/* r1 col2 */}
-                  <td clssName="td">
-                    <input
-                      type="text"
-                      className="input"
-                      name="email"
-                      placeholder="Enter your email"
-                      onChange={handleChanges}
-                      autoComplete="false"
-                    />
-                    <p className="errors">{errors.email && errors.email}</p>
-                    {/* {errors.email && <p className="errors">{errors.email}</p>}{" "} */}
-                    {/* <br /> */}
-                  </td>
-                </tr>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                {/* Name */}
+                <div>
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    name="userName"
+                    placeholder="Enter your name"
+                    onChange={handleChanges}
+                    autoComplete="off"
+                  />
+                  {errors.userName && (
+                    <p className="text-red-600 text-sm mt-1">{errors.userName}</p>
+                  )}
+                </div>
 
-                <tr>
-                  {/* r2 col1  */}
-                  <td clssName="td">
-                    {/* <input type="text" className="input" name='mobileNo' placeholder='Enter your mobile no' onChange={handleChanges} />
-                  {errors.mobileNo && <p className='errors'>{errors.mobileNo}</p>} <br /> */}
-                    <input
-                      type="password"
-                      className="input"
-                      name="password"
-                      placeholder="Enter your password"
-                      onChange={handleChanges}
-                    />
-                    {/* {errors.password && (
-                      <p className="errors">{errors.password}</p>
-                    )}{" "} */}
-                    <p className="errors">
-                      {errors.password && errors.password}
-                    </p>
-                    {/* <br /> */}
-                  </td>
+                {/* Email */}
+                <div>
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    name="email"
+                    placeholder="Enter your email"
+                    onChange={handleChanges}
+                    autoComplete="false"
+                  />
+                  {errors.email && (
+                    <p className="text-red-600 text-sm mt-1">{errors.email}</p>
+                  )}
+                </div>
 
-                  {/* r2 col2  */}
-                  <td clssName="td">
-                    <input
-                      type="password"
-                      className="input"
-                      name="cpassword"
-                      placeholder="Confirm your password"
-                      onChange={handleChanges}
-                    />
-                    {/* {errors.cpassword && (
-                      <p className="errors">{errors.cpassword}</p>
-                    )}{" "} */}
-                    <p className="errors">
-                      {errors.cpassword && errors.cpassword}
-                    </p>
-                    {/* <br /> */}
-                  </td>
-                </tr>
+                {/* Password */}
+                <div>
+                  <input
+                    type="password"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    name="password"
+                    placeholder="Enter your password"
+                    onChange={handleChanges}
+                  />
+                  {errors.password && (
+                    <p className="text-red-600 text-sm mt-1">{errors.password}</p>
+                  )}
+                </div>
 
-                {/* row3 - col1  */}
-                <tr>
-                  <td className="td">
-                    <select
-                      name="factory"
-                      id="factory"
-                      className="input input-select"
-                      onChange={handleChanges}
-                      onClick={getFactories}
-                    >
-                      <option value="">Select Factory</option>
-                      {factories.length > 0 &&
-                        factories.map((factory) => (
-                          <option
-                            key={factory.Factory_Id}
-                            value={factory.Factory_Id}
-                          >
-                            {factory.Factory_Name}
-                          </option>
-                        ))}
-                    </select>
-                    {/* {errors.factory && (
-                      <p className="errors">{errors.factory}</p>
-                    )}{" "} */}
-                    <p className="errors">{errors.factory && errors.factory}</p>
-                    {/* <br /> */}
-                  </td>
+                {/* Confirm Password */}
+                <div>
+                  <input
+                    type="password"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    name="cpassword"
+                    placeholder="Confirm your password"
+                    onChange={handleChanges}
+                  />
+                  {errors.cpassword && (
+                    <p className="text-red-600 text-sm mt-1">{errors.cpassword}</p>
+                  )}
+                </div>
 
-                  <td className="td">
-                    <select
-                      name="department"
-                      id="department"
-                      className="input input-select"
-                      onChange={handleChanges}
-                      onClick={getdFactories}
-                    >
-                      <option value="">Select Department</option>
-                      {departments.length > 0 &&
-                        departments.map((department) => (
-                          <option
-                            key={department.Department_Id}
-                            value={department.Department_Id}
-                          >
-                            {department.Department_Name}
-                          </option>
-                        ))}
-                    </select>
-                    {/* {errors.department && (
-                      <p className="errors">{errors.department}</p>
-                    )}{" "} */}
-                    <p className="errors">
-                      {errors.department && errors.department}
-                    </p>
-                    {/* <br /> */}
-                  </td>
-
-                  {/* row3 - col2  */}
-                  {/* add department */}
-                </tr>
-
-                {/* =========================== */}
-
-                <tr>
-                  {/* row4 - col2  */}
-                  <td clssName="td">
-                    <input
-                      type="text"
-                      className="input"
-                      name="mobileNo"
-                      placeholder="Mobile Number"
-                      onChange={handleChanges}
-                    />
-                    {/* {errors.mobileNo && (
-                      <p className="errors">{errors.mobileNo}</p>
-                    )}{" "} */}
-                    <p className="errors">
-                      {errors.mobileNo && errors.mobileNo}
-                    </p>
-                    {/* <br /> */}
-                  </td>
-
-                  <td clssName="td">
-                    <select
-                      name="userCategory"
-                      id="userCategory"
-                      className="input input-select"
-                      onChange={handleChanges}
-                    >
-                      <option value="">Select a user category</option>
-                      {Array.isArray(userCategories) &&
-                        userCategories.map((userCategory) => {
-                          return (
-                            <option
-                              key={userCategory.Category_Id}
-                              value={userCategory.Category}
-                            >
-                              {userCategory.Category}
-                            </option>
-                          );
-                        })}
-                    </select>
-                    {/* {errors.userCategory && (
-                      <p className="errors">{errors.userCategory}</p>
-                    )}{" "} */}
-                    <p className="errors">
-                      {errors.userCategory && errors.userCategory}
-                    </p>
-                    {/* <br /> */}
-                  </td>
-                </tr>
-              </table>
-
-              {/* <input type="text" className="input" name='userName' placeholder='Enter your name' onChange={handleChanges} />
-              // {errors.userName && <p className='errors'>{errors.userName}</p>} <br /> */}
-
-              <p className="text-center text-white mb-4">
-                <input
-                  type="checkbox"
-                  name="conditions"
-                  id="iAccept"
-                  className="scale-125"
-                  ref={accConditions}
-                />{" "}
-                <label htmlFor="iAccept" className="text-black">
-                  I accept the terms and conditions
-                </label>
-                {errors.conditions && (
-                  <p
-                    className="errors text-red-600"
-                    style={{ marginTop: "5px" }}
+                {/* Factory */}
+                <div>
+                  <select
+                    name="factory"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    onChange={handleChanges}
+                    onClick={getFactories}
                   >
+                    <option value="">Select Factory</option>
+                    {factories.length > 0 &&
+                      factories.map((factory) => (
+                        <option
+                          key={factory.Factory_Id}
+                          value={factory.Factory_Id}
+                        >
+                          {factory.Factory_Name}
+                        </option>
+                      ))}
+                  </select>
+                  {errors.factory && (
+                    <p className="text-red-600 text-sm mt-1">{errors.factory}</p>
+                  )}
+                </div>
+
+                {/* Department */}
+                <div>
+                  <select
+                    name="department"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    onChange={handleChanges}
+                    onClick={getdFactories}
+                  >
+                    <option value="">Select Department</option>
+                    {departments.length > 0 &&
+                      departments.map((department) => (
+                        <option
+                          key={department.Department_Id}
+                          value={department.Department_Id}
+                        >
+                          {department.Department_Name}
+                        </option>
+                      ))}
+                  </select>
+                  {errors.department && (
+                    <p className="text-red-600 text-sm mt-1">{errors.department}</p>
+                  )}
+                </div>
+
+                {/* Mobile Number */}
+                <div>
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    name="mobileNo"
+                    placeholder="Mobile Number"
+                    onChange={handleChanges}
+                  />
+                  {errors.mobileNo && (
+                    <p className="text-red-600 text-sm mt-1">{errors.mobileNo}</p>
+                  )}
+                </div>
+
+                {/* User Category */}
+                <div>
+                  <select
+                    name="userCategory"
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    onChange={handleChanges}
+                  >
+                    <option value="">Select a user category</option>
+                    {Array.isArray(userCategories) &&
+                      userCategories.map((userCategory) => {
+                        return (
+                          <option
+                            key={userCategory.Category_Id}
+                            value={userCategory.Category}
+                          >
+                            {userCategory.Category}
+                          </option>
+                        );
+                      })}
+                  </select>
+                  {errors.userCategory && (
+                    <p className="text-red-600 text-sm mt-1">{errors.userCategory}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Terms and Conditions */}
+              <div className="mb-6 flex flex-col items-center">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="conditions"
+                    id="iAccept"
+                    className="scale-125 mr-2"
+                    ref={accConditions}
+                  />
+                  <label htmlFor="iAccept" className="text-gray-800">
+                    I accept the terms and conditions
+                  </label>
+                </div>
+                {errors.conditions && (
+                  <p className="text-red-600 text-sm mt-2">
                     {errors.conditions}
                   </p>
-                )}{" "}
-                <br />
-              </p>
-              <p
-                className={`text-center text-red-600 font-bold ${
-                  sErrors?.type === "error" || sErrors?.type === "serror"
-                    ? "error"
-                    : "success"
-                }`}
-              >
-                {sErrors?.type === "serror" && sErrors.message}
-                {sErrors?.type === "error" && sErrors.message}
-                {sErrors?.type === "Success" && sErrors.message}
-              </p>
-              <div className="text-center mb-4">
-                {/* <a href="/">
-                  <p className="mb-4 text-blue-900 font-bold hover:text-red-600">
-                    Already have an account? Login
-                  </p>
-                </a> */}
-                <button className="rButton1 hover:scale-105 duration-300 hover:tracking-wider" type="submit">
+                )}
+              </div>
+
+              {/* Server Errors/Success */}
+              {sErrors?.message && (
+                <p
+                  className={`text-center font-bold mb-4 ${sErrors.type === "error" || sErrors.type === "serror"
+                    ? "text-red-600"
+                    : "text-green-600"
+                    }`}
+                >
+                  {sErrors.message}
+                </p>
+              )}
+
+              {/* Buttons */}
+              <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:space-x-4 justify-center">
+                <button
+                  className="w-full md:w-auto px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  type="submit"
+                >
                   Register
                 </button>
 
                 <button
                   type="button"
-                  className="rButton2 mt-4 hover:scale-105 duration-300 hover:tracking-wider"
-                  onClick={() =>
-                    (window.location.href = "http://localhost:5173/")
-                  }
+                  className="w-full md:w-auto px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                  onClick={(e) => { e.preventDefault();(window.location.href = "http://localhost:5173/") }}
                 >
                   Go to Login
                 </button>
               </div>
-              <p className="msg"></p>
             </div>
           </form>
         </div>
