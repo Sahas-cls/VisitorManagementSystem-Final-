@@ -22,6 +22,7 @@ import RDisaplayVisitor from "./components/Recept/RDisplayVisitor";
 import Resetpassword from "./components/Login/Resetpassword";
 import EditVisitor from "./components/Recept/EditVisitor";
 import EditUser from "./components/Administrator/EditUser";
+import SMain from "./components/SecurityOfficer/SMain";
 // import PopupBox from './components/Recept/popupBox';
 
 function App() {
@@ -49,10 +50,7 @@ function App() {
           <Route path="/dashboard-hr" element={<PrivateRoute />} />
           <Route path="/dashboard-recept" element={<PrivateRoute />} />
           <Route path="/dashboard-administrator" element={<PrivateRoute />} />
-          <Route
-            path="/dashboard-security-officer"
-            element={<PrivateRoute />}
-          />
+          <Route path="/dashboard-security-officer" element={<SMain />} />
           <Route path="/edit-users" element={<EditUser />} />
           <Route path="/editVisitor" element={<CDisplayVisitor />} />
           <Route path="/approve-dhead" element={<DDisplayVisitor />} />
@@ -60,7 +58,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/visitor-success" element={<VisitorSuccess />} />
           <Route path="/editVisitor-HR" element={<HDisplayVisitor />} />
-          {/* to display specific user in reception's dashboard ⬇️ */}
+          {/* to display specific user in reception's dashboard */}
           <Route path="/approve-reception" element={<RDisaplayVisitor />} />
           {/* route to reset user password */}
           <Route path="/reset-user-password" element={<Resetpassword />} />

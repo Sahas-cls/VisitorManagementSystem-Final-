@@ -57,6 +57,52 @@ const RDisplayVisitor = () => {
   const [serverErroors, setServerErrors] = useState({});
   const [vehicleErrors, setVehicleErrors] = useState({});
   const [isSaved, setisSaved] = useState(false);
+  const [visitorCategory, setvisitorCategory] = useState({});
+  const [visitorPurposes, setvisitorPurposes] = useState({});
+
+  // to get all visitor categories from backend
+  const getVCategories = async () => {
+    // alert("getting v categories");
+    try {
+      const result = await axios.get(
+        `http://localhost:3000/visitor/getVisitor-categories`,
+        {
+          headers: { "X-CSRF-Token": csrfToken },
+          withCredentials: true,
+        }
+      );
+
+      if (result.status === 200) {
+        setvisitorCategory(result.data.data);
+        console.log("getting v categories", result.data);
+      }
+    } catch (error) {
+      setvisitorCategory({});
+    }
+  };
+
+  const getVisitingPurpose = async (category_id) => {
+    // alert("getting visiting purpose");
+    try {
+      const result = await axios.get(
+        `http://localhost:3000/visitor/getVisiting_purpose/${category_id}`,
+        {
+          headers: { "X-CSRF-Token": csrfToken },
+          withCredentials: true,
+        }
+      );
+      console.log("result134 ======= ", result);
+
+      if (result.status === 200) {
+        // alert("got the purpose list");
+        console.log("visiting data list:- ", result.data.data);
+        setvisitorPurposes(result.data.data);
+      }
+    } catch (error) {
+      alert("failed");
+      setvisitorPurposes({});
+    }
+  };
 
   const navigate = useNavigate();
 
@@ -130,7 +176,15 @@ const RDisplayVisitor = () => {
     const fMobileNo = formatMNo(ufMobileNo);
     const phoneNumber = fMobileNo;
 
-    const message = `${Visitor.ContactPerson_Name}, this is your reference number for BOI entry pass *${entryPermitReference.refNumber}*`;
+    // const message = `${Visitor.ContactPerson_Name}, this is your reference number for BOI entry pass *${entryPermitReference.refNumber}*`;
+    const message =
+      `Dear ${Visitor.ContactPerson_Name},\n\n` +
+      `Thank you for your upcoming visit. Please find your *BOI reference number* below,\n` +
+      `which you will need to present upon entry.\n\n` +
+      `*BOI Reference Number:* *${entryPermitReference.refNumber}*\n\n` +
+      `Thanks,\n` +
+      `Receptionist\n` +
+      `Concord Group`;
 
     // Copy message to clipboard
     navigator.clipboard
@@ -193,6 +247,9 @@ const RDisplayVisitor = () => {
       }
     };
     getDepartments();
+    getVCategories();
+    // alert(Visits.Visitor_Category);
+    getVisitingPurpose(Visits.Visitor_Category);
   }, []);
 
   // (departmentList && console.log(departmentList))
@@ -583,6 +640,7 @@ const RDisplayVisitor = () => {
                       <select
                         name="Visitor_Category"
                         className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+                        value={Visits.visitor_category_id}
                       >
                         <option
                           selected={Visits.Visitor_Category === ""}
@@ -590,18 +648,20 @@ const RDisplayVisitor = () => {
                         >
                           Select a Category
                         </option>
-                        <option
-                          selected={Visits.Visitor_Category == "HR Services"}
-                          value="HR Services"
-                        >
-                          HR Services
-                        </option>
-                        <option
-                          selected={Visits.Visitor_Category === "Interview"}
-                          value="Interview"
-                        >
-                          Interview
-                        </option>
+
+                        {Array.isArray(visitorCategory) &&
+                          visitorCategory.map((vCategory) => (
+                            <option
+                              value={vCategory.visitor_category_id}
+                              key={vCategory.visitor_category_id}
+                              selected={
+                                Visits.Visitor_Category ==
+                                vCategory.visitor_category_id
+                              }
+                            >
+                              {vCategory.visitor_category}
+                            </option>
+                          ))}
                       </select>
                     </div>
                     {errors.Visitor_Category && (
@@ -632,12 +692,19 @@ const RDisplayVisitor = () => {
                         >
                           Select a Purpose
                         </option>
-                        <option
-                          value="HR Services"
-                          selected={Visits.Purpose === "HR Services"}
-                        >
-                          HR Services
-                        </option>
+
+                        {Array.isArray(visitorPurposes) &&
+                          visitorPurposes.map((purpose) => (
+                            <option
+                              value={purpose.visiting_purpose_id}
+                              key={purpose.visiting_purpose_id}
+                              selected={
+                                purpose.visiting_purpose_id == Visits.Purpose
+                              }
+                            >
+                              {purpose.visiting_purpose}
+                            </option>
+                          ))}
                       </select>
                     </div>
                     {errors.Purpose && (
@@ -894,7 +961,7 @@ const RDisplayVisitor = () => {
                   onClick={disableSaveButton}
                 >
                   {/* <IoIosSend className="mr-1 text-3xl text-blue-700" /> */}
-                  <MdOutlineMail className="mr-1 text-3xl text-[#1A73E8]"/>
+                  <MdOutlineMail className="mr-1 text-3xl text-[#1A73E8]" />
                 </button>
               )}
 

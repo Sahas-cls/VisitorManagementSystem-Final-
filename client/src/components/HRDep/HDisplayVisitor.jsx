@@ -36,6 +36,47 @@ const HDisplayVisitor = () => {
   const [csrfToken, setCsrfToken] = useState("");
   const [errorMessages, setErrorMessages] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  const [visitorCategory, setvisitorCategory] = useState({});
+  const [visitorPurposes, setvisitorPurposes] = useState({});
+
+  // to get all visitor categories from backend
+  const getVCategories = async () => {
+    // alert("getting v categories");
+    try {
+      const result = await axios.get(
+        `http://localhost:3000/visitor/getVisitor-categories`,
+        {
+          headers: { "X-CSRF-Token": csrfToken },
+          withCredentials: true,
+        }
+      );
+
+      if (result.status === 200) {
+        setvisitorCategory(result.data.data);
+        console.log("getting v categories", result.data);
+      }
+    } catch (error) {
+      setvisitorCategory({});
+    }
+  };
+
+  const getVisitingPurpose = async (category_id) => {
+    try {
+      const result = await axios.get(
+        `http://localhost:3000/visitor/getVisiting_purpose/${category_id}`,
+        {
+          headers: { "X-CSRF-Token": csrfToken },
+          withCredentials: true,
+        }
+      );
+
+      if (result.status === 200) {
+        setvisitorPurposes(result.data.data);
+      }
+    } catch (error) {
+      setvisitorPurposes({});
+    }
+  };
 
   const navigate = useNavigate();
 
@@ -109,6 +150,8 @@ const HDisplayVisitor = () => {
       default:
         break;
     }
+
+    getVisitingPurpose(value);
 
     setEntryPermitReq({
       ...entryPermitReq,
@@ -194,6 +237,8 @@ const HDisplayVisitor = () => {
       }
     };
     getDepartments();
+    getVCategories();
+    getVisitingPurpose(Visits.Visitor_Category);
 
     // disabling all input fields
     // const inputBoxes = document.querySelectorAll(
@@ -208,6 +253,14 @@ const HDisplayVisitor = () => {
     //   input.disabled = true;
     // });
   }, []);
+
+  // ! stopped by here retrive the visiting purpose when changes happend to the visitis state
+  // const [visitingPurpose, setvisitingPurpose] = useState(second);
+  // useEffect(() => {
+  //   const getPurpose = async () => {
+  //     const result = await axios.get('')
+  //   };
+  // }, [Visits]);
 
   // (departmentList && console.log(departmentList))
   const errorObj = {};
@@ -568,29 +621,32 @@ const HDisplayVisitor = () => {
                           name="Visitor_Category"
                           onChange={handleEntryPermitReq}
                           className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
+                          value={Visits.Visitor_Category}
                         >
+                          {/* <option value="">{Visits.Visitor_Category}</option> */}
                           <option
                             selected={Visits.Visitor_Category === ""}
                             value=""
                           >
                             Select a Category
                           </option>
-                          <option
-                            selected={Visits.Visitor_Category == "HR Services"}
-                            value="HR Services"
-                          >
-                            HR Services
-                          </option>
-                          <option
-                            selected={Visits.Visitor_Category === "Interview"}
-                            value="Interview"
-                          >
-                            Interview
-                          </option>
-                          <option
+                          {Array.isArray(visitorCategory) &&
+                            visitorCategory.map((vCategory) => (
+                              <option
+                                value={vCategory.visitor_category_id}
+                                key={vCategory.visitor_category_id}
+                                selected={
+                                  vCategory.visitor_category_id ===
+                                  Visits.Visitor_Category
+                                }
+                              >
+                                {vCategory.visitor_category}
+                              </option>
+                            ))}
+                          {/* <option
                             selected={Visits.Visitor_Category === "asdf"}
                             value=""
-                          ></option>
+                          ></option> */}
                         </select>
                         {errors.Visitor_Category && (
                           <p className="mt-1 text-sm text-red-600 bg-red-100 p-1 rounded">
@@ -617,6 +673,7 @@ const HDisplayVisitor = () => {
                         name="Purpose"
                         className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
                         onChange={handleEntryPermit}
+                        value={Visits.Purpose}
                       >
                         <option
                           value=""
@@ -626,12 +683,21 @@ const HDisplayVisitor = () => {
                         >
                           Select a Purpose
                         </option>
-                        <option
-                          value="HR Services"
-                          selected={Visits.Purpose === "HR Services"}
-                        >
-                          HR Services
-                        </option>
+
+                        {/* <option value={Visits.Purpose}>{Visits.Purpose}</option> */}
+
+                        {Array.isArray(visitorPurposes) &&
+                          visitorPurposes.map((purpose) => (
+                            <option
+                              value={purpose.visiting_purpose_id}
+                              key={purpose.visiting_purpose_id}
+                              selected={
+                                purpose.visiting_purpose_id == Visits.Purpose
+                              }
+                            >
+                              {purpose.visiting_purpose}
+                            </option>
+                          ))}
                       </select>
                     </div>
                     {errors.Purpose && (

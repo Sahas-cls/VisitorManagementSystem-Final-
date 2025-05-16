@@ -156,7 +156,7 @@ userRoutes.post(
             factoryId: user.factory_Id,
           },
           process.env.JWT_SECRET,
-          { expiresIn: "3sec" }
+          { expiresIn: "1h" }
         );
         // console.log(token);
 

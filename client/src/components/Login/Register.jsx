@@ -331,25 +331,25 @@ const Register = () => {
   // to get list of department id and names
 
   return (
-    <div className="w-full min-h-screen flex justify-center overflow-x-hidden">
+    <div className="w-full min-h-screen flex justify-center  overflow-x-hidden">
       {isLoading && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="loader"></div>
         </div>
       )}
 
-      <div className="w-full h-container flex justify-center md:shadow-custom md:w-3/4 md:my-3 lg:w-3/6 lg:my-3 lg:p-0 ">
+      <div className="w-full h-sc flex justify-center items-center md:shadow-custom md:w-3/4 md:my-3 lg:w-3/6 lg:my-3 lg:p-0 ">
         {/* Left Div - Can be used for image or branding */}
         <div className="left-div hidden sm:block sm:w-2/6 sm:min-h-full bg-no-repeat bg-cover bg-top">
           {/* Add any content you want here */}
         </div>
 
         {/* Right Div - Form */}
-        <div className="w-full md:w-4/5 lg:w-3/4 p-6 md:p-8 bg-gradient-to-b from-blue-300 via-gray-400/50 to-blue-300">
+        <div className="w-full h-full md:w-4/5 lg:w-3/4 p-6 md:p-8 bg-gradient-to-b from-blue-300 via-gray-400/50 to-blue-300 flex items-center">
           <form onSubmit={handleSubmit} className="w-full">
             <div className="registration">
               <div className="flex justify-center mb-4">
-                <FaRegUserCircle className="text-6xl md:text-7xl text-blue-700" />
+                <FaRegUserCircle className="text-6xl md:text-7xl text-blue-700 xl:mb-3" />
               </div>
               <h1 className="text-2xl md:text-3xl text-center mb-6 font-bold text-gray-800">
                 Create New Member
@@ -504,7 +504,7 @@ const Register = () => {
 
               {/* Terms and Conditions */}
               <div className="mb-6 flex flex-col items-center">
-                <div className="flex items-center">
+                <div className="flex items-center xl:mt-3">
                   <input
                     type="checkbox"
                     name="conditions"
@@ -536,7 +536,7 @@ const Register = () => {
               )}
 
               {/* Buttons */}
-              <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:space-x-4 justify-center">
+              <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:space-x-4 justify-center xl:mt-10">
                 <button
                   className="w-full md:w-auto px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   type="submit"

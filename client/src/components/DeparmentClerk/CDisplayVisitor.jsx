@@ -40,6 +40,47 @@ const CDisplayVisitor = () => {
   const [departmentList, setDepartmentList] = useState({});
   const [csrfToken, setCsrfToken] = useState("");
   const [errorMessages, setErrorMessages] = useState();
+  const [visitorCategory, setvisitorCategory] = useState({});
+  const [visitorPurposes, setvisitorPurposes] = useState({});
+
+  // to get all visitor categories from backend
+  const getVCategories = async () => {
+    // alert("getting v categories");
+    try {
+      const result = await axios.get(
+        `http://localhost:3000/visitor/getVisitor-categories`,
+        {
+          headers: { "X-CSRF-Token": csrfToken },
+          withCredentials: true,
+        }
+      );
+
+      if (result.status === 200) {
+        setvisitorCategory(result.data.data);
+        console.log("getting v categories", result.data);
+      }
+    } catch (error) {
+      setvisitorCategory({});
+    }
+  };
+
+  const getVisitingPurpose = async (category_id) => {
+    try {
+      const result = await axios.get(
+        `http://localhost:3000/visitor/getVisiting_purpose/${category_id}`,
+        {
+          headers: { "X-CSRF-Token": csrfToken },
+          withCredentials: true,
+        }
+      );
+
+      if (result.status === 200) {
+        setvisitorPurposes(result.data.data);
+      }
+    } catch (error) {
+      setvisitorPurposes({});
+    }
+  };
 
   //to store entry permit req details
   const [entryPermitReq, setEntryPermitReq] = useState({
@@ -111,6 +152,10 @@ const CDisplayVisitor = () => {
       default:
         break;
     }
+
+    // alert(value);
+
+    getVisitingPurpose(value);
 
     setEntryPermitReq({
       ...entryPermitReq,
@@ -196,6 +241,8 @@ const CDisplayVisitor = () => {
       }
     };
     getDepartments();
+
+    getVCategories();
   }, []);
 
   // (departmentList && console.log(departmentList))
@@ -681,7 +728,18 @@ const CDisplayVisitor = () => {
                       >
                         Select a Category
                       </option>
-                      <option
+
+                      {Array.isArray(visitorCategory) &&
+                        visitorCategory.map((vCategory) => (
+                          <option
+                            value={vCategory.visitor_category_id}
+                            key={vCategory.visitor_category_id}
+                          >
+                            {vCategory.visitor_category}
+                          </option>
+                        ))}
+
+                      {/* <option
                         selected={Visits.Visitor_Category == "HR Services"}
                         value="HR Services"
                       >
@@ -692,7 +750,7 @@ const CDisplayVisitor = () => {
                         value="Interview"
                       >
                         Interview
-                      </option>
+                      </option> */}
                     </select>
                     {errors.Visitor_Category && (
                       <p className="mt-1 text-sm text-red-600 bg-red-100 p-1 rounded">
@@ -729,12 +787,23 @@ const CDisplayVisitor = () => {
                     >
                       Select a Purpose
                     </option>
-                    <option
+
+                    {Array.isArray(visitorPurposes) &&
+                      visitorPurposes.map((purpose) => (
+                        <option
+                          value={purpose.visiting_purpose_id}
+                          key={purpose.visiting_purpose_id}
+                        >
+                          {purpose.visiting_purpose}
+                        </option>
+                      ))}
+
+                    {/* <option
                       value="HR Services"
                       selected={Visits.Purpose === "HR Services"}
                     >
                       HR Services
-                    </option>
+                    </option> */}
                   </select>
                 </div>
                 {errors.Purpose && (

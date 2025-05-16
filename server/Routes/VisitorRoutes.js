@@ -1,5 +1,6 @@
 const express = require("express");
-const { Op, Sequelize, where } = require("sequelize");
+const { Op, where } = require("sequelize");
+const { sequelize } = require("../models/index");
 const visiterRoutes = express.Router();
 const csrf = require("csurf");
 const csrfProtection = csrf({ cookie: true });
@@ -8,7 +9,7 @@ const nodemailer = require("nodemailer");
 const exceljs = require("exceljs");
 const authToken = require("../middlewares/authonticationToken");
 
-// const sequelize = new Sequelize({
+// const sequelize = new sequelize({
 //   dialect: "mysql", // Change this based on your DB type (mysql, postgres, etc.)
 //   host: "localhost", // Your DB host
 //   username: "root", // Your DB username
@@ -23,6 +24,8 @@ const {
   Vehicles,
   Departments,
   department_Users,
+  VisitorCategory,
+  VisitingPurpose,
 } = require("../models");
 const Factory = require("../models/Factory");
 const sendEmail = require("../utils/SendEmail");
@@ -33,6 +36,43 @@ visiterRoutes.get("/", csrfProtection, (req, res) => {
   console.log(req.csrfToken());
   return res.status(200).send("All visitors: " + req.csrfToken());
 });
+
+// to provide all visitor categories
+visiterRoutes.get("/getVisitor-categories", async (req, res) => {
+  try {
+    const vCategories = await VisitorCategory.findAll();
+    if (vCategories) {
+      console.log(vCategories);
+      return res.status(200).json({ success: true, data: vCategories });
+    }
+  } catch (error) {
+    console.error("error while fetching visitor categories: ", error);
+    return res.status(500).json({ success: false, data: "" });
+  }
+});
+
+visiterRoutes.get(
+  "/getVisiting_purpose/:visiting_category",
+  async (req, res) => {
+    const visiting_category = req.params.visiting_category;
+    console.log(visiting_category);
+
+    try {
+      const vPurpose = await VisitingPurpose.findAll({
+        where: {
+          visitor_category_id: visiting_category,
+        },
+      });
+
+      if (vPurpose) {
+        return res.status(200).json({ success: true, data: vPurpose });
+      }
+    } catch (error) {
+      console.error("Error while fetching the visiting purposes: ", error);
+      return res.status(500).json({ success: true, data: "" });
+    }
+  }
+);
 
 //get visitor details according to department id
 visiterRoutes.get("/getVisitors/:departmentId", async (req, res) => {
@@ -45,8 +85,8 @@ visiterRoutes.get("/getVisitors/:departmentId", async (req, res) => {
       // attributes: [
       //   'Visit_Id', // Include Visit_Id if you need it
       //   'Date_From', // Visiting Date
-      //   [Sequelize.col('Visitor.Visitor_Name'), 'Visitor_Name'], // Visitor_Name from the Visitor table
-      //   [Sequelize.col('Visitor.Visitor_NIC'), 'Visitor_NIC'], // Visitor_NIC from the Visitor table
+      //   [sequelize.col('Visitor.Visitor_Name'), 'Visitor_Name'], // Visitor_Name from the Visitor table
+      //   [sequelize.col('Visitor.Visitor_NIC'), 'Visitor_NIC'], // Visitor_NIC from the Visitor table
       // ],
       include: [
         {
@@ -85,7 +125,7 @@ visiterRoutes.get("/getVisitors-dhead", async (req, res) => {
   const facId = req.query.userFactoryId;
   // userFactoryId: userFactoryId, console.log("dep id: ", depId);
 
-  // const { Op, Sequelize } = require("sequelize");
+  // const { Op, sequelize } = require("sequelize");
 
   const result = await ContactPersons.findAll({
     include: [
@@ -96,7 +136,7 @@ visiterRoutes.get("/getVisitors-dhead", async (req, res) => {
           [Op.and]: [{ Department_Id: depId }, { Factory_Id: facId }],
           D_Head_Approval: false,
           Date_From: {
-            [Op.gte]: Sequelize.fn("CURDATE"), // Filter for today
+            [Op.gte]: sequelize.fn("CURDATE"), // Filter for today
           },
           Requested_Officer: {
             [Op.ne]: null,
@@ -388,7 +428,7 @@ visiterRoutes.post(
               });
               console.log("Created visitor: ", createdVisitor.Visitor_Name);
             } catch (error) {
-              if (error instanceof Sequelize.ValidationError) {
+              if (error instanceof sequelize.ValidationError) {
                 console.error("Validation errors:", error.errors);
               } else {
                 console.error("Unexpected error:", error);
@@ -536,7 +576,7 @@ visiterRoutes.get("/getDepartmentVisitors", authToken, async (req, res) => {
   //taking sended parameters to const
   const depId = req.query.userDepartmentId;
   const facId = req.query.userFactoryId;
-  // const { Op, Sequelize } = require("sequelize");
+  // const { Op, sequelize } = require("sequelize");
   //
   // console.log(depId, facId);
   // console.log(req);
@@ -549,7 +589,7 @@ visiterRoutes.get("/getDepartmentVisitors", authToken, async (req, res) => {
           [Op.and]: [{ Factory_Id: facId }, { Department_Id: depId }],
           D_Head_Approval: false,
           Date_From: {
-            [Op.gte]: Sequelize.fn("CURDATE"), // Filter for today
+            [Op.gte]: sequelize.fn("CURDATE"), // Filter for today
           },
           Requested_Officer: {
             [Op.or]: [{ [Op.is]: null }, { [Op.eq]: "" }],
@@ -943,7 +983,7 @@ visiterRoutes.get("/getVisitors-hr", async (req, res) => {
   //taking sended parameters to const
   const depId = req.query.userDepartmentId;
   const facId = req.query.userFactoryId;
-  // const { Op, Sequelize } = require("sequelize");
+  // const { Op, sequelize } = require("sequelize");
   //
   // console.log(depId, facId);
   // console.log(req);
@@ -956,7 +996,7 @@ visiterRoutes.get("/getVisitors-hr", async (req, res) => {
           [Op.and]: [
             { Factory_Id: facId },
             { HR_Approval: false },
-            { Date_From: { [Op.gte]: Sequelize.fn("CURDATE") } }, // Filter for today
+            { Date_From: { [Op.gte]: sequelize.fn("CURDATE") } }, // Filter for today
           ],
         },
         required: true,
@@ -965,7 +1005,7 @@ visiterRoutes.get("/getVisitors-hr", async (req, res) => {
             model: Departments,
             as: "Departments", // Alias as per the model association
             required: true,
-            where: Sequelize.literal(`(
+            where: sequelize.literal(`(
               Department_Name = 'Common' OR (Department_Name != 'common' AND D_Head_Approval = true)
             )`),
           },
@@ -1173,7 +1213,7 @@ visiterRoutes.get("/getVisitors-reception", async (req, res) => {
   //taking sended parameters to const
   const depId = req.query.userDepartmentId;
   const facId = req.query.userFactoryId;
-  // const { Op, Sequelize } = require("sequelize");
+  // const { Op, sequelize } = require("sequelize");
   //
   // console.log(depId, facId);
   // console.log(req);
@@ -1187,7 +1227,7 @@ visiterRoutes.get("/getVisitors-reception", async (req, res) => {
           // D_Head_Approval: true,
           HR_Approval: true,
           Date_From: {
-            [Op.gte]: Sequelize.fn("CURDATE"), // Filter for today
+            [Op.gte]: sequelize.fn("CURDATE"), // Filter for today
           },
 
           [Op.or]: [
@@ -1407,7 +1447,7 @@ visiterRoutes.post(
               });
               console.log("Created visitor: ", createdVisitor.Visitor_Name);
             } catch (error) {
-              if (error instanceof Sequelize.ValidationError) {
+              if (error instanceof sequelize.ValidationError) {
                 console.error("Validation errors:", error.errors);
               } else {
                 console.error("Unexpected error:", error);
@@ -1548,7 +1588,7 @@ visiterRoutes.get(
     const facId = req.query.userFactoryId;
     console.log(depId, "", facId);
     // return;
-    // const { Op, Sequelize } = require("sequelize");
+    // const { Op, sequelize } = require("sequelize");
 
     // Assuming the user provides Date_From and Date_To in the query
     const Date_From = req.query.Date_From; // Example: 25
@@ -1568,16 +1608,16 @@ visiterRoutes.get(
               ],
               // [Op.and]: [
               //   // Ensure the current date falls within the given Date_From and Date_To
-              //   Sequelize.where(
-              //     Sequelize.fn("DATE", Sequelize.col("Visits.Date_From")),
+              //   sequelize.where(
+              //     sequelize.fn("DATE", sequelize.col("Visits.Date_From")),
               //     {
-              //       [Op.lte]: Sequelize.fn("CURDATE"),
+              //       [Op.lte]: sequelize.fn("CURDATE"),
               //     }
               //   ),
-              //   Sequelize.where(
-              //     Sequelize.fn("DATE", Sequelize.col("Visits.Date_To")),
+              //   sequelize.where(
+              //     sequelize.fn("DATE", sequelize.col("Visits.Date_To")),
               //     {
-              //       [Op.gte]: Sequelize.fn("CURDATE"),
+              //       [Op.gte]: sequelize.fn("CURDATE"),
               //     }
               //   ),
               //   // You can add further constraints based on the factory and department IDs if needed
@@ -1585,7 +1625,90 @@ visiterRoutes.get(
               //   { Department_Id: depId },
               // ],
             },
-            required: true, // Ensures an INNER JOIN
+            required: true,
+          },
+          {
+            model: Vehicles,
+            as: "Vehicles",
+            required: false,
+          },
+          {
+            model: Visitors,
+            as: "Visitors",
+            required: false,
+          },
+        ],
+      });
+
+      if (result && result.length > 0) {
+        return res.status(200).json({ data: result });
+      } else {
+        console.log("doesn't have visitors yet");
+        return res
+          .status(200)
+          .json({ msg: "No visitors found for the given date range." });
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ msg: "Failed to fetch data", error });
+    }
+  }
+);
+
+visiterRoutes.get(
+  "/getDepartmentVisitors-securityVisitor/:findByName",
+  async (req, res) => {
+    const findByName = req.params.findByName;
+    console.log(findByName);
+    // return;
+    console.log(req.body);
+    const depId = req.query.userDepartmentId;
+    const facId = req.query.userFactoryId;
+    console.log(depId, "", facId);
+    // return;
+    // const { Op, sequelize } = require("sequelize");
+
+    // Assuming the user provides Date_From and Date_To in the query
+    const Date_From = req.query.Date_From; // Example: 25
+    const Date_To = req.query.Date_To; // Example: 30
+
+    try {
+      const result = await ContactPersons.findAll({
+        where: {
+          ContactPerson_Name: {
+            [Op.like]: `%${findByName}%`,
+          },
+        },
+        include: [
+          {
+            model: Visits,
+            as: "Visits",
+            where: {
+              HR_Approval: true,
+              [Op.and]: [
+                { Reference_No: { [Op.ne]: null } },
+                { Reference_No: { [Op.ne]: "" } },
+              ],
+              // [Op.and]: [
+              //   // Ensure the current date falls within the given Date_From and Date_To
+              //   sequelize.where(
+              //     sequelize.fn("DATE", sequelize.col("Visits.Date_From")),
+              //     {
+              //       [Op.lte]: sequelize.fn("CURDATE"),
+              //     }
+              //   ),
+              //   sequelize.where(
+              //     sequelize.fn("DATE", sequelize.col("Visits.Date_To")),
+              //     {
+              //       [Op.gte]: sequelize.fn("CURDATE"),
+              //     }
+              //   ),
+              //   // You can add further constraints based on the factory and department IDs if needed
+              //   { Factory_Id: facId },
+              //   { Department_Id: depId },
+              // ],
+            },
+            required: true,
           },
           {
             model: Vehicles,
@@ -1639,110 +1762,144 @@ visiterRoutes.get(
 //   }
 // }
 
+// visiterRoutes.post("/updateChackIn", async (req, res) => {
+//   // console.log(req.body);
+//   const { currentDate, visit } = req.body;
+//   const { Visit_Id } = visit;
+
+//   if (Visit_Id !== "") {
+//     try {
+//       const selectedVisit = await Visits.findOne({
+//         where: { Visit_Id: Visit_Id },
+//       });
+
+//       // Convert currentDate to system local time zone using JavaScript Date object
+//       const localDate = new Date(); // This will use the system's local time zone
+
+//       if (selectedVisit) {
+//         // Update Checkin_Time with the local date
+//         const updateVisit = await selectedVisit.update({
+//           Checkin_Time: localDate,
+//         });
+
+//         if (updateVisit) {
+//           console.log(localDate, "====================="); // Log the local date
+//           return res.status(200).json({ msg: "Visit update success" });
+//         } else {
+//           return res.status(400).json({ msg: "Update failed" });
+//         }
+//       }
+//     } catch (error) {
+//       console.error(error);
+//       return res.status(500).json({ msg: "Internal server error" });
+//     }
+//   } else {
+//     return res.status(400).json({ msg: "Invalid Visit_Id" });
+//   }
+// });
+
 visiterRoutes.post("/updateChackIn", async (req, res) => {
-  // console.log(req.body);
   const { currentDate, visit } = req.body;
   const { Visit_Id } = visit;
 
-  if (Visit_Id !== "") {
-    try {
-      const selectedVisit = await Visits.findOne({
-        where: { Visit_Id: Visit_Id },
-      });
-
-      // Convert currentDate to system local time zone using JavaScript Date object
-      const localDate = new Date(); // This will use the system's local time zone
-
-      if (selectedVisit) {
-        // Update Checkin_Time with the local date
-        const updateVisit = await selectedVisit.update({
-          Checkin_Time: localDate,
-        });
-
-        if (updateVisit) {
-          console.log(localDate, "====================="); // Log the local date
-          return res.status(200).json({ msg: "Visit update success" });
-        } else {
-          return res.status(400).json({ msg: "Update failed" });
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ msg: "Internal server error" });
-    }
-  } else {
+  if (!Visit_Id || Visit_Id === "") {
     return res.status(400).json({ msg: "Invalid Visit_Id" });
+  }
+
+  try {
+    const selectedVisit = await Visits.findOne({
+      where: { Visit_Id: Visit_Id },
+    });
+
+    if (!selectedVisit) {
+      return res.status(404).json({ msg: "Visit not found" });
+    }
+
+    // Use the provided ISO date string directly
+    const providedDate = new Date(currentDate);
+
+    if (isNaN(providedDate.getTime())) {
+      return res.status(400).json({ msg: "Invalid date format" });
+    }
+
+    const updateVisit = await selectedVisit.update({
+      Checkin_Time: providedDate,
+    });
+
+    console.log(providedDate, "====================="); // Log the parsed date
+
+    return res.status(200).json({ msg: "Visit update success" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ msg: "Internal server error" });
   }
 });
 
 visiterRoutes.post("/updateChackOut", async (req, res) => {
-  // console.log(req.body);
   const { currentDate, visit } = req.body;
   const { Visit_Id } = visit;
 
-  if (Visit_Id !== "") {
-    try {
-      const selectedVisit = await Visits.findOne({
-        where: { Visit_Id: Visit_Id },
+  if (!Visit_Id || Visit_Id === "") {
+    return res.status(400).json({ msg: "Invalid Visit_Id" });
+  }
+
+  try {
+    const selectedVisit = await Visits.findOne({
+      where: { Visit_Id: Visit_Id },
+    });
+
+    if (!selectedVisit) {
+      return res.status(404).json({ msg: "Visit not found" });
+    }
+
+    const providedDate = new Date(currentDate);
+
+    if (isNaN(providedDate.getTime())) {
+      return res.status(400).json({ msg: "Invalid date format" });
+    }
+
+    // Update Checkout_Time with provided date
+    const updateVisit = await selectedVisit.update({
+      Checkout_Time: providedDate,
+    });
+
+    console.log(providedDate, "====================="); // Log the parsed date
+
+    const { Checkin_Time, Checkout_Time } = updateVisit;
+
+    if (Checkin_Time && Checkout_Time) {
+      const checkinTime = new Date(Checkin_Time);
+      const checkoutTime = new Date(Checkout_Time);
+
+      const timeDifference = checkoutTime - checkinTime;
+
+      const hours = Math.floor(timeDifference / (1000 * 60 * 60));
+      const minutes = Math.floor(
+        (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
+      );
+      const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+      console.log(
+        `Total time spent: ${hours} hours, ${minutes} minutes, ${seconds} seconds`
+      );
+
+      const totalTimeString = `${hours} hours, ${minutes} minutes`;
+      await updateVisit.update({
+        Total_Time: totalTimeString,
       });
 
-      // Convert currentDate to system local time zone using JavaScript Date object
-      const localDate = new Date(); // This will use the system's local time zone
-
-      if (selectedVisit) {
-        // Update Checkin_Time with the local date
-        const updateVisit = await selectedVisit.update({
-          Checkout_Time: localDate,
-        });
-
-        if (updateVisit) {
-          console.log(localDate, "====================="); // Log the local date
-
-          const { Checkin_Time, Checkout_Time } = updateVisit;
-
-          if (Checkin_Time && Checkout_Time) {
-            // Convert the Checkin_Time and Checkout_Time to Date objects
-            const checkinTime = new Date(Checkin_Time);
-            const checkoutTime = new Date(Checkout_Time);
-
-            // Calculate the difference in milliseconds
-            const timeDifference = checkoutTime - checkinTime;
-
-            // Convert milliseconds to hours, minutes, and seconds
-            const hours = Math.floor(timeDifference / (1000 * 60 * 60));
-            const minutes = Math.floor(
-              (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
-            );
-            const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
-
-            // Log the result
-            console.log(
-              `Total time spent: ${hours} hours, ${minutes} minutes, ${seconds} seconds`
-            );
-            const totalTimeString = `${hours} hours, ${minutes} minutes`;
-            const updateTotalTime = await updateVisit.update({
-              Total_Time: totalTimeString,
-            });
-
-            return res.status(200).json({
-              msg: "Visit update success",
-            });
-
-            // Optionally, you can send this info back in the response
-          } else {
-            // If either Checkin_Time or Checkout_Time is missing
-            // return res.status(400).json({ msg: "Checkin_Time or Checkout_Time is missing" });
-            return res.status(400);
-            console.log("checking time is empty, total time is not calculated");
-          }
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ msg: "Internal server error" });
+      return res.status(200).json({
+        msg: "Visit update success",
+      });
+    } else {
+      console.log("Check-in time is empty, total time not calculated");
+      return res.status(400).json({
+        msg: "Check-in or check-out time is missing",
+      });
     }
-  } else {
-    return res.status(400).json({ msg: "Invalid Visit_Id" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ msg: "Internal server error" });
   }
 });
 
@@ -1756,10 +1913,10 @@ visiterRoutes.get("/selectEditedVisitors-CUser", async (req, res) => {
 
   // console.log(`${depId} === ${facId}`);
   // return;
-  const oneWeekAgo = Sequelize.fn(
+  const oneWeekAgo = sequelize.fn(
     "DATE_SUB",
-    Sequelize.fn("CURDATE"),
-    Sequelize.literal("INTERVAL 7 DAY")
+    sequelize.fn("CURDATE"),
+    sequelize.literal("INTERVAL 7 DAY")
   );
 
   const result = await ContactPersons.findAll({
@@ -1771,7 +1928,7 @@ visiterRoutes.get("/selectEditedVisitors-CUser", async (req, res) => {
           [Op.and]: [{ Factory_Id: facId }, { Department_Id: depId }],
           Last_Modified_By: userId,
           // updatedAt: {
-          //   [Op.between]: [oneWeekAgo, Sequelize.fn("CURDATE")], // Filter for records from the last week
+          //   [Op.between]: [oneWeekAgo, sequelize.fn("CURDATE")], // Filter for records from the last week
           // },
           Requested_Officer: {
             [Op.or]: [{ [Op.ne]: null }, { [Op.ne]: "" }],
@@ -1814,10 +1971,10 @@ visiterRoutes.get("/selectApprovedVisitors-DHead", async (req, res) => {
 
   // console.log(`${depId} === ${facId}`);
   // return;
-  const oneWeekAgo = Sequelize.fn(
+  const oneWeekAgo = sequelize.fn(
     "DATE_SUB",
-    Sequelize.fn("CURDATE"),
-    Sequelize.literal("INTERVAL 7 DAY")
+    sequelize.fn("CURDATE"),
+    sequelize.literal("INTERVAL 7 DAY")
   );
 
   const result = await ContactPersons.findAll({
@@ -1829,7 +1986,7 @@ visiterRoutes.get("/selectApprovedVisitors-DHead", async (req, res) => {
           [Op.and]: [{ Factory_Id: facId }, { Department_Id: depId }],
           Last_Modified_By: userId,
           // updatedAt: {
-          //   [Op.between]: [oneWeekAgo, Sequelize.fn("CURDATE")], // Filter for records from the last week
+          //   [Op.between]: [oneWeekAgo, sequelize.fn("CURDATE")], // Filter for records from the last week
           // },
           Requested_Officer: {
             [Op.or]: [{ [Op.ne]: null }, { [Op.ne]: "" }],
@@ -1868,15 +2025,15 @@ visiterRoutes.get("/approvedVisitors-Hr", async (req, res) => {
   // const userId = req.query.userId;
   const { userDepartmentId, userFactoryId, userId } = req.query;
   // console.log(userId);return;
-  // const { Op, Sequelize } = require("sequelize");
+  // const { Op, sequelize } = require("sequelize");
   //
   // console.log(depId, facId);
   // console.log(`${depId}, " ", ${facId}, " ", ${userId} `);
   // return;
-  const oneWeekAgo = Sequelize.fn(
+  const oneWeekAgo = sequelize.fn(
     "DATE_SUB",
-    Sequelize.fn("CURDATE"),
-    Sequelize.literal("INTERVAL 7 DAY")
+    sequelize.fn("CURDATE"),
+    sequelize.literal("INTERVAL 7 DAY")
   );
   const result = await ContactPersons.findAll({
     include: [
@@ -1888,7 +2045,7 @@ visiterRoutes.get("/approvedVisitors-Hr", async (req, res) => {
           HR_Approval: true,
           H_Approved_By: userId,
           // updatedAt: {
-          //   [Op.between]: [oneWeekAgo, Sequelize.fn("CURDATE")], // Filter for records from the last week
+          //   [Op.between]: [oneWeekAgo, sequelize.fn("CURDATE")], // Filter for records from the last week
           // },
         },
         required: true, // Ensures an INNER JOIN
@@ -1924,10 +2081,10 @@ visiterRoutes.post(
   [
     body("dateFrom")
       .notEmpty()
-      .withMessage("Please select Date From before generate report"),
+      .withMessage("Please select Date From before generating the report"),
     body("dateTo")
       .notEmpty()
-      .withMessage("Please select Date To before generate report"),
+      .withMessage("Please select Date To before generating the report"),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -1935,6 +2092,7 @@ visiterRoutes.post(
       console.error(errors);
       return res.status(400).send(errors.array());
     }
+
     const { dateFrom, dateTo } = req.body;
 
     try {
@@ -1942,45 +2100,29 @@ visiterRoutes.post(
         where: {
           Date_From: { [Op.between]: [dateFrom, dateTo] },
           Checkin_Time: { [Op.ne]: null },
-          // [Op.or]: [
-          //   { Reference_No: { [Op.ne]: null } },
-          // ],
         },
         include: [
           {
             model: ContactPersons,
-            as: "ContactPerson", // Use the correct alias for the ContactPerson association
-            required: true, // INNER JOIN
-            // include: [
-            //   {
-            //     model: Vehicles, // Include the Vehicles model through ContactPersons
-            //     as: "Vehicles", // Use the correct alias for the Vehicles association
-            //     required: true, // INNER JOIN on Vehicles
-            //   },
-            // ],
+            as: "ContactPerson",
+            required: true,
           },
           {
             model: Departments,
             as: "Departments",
-            required: true, // INNER JOIN on Departments
+            required: true,
           },
         ],
       });
-      // visitors.forEach((visit) => {
-      //   console.log(visit.dataValues.ContactPerson);
-      // });
-      // console.log(visitors.dataValues);
+
       if (visitors) {
-        // return;
         const workBook = new exceljs.Workbook();
         const worksheet = workBook.addWorksheet(`${dateFrom} - ${dateTo}`);
 
-        // Add header row and style it
         const headerRow = worksheet.addRow([
           "Date",
           "Name",
           "NIC",
-          // "Vehicle No",
           "Req Department",
           "Check in",
           "Check out",
@@ -1988,79 +2130,64 @@ visiterRoutes.post(
           "Reference No",
         ]);
 
-        // Apply styles to the header row
         headerRow.font = { bold: true, size: 14 };
-        // headerRow.fill = {
-        //   type: "pattern",
-        //   pattern: "solid",
-        //   fgColor: { argb: "4F81BD" }, // Light blue background for header
-        // };
-        headerRow.alignment = {
-          horizontal: "center",
-          vertical: "middle",
-        };
-
-        // adding color to first row of excel sheet
-
-        // Add visitor rows
-        visitors.forEach((visit) => {
-          worksheet.addRow([
-            visit.Date_From,
-            visit.ContactPerson.ContactPerson_Name,
-            visit.ContactPerson.ContactPerson_NIC,
-            // visit.ContactPersons.Vehicles.Vehicle_Type,
-            // "No Vehicle", // Assuming no vehicle field for now
-            visit.Departments.Department_Name,
-            visit.Checkin_Time,
-            visit.Checkout_Time,
-            visit.Total_Time,
-            visit.Reference_No,
-          ]);
-        });
+        headerRow.alignment = { horizontal: "center", vertical: "middle" };
 
         for (let i = 1; i <= 9; i++) {
           headerRow.getCell(i).fill = {
             type: "pattern",
             pattern: "solid",
-            fgColor: { argb: "4F81BD" }, // Light blue background for header
+            fgColor: { argb: "4F81BD" },
           };
         }
-        // worksheet.getColumn(2);
-        // worksheet.getColumn(3);
-        // worksheet.getColumn(4);
-        // worksheet.getColumn(5);
-        // worksheet.getColumn(6);
-        // worksheet.getColumn(7);
-        // worksheet.getColumn(8);
-        // worksheet.getColumn(9);
 
-        worksheet.getColumn(1).width = 15; // Date column width
-        worksheet.getColumn(2).width = 25; // Name column width
-        worksheet.getColumn(3).width = 15; // NIC column width
-        worksheet.getColumn(4).width = 15; // Vehicle No column width
-        worksheet.getColumn(5).width = 25; // Req Department column width
-        worksheet.getColumn(6).width = 15; // Check in column width
-        worksheet.getColumn(7).width = 15; // Check out column width
-        worksheet.getColumn(8).width = 20; // Total Time Spend column width
-        worksheet.getColumn(9).width = 20; // Reference No column width
+        // Helper to format datetime
+        const formatDateTime = (dt) =>
+          dt
+            ? new Date(dt).toLocaleString("en-GB", {
+                timeZone: "Asia/Colombo",
+              })
+            : "";
 
-        // Set the response headers for downloading the Excel file
+        visitors.forEach((visit) => {
+          worksheet.addRow([
+            new Date(visit.Date_From).toLocaleDateString("en-GB"),
+            visit.ContactPerson.ContactPerson_Name,
+            visit.ContactPerson.ContactPerson_NIC,
+            visit.Departments.Department_Name,
+            formatDateTime(visit.Checkin_Time),
+            formatDateTime(visit.Checkout_Time),
+            visit.Total_Time,
+            visit.Reference_No,
+          ]);
+        });
+
+        // Column widths
+        worksheet.getColumn(1).width = 15;
+        worksheet.getColumn(2).width = 25;
+        worksheet.getColumn(3).width = 15;
+        worksheet.getColumn(4).width = 20;
+        worksheet.getColumn(5).width = 25;
+        worksheet.getColumn(6).width = 25;
+        worksheet.getColumn(7).width = 25;
+        worksheet.getColumn(8).width = 20;
+        worksheet.getColumn(9).width = 20;
+
         res.setHeader(
           "Content-Type",
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         );
         res.setHeader(
           "Content-Disposition",
-          'attachment; filename="data.xlsx"'
+          'attachment; filename="Visitor_Report.xlsx"'
         );
 
-        // Write the workbook to the response stream and send it to the client
         await workBook.xlsx.write(res);
-
         res.end();
       }
     } catch (error) {
-      console.error(error);
+      console.error("Excel generation error:", error);
+      res.status(500).send("Error generating Excel file");
     }
   }
 );
@@ -2445,7 +2572,7 @@ visiterRoutes.get("/getDepartmentVisitors", async (req, res) => {
   //taking sended parameters to const
   const depId = req.query.userDepartmentId;
   const facId = req.query.userFactoryId;
-  // const { Op, Sequelize } = require("sequelize");
+  // const { Op, sequelize } = require("sequelize");
   //
   // console.log(depId, facId);
   // console.log(req);
@@ -2458,7 +2585,7 @@ visiterRoutes.get("/getDepartmentVisitors", async (req, res) => {
           [Op.and]: [{ Factory_Id: facId }, { Department_Id: depId }],
           D_Head_Approval: false,
           Date_From: {
-            [Op.gte]: Sequelize.fn("CURDATE"), // Filter for today
+            [Op.gte]: sequelize.fn("CURDATE"), // Filter for today
           },
           Requested_Officer: {
             [Op.or]: [{ [Op.is]: null }, { [Op.eq]: "" }],
@@ -2487,6 +2614,69 @@ visiterRoutes.get("/getDepartmentVisitors", async (req, res) => {
   } else {
     console.log("Invalid query");
     return res.status(500).json({ msg: "Failed to fetch data" });
+  }
+});
+
+visiterRoutes.post("/undoCheckIn", async (req, res) => {
+  console.log("undo check in function called");
+  // console.log(req.body);
+  const { visit } = req.body;
+  console.log("visitId", visit);
+  try {
+    const result = await Visits.update(
+      {
+        Checkin_Time: null,
+      },
+      {
+        where: {
+          Visit_Id: visit,
+        },
+      }
+    );
+
+    if (result) {
+      return res
+        .status(200)
+        .json({ statsu: true, message: "Check in time update success" });
+    }
+  } catch (error) {}
+});
+
+visiterRoutes.post("/undoCheckOut", async (req, res) => {
+  const { Visit_Id } = req.body;
+  console.log("undo check out called");
+  console.log(req.body);
+
+  if (!Visit_Id) {
+    return res
+      .status(400)
+      .json({ status: false, message: "Visit_Id is required" });
+  }
+
+  try {
+    const result = await Visits.update(
+      { Checkout_Time: null },
+      { where: { Visit_Id } }
+    );
+
+    if (result[0] === 1) {
+      return res.status(200).json({
+        status: true,
+        message: "Check-out time successfully reset",
+      });
+    } else {
+      console.log("Visit not found or already updated");
+      return res.status(404).json({
+        status: false,
+        message: "Visit not found or already updated",
+      });
+    }
+  } catch (error) {
+    console.error("Undo check-out error:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Server error during undo operation",
+    });
   }
 });
 
