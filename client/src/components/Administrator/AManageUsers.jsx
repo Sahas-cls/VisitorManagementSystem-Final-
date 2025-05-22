@@ -17,19 +17,17 @@ const AManageUsers = () => {
   const [factories, setFactories] = useState();
   const [selectedFactory, setSelectedFactory] = useState();
   const [searchKey, setSearchKey] = useState();
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
-      const users = await axios.get(
-        "http://localhost:3000/user/get-all-users",
-        {
-          headers: {
-            "X-CSRF-Token": csrfToken,
-          },
-          withCredentials: true,
-        }
-      );
+      const users = await axios.get(`${apiUrl}/user/get-all-users`, {
+        headers: {
+          "X-CSRF-Token": csrfToken,
+        },
+        withCredentials: true,
+      });
       setIsLoading(false);
       if (users.status === 200) {
         setUserList(users.data.UserList);
@@ -49,7 +47,7 @@ const AManageUsers = () => {
       // alert(csrfToken);
       // alert("sending factory request");
       const response = await axios.get(
-        "http://localhost:3000/department/getAll-Factories",
+        `${apiUrl}/department/getAll-Factories`,
         {
           headers: {
             "X-CSRF-Token": csrfToken,
@@ -73,7 +71,7 @@ const AManageUsers = () => {
     // The async function should be inside the useEffect
     const fetchCsrfToken = async () => {
       try {
-        const csrf = await axios.get("http://localhost:3000/getCSRFToken", {
+        const csrf = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
 
@@ -114,7 +112,7 @@ const AManageUsers = () => {
       if (result.isConfirmed) {
         setIsLoading(true);
         const response = await axios.delete(
-          `http://localhost:3000/user/delete/${visitorId}`,
+          `${apiUrl}/user/delete/${visitorId}`,
           {
             headers: {
               "X-CSRF-Token": csrfToken,
@@ -156,13 +154,10 @@ const AManageUsers = () => {
       } catch (error) {}
       try {
         setIsLoading(true);
-        const response = await axios.get(
-          "http://localhost:3000/user/getUsers/" + value,
-          {
-            headers: { "X-CSRF-Token": csrfToken },
-            withCredentials: true,
-          }
-        );
+        const response = await axios.get(`${apiUrl}/user/getUsers/` + value, {
+          headers: { "X-CSRF-Token": csrfToken },
+          withCredentials: true,
+        });
         if (response.status === 200) {
           setIsLoading(false);
           setUserList(response.data.data);
@@ -226,16 +221,13 @@ const AManageUsers = () => {
       // alert("sending reqeust");
       try {
         setIsLoading(true);
-        const response = await axios.get(
-          `http://localhost:3000/user/getUsersByName`,
-          {
-            headers: { "X-CSRF-Token": csrfToken },
-            withCredentials: true,
-            params: {
-              searchKey: searchKey,
-            },
-          }
-        );
+        const response = await axios.get(`${apiUrl}/user/getUsersByName`, {
+          headers: { "X-CSRF-Token": csrfToken },
+          withCredentials: true,
+          params: {
+            searchKey: searchKey,
+          },
+        });
         // alert(response.status);
         if (response.status === 200) {
           setIsLoading(false);

@@ -42,13 +42,14 @@ const CDisplayVisitor = () => {
   const [errorMessages, setErrorMessages] = useState();
   const [visitorCategory, setvisitorCategory] = useState({});
   const [visitorPurposes, setvisitorPurposes] = useState({});
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   // to get all visitor categories from backend
   const getVCategories = async () => {
     // alert("getting v categories");
     try {
       const result = await axios.get(
-        `http://localhost:3000/visitor/getVisitor-categories`,
+        `${apiUrl}/visitor/getVisitor-categories`,
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
@@ -67,7 +68,7 @@ const CDisplayVisitor = () => {
   const getVisitingPurpose = async (category_id) => {
     try {
       const result = await axios.get(
-        `http://localhost:3000/visitor/getVisiting_purpose/${category_id}`,
+        `${apiUrl}/visitor/getVisiting_purpose/${category_id}`,
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
@@ -207,7 +208,7 @@ const CDisplayVisitor = () => {
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -226,7 +227,7 @@ const CDisplayVisitor = () => {
     const getDepartments = async () => {
       try {
         const visitorList = await axios.get(
-          `http://localhost:3000/visitor/getDepartments/${userFactoryId}`,
+          `${apiUrl}/visitor/getDepartments/${userFactoryId}`,
           {
             headers: { "X-CSRF-Token": csrfToken },
             withCredentials: true,
@@ -333,7 +334,7 @@ const CDisplayVisitor = () => {
       try {
         setIsLoading(true);
         const response = await axios.post(
-          "http://localhost:3000/visitor/updateVisitor",
+          `${apiUrl}/visitor/updateVisitor`,
           formData,
           {
             headers: { "X-CSRF-Token": csrfToken },
@@ -349,7 +350,7 @@ const CDisplayVisitor = () => {
           try {
             setIsLoading(true);
             const response = await axios.post(
-              "http://localhost:3000/visitor/updateVisitor",
+              `${apiUrl}/visitor/updateVisitor`,
               formData,
               {
                 headers: { "X-CSRF-Token": csrfToken },
@@ -521,7 +522,7 @@ const CDisplayVisitor = () => {
             // alert(`deleting ${Visitor.ContactPerson_Id}`);
 
             const response = await axios.delete(
-              `http://localhost:3000/visitor/delete-visit-dUser/${Visitor.ContactPerson_Id}`,
+              `${apiUrl}/visitor/delete-visit-dUser/${Visitor.ContactPerson_Id}`,
               { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true }
             );
 

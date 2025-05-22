@@ -38,13 +38,14 @@ const HDisplayVisitor = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [visitorCategory, setvisitorCategory] = useState({});
   const [visitorPurposes, setvisitorPurposes] = useState({});
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   // to get all visitor categories from backend
   const getVCategories = async () => {
     // alert("getting v categories");
     try {
       const result = await axios.get(
-        `http://localhost:3000/visitor/getVisitor-categories`,
+        `${apiUrl}/visitor/getVisitor-categories`,
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
@@ -63,7 +64,7 @@ const HDisplayVisitor = () => {
   const getVisitingPurpose = async (category_id) => {
     try {
       const result = await axios.get(
-        `http://localhost:3000/visitor/getVisiting_purpose/${category_id}`,
+        `${apiUrl}/visitor/getVisiting_purpose/${category_id}`,
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
@@ -200,7 +201,7 @@ const HDisplayVisitor = () => {
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -220,7 +221,7 @@ const HDisplayVisitor = () => {
       // alert("sending request");
       try {
         const visitorList = await axios.get(
-          "http://localhost:3000/visitor/getDepartments/" + userFactoryId,
+          `${apiUrl}/visitor/getDepartments/` + userFactoryId,
           {
             headers: { "X-CSRF-Token": csrfToken },
             withCredentials: true,
@@ -350,7 +351,7 @@ const HDisplayVisitor = () => {
       try {
         setIsLoading(true);
         const response = await axios.post(
-          "http://localhost:3000/visitor/updateVisitor-hr",
+          `${apiUrl}/visitor/updateVisitor-hr`,
           formData,
           {
             headers: { "X-CSRF-Token": csrfToken },

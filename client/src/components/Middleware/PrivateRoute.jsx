@@ -26,16 +26,16 @@ const PrivateRoute = ({ element }) => {
   const [userDepartmentId, setUserDepartmentId] = useState("");
   const [userFactoryId, setUserFactoryId] = useState("");
   const [userId, setUserId] = useState("");
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   // alert("private route: " + userDepartmentId);
 
   useEffect(() => {
     const getToken = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3000/user/getToken",
-          { withCredentials: true }
-        );
+        const response = await axios.get(`${apiUrl}/user/getToken`, {
+          withCredentials: true,
+        });
 
         console.log("response", response);
 

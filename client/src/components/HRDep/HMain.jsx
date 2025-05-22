@@ -20,10 +20,12 @@ const HMain = ({
     userCategory: "",
     userDepartment: "",
   });
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -40,7 +42,7 @@ const HMain = ({
     const getUserData = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3000/user/getToken",
+          `${apiUrl}/user/getToken`,
           { withCredentials: true },
           {
             headers: {
@@ -92,7 +94,10 @@ const HMain = ({
       />
       <div className="mainContainer flex duration-150">
         {toggleSidebar ? (
-          <HSidebar onSidebarClick={handleSidebarClick} className="duration-150"/>
+          <HSidebar
+            onSidebarClick={handleSidebarClick}
+            className="duration-150"
+          />
         ) : null}
         {/* {toggleSidebar ? <HSidebar onSidebarClick={handleSidebarClick} /> : ""} */}
         {view === "visitor" && (

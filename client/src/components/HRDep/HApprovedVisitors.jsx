@@ -26,6 +26,7 @@ const HApprovedVisitors = ({
   const [csrfToken, setCsrfToken] = useState("");
   const [errorMessages, setErrorMessages] = useState("");
   const [visitorList, setVisitorList] = useState();
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const navigate = useNavigate(); // Initialize useNavigate hook
 
@@ -42,7 +43,7 @@ const HApprovedVisitors = ({
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -59,7 +60,7 @@ const HApprovedVisitors = ({
       // alert(userDepartmentId);
       try {
         const response = await axios.get(
-          `http://localhost:3000/visitor/approvedVisitors-Hr`,
+          `${apiUrl}/visitor/approvedVisitors-Hr`,
           {
             params: {
               userDepartmentId: userDepartmentId,
@@ -108,7 +109,7 @@ const HApprovedVisitors = ({
   }, []);
 
   return (
-    <div className="hContainer" style={{backgroundColor: "white"}}>
+    <div className="hContainer" style={{ backgroundColor: "white" }}>
       {/* <h1>user factory: {userFactoryId || 123}</h1> */}
       <form action="" onSubmit={() => alert("submitting")} className="w-full">
         <h1 className="text-md mt-2 mb-2 font-extrabold">Approved Visitors</h1>
@@ -117,11 +118,21 @@ const HApprovedVisitors = ({
           <table className="w-full">
             <thead className="position-sticky">
               <tr>
-                <th className="pt-1 text-left pb-1 border-0 bg-blue-500 text-white text-sm">Name</th>
-                <th className="border-0 bg-blue-500 text-white text-left text-sm">NIC/PPNo</th>
-                <th className="border-0 bg-blue-500 text-white text-left text-sm">Vehicle Type</th>
-                <th className="border-0 bg-blue-500 text-white text-left text-sm">Vehicle No</th>
-                <th className="border-0 bg-blue-500 text-white text-left text-sm">Visiting Date</th>
+                <th className="pt-1 text-left pb-1 border-0 bg-blue-500 text-white text-sm">
+                  Name
+                </th>
+                <th className="border-0 bg-blue-500 text-white text-left text-sm">
+                  NIC/PPNo
+                </th>
+                <th className="border-0 bg-blue-500 text-white text-left text-sm">
+                  Vehicle Type
+                </th>
+                <th className="border-0 bg-blue-500 text-white text-left text-sm">
+                  Vehicle No
+                </th>
+                <th className="border-0 bg-blue-500 text-white text-left text-sm">
+                  Visiting Date
+                </th>
                 <th className="bg-white border-0"></th>
               </tr>
             </thead>
@@ -138,23 +149,44 @@ const HApprovedVisitors = ({
                   ).join("/n");
 
                   return (
-                    <tr className="odd:bg-blue-100 even:bg-blue-300 text-sm" key={visitor.ContactPerson_Id}>
-                      <td className="p-1 border-r-2 border-white text-sm">{visitor.ContactPerson_Name}</td>
-                      <td className="p-1 border-r-2 border-white text-sm">{visitor.ContactPerson_NIC}</td>
-                      <td className="p-1 border-r-2 border-white text-sm">{vehicleType || "No vehicles"}</td>
-                      <td className="p-1 border-r-2 border-white text-sm">{vehicleNumbers || "No vehicles"}</td>
-                      <td className="p-2 border-r-0 border-black w-auto text-sm" style={{ display: "" }}>
+                    <tr
+                      className="odd:bg-blue-100 even:bg-blue-300 text-sm"
+                      key={visitor.ContactPerson_Id}
+                    >
+                      <td className="p-1 border-r-2 border-white text-sm">
+                        {visitor.ContactPerson_Name}
+                      </td>
+                      <td className="p-1 border-r-2 border-white text-sm">
+                        {visitor.ContactPerson_NIC}
+                      </td>
+                      <td className="p-1 border-r-2 border-white text-sm">
+                        {vehicleType || "No vehicles"}
+                      </td>
+                      <td className="p-1 border-r-2 border-white text-sm">
+                        {vehicleNumbers || "No vehicles"}
+                      </td>
+                      <td
+                        className="p-2 border-r-0 border-black w-auto text-sm"
+                        style={{ display: "" }}
+                      >
                         <div className="h-full md:flex md:gap-1">
                           <div className="w-1/2 text-center md:pr-1 md:h-full md:border-r border-black mb-0">
-                            {new Date(visitor.Visits[0]?.Date_From).toLocaleDateString()}{" "}
+                            {new Date(
+                              visitor.Visits[0]?.Date_From
+                            ).toLocaleDateString()}{" "}
                           </div>
                           <div className="w-1/2 text-center md:h-full border-black">
                             {visitor.Visits[0]?.Date_To &&
-                              new Date(visitor.Visits[0]?.Date_To).toLocaleDateString()}
+                              new Date(
+                                visitor.Visits[0]?.Date_To
+                              ).toLocaleDateString()}
                           </div>
                         </div>
                       </td>
-                      <td style={{ width: "1%", border: "0" }} className="bg-white">
+                      <td
+                        style={{ width: "1%", border: "0" }}
+                        className="bg-white"
+                      >
                         <FaRegEye
                           onClick={() => navigateTo(visitor)}
                           className="hover:text-red-600 text-lg hover:scale-110 duration-300"
@@ -172,9 +204,7 @@ const HApprovedVisitors = ({
                 </tr>
               )}
             </tbody>
-
           </table>
-
         </div>
 
         {errorMessages && <p className="error text-red-600">{errorMessages}</p>}

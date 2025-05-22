@@ -25,6 +25,7 @@ const CTrackStatus = ({
   const [csrfToken, setCsrfToken] = useState("");
   const [errorMessages, setErrorMessages] = useState("");
   const [visitorList, setVisitorList] = useState();
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const navigate = useNavigate(); // Initialize useNavigate hook
 
@@ -41,7 +42,7 @@ const CTrackStatus = ({
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -58,7 +59,7 @@ const CTrackStatus = ({
       try {
         // alert("sending request 7 days")
         const response = await axios.get(
-          `http://localhost:3000/visitor/selectEditedVisitors-CUser`,
+          `${apiUrl}/visitor/selectEditedVisitors-CUser`,
           {
             params: {
               userDepartmentId: userDepartmentId,

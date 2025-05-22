@@ -12,13 +12,15 @@ import sidebarImg from "../../assets/sidebarImg6.jpg";
 const Login = () => {
   const [csrfToken, setCsrfToken] = useState("");
   const [Serrors, setSErrors] = useState({});
+  const apiUrl = import.meta.env.VITE_API_URL;
+  // alert(apiUrl);
 
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -116,16 +118,12 @@ const Login = () => {
     if (Object.keys(error).length === 0) {
       try {
         // alert("sending data");
-        const response = await axios.post(
-          "http://localhost:3000/user/login",
-          formData,
-          {
-            headers: {
-              "X-CSRF-Token": csrfToken,
-            },
-            withCredentials: true,
-          }
-        );
+        const response = await axios.post(`${apiUrl}/user/login`, formData, {
+          headers: {
+            "X-CSRF-Token": csrfToken,
+          },
+          withCredentials: true,
+        });
         // alert("Hello");
         if (response.status === 200) {
           // alert("Login success");
@@ -307,8 +305,10 @@ const Login = () => {
               <button
                 type="button"
                 className="text-center w-3/4 bg-blue-600 hover:bg-blue-700 text-white font-bold p-1 py-2 rounded-md hover:tracking-wider hover:scale-105 duration-300"
-                onClick={(e) => { e.preventDefault(), (window.location.href = "http://localhost:5173/register") }
-                }
+                onClick={(e) => {
+                  e.preventDefault(),
+                    (window.location.href = "http://localhost:5173/register");
+                }}
               >
                 Create an Account
               </button>

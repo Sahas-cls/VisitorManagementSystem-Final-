@@ -3,6 +3,7 @@ import axios from "axios";
 
 // Create a Context for User Data
 const UserDataContext = createContext();
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export const useUserData = () => {
   return useContext(UserDataContext);
@@ -20,7 +21,7 @@ export const UserDataProvider = ({ children }) => {
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -34,15 +35,12 @@ export const UserDataProvider = ({ children }) => {
 
     const getUserData = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3000/user/getToken",
-          {
-            headers: {
-              "X-CSRF-Token": csrfToken,
-            },
-            withCredentials: true,
-          }
-        );
+        const response = await axios.get(`${apiUrl}/user/getToken`, {
+          headers: {
+            "X-CSRF-Token": csrfToken,
+          },
+          withCredentials: true,
+        });
         setUserData(response.data.data);
       } catch (error) {
         alert("Error while getting user data: " + error);

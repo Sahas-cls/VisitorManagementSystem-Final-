@@ -24,6 +24,7 @@ const VisitorF = () => {
   const [departments, setDepartments] = useState({}); //to soter all departments according to the factory
   const [disableSubmitButton, setDisableSubmitButton] = useState(true);
   const [serverSideErrors, setserverSideErrors] = useState({});
+  const apiUrl = import.meta.env.VITE_API_URL;
   // !to get all factory details
   const getFactories = async () => {
     // alert("getting factories");
@@ -31,7 +32,7 @@ const VisitorF = () => {
       // alert(csrfToken);
       // alert("sending factory request");
       const response = await axios.get(
-        "http://localhost:3000/department/getAll-Factories",
+        `${apiUrl}/department/getAll-Factories`,
         {
           headers: {
             "X-CSRF-Token": csrfToken,
@@ -56,7 +57,7 @@ const VisitorF = () => {
     // return
     try {
       const response = await axios.get(
-        `http://localhost:3000/department/getDep/${factoryId}`
+        `${apiUrl}/department/getDep/${factoryId}`
       );
       if (response) {
         // setDepartments(response.data);
@@ -70,7 +71,7 @@ const VisitorF = () => {
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response.status === 200) {
@@ -92,7 +93,7 @@ const VisitorF = () => {
     const getDepartments = async () => {
       try {
         const visitorList = await axios.get(
-          "http://localhost:3000/visitor/getDepartments",
+          `${apiUrl}/visitor/getDepartments`,
           {
             headers: { "X-CSRF-Token": csrfToken },
             withCredentials: true,
@@ -489,7 +490,7 @@ const VisitorF = () => {
       // alert(csrfToken);
       // console.log("loging: ", newFormData);
       const response = await axios.post(
-        "http://localhost:3000/visitor/registration",
+        `${apiUrl}/visitor/registration`,
         newFormData, // Request body
         {
           headers: { "X-CSRF-Token": csrfToken }, // Headers
@@ -857,15 +858,16 @@ const VisitorF = () => {
                           />
                           <br />
                           {Array.isArray(serverSideErrors) &&
-                        serverSideErrors
-                          .filter(
-                            (err) => err.path === "dateTimeDetails.fTimeFrom"
-                          )
-                          .map((err, index) => (
-                            <p className="error text-left" key={index}>
-                              {err.msg}
-                            </p>
-                          ))}
+                            serverSideErrors
+                              .filter(
+                                (err) =>
+                                  err.path === "dateTimeDetails.fTimeFrom"
+                              )
+                              .map((err, index) => (
+                                <p className="error text-left" key={index}>
+                                  {err.msg}
+                                </p>
+                              ))}
                         </span>
                         <span className="ml-6 mr-6">To</span>
 
@@ -876,15 +878,15 @@ const VisitorF = () => {
                             onChange={handleDate}
                           />
                           {Array.isArray(serverSideErrors) &&
-                        serverSideErrors
-                          .filter(
-                            (err) => err.path === "dateTimeDetails.fTimeTo"
-                          )
-                          .map((err, index) => (
-                            <p className="error text-left" key={index}>
-                              {err.msg}
-                            </p>
-                          ))}
+                            serverSideErrors
+                              .filter(
+                                (err) => err.path === "dateTimeDetails.fTimeTo"
+                              )
+                              .map((err, index) => (
+                                <p className="error text-left" key={index}>
+                                  {err.msg}
+                                </p>
+                              ))}
                           <br />
                         </span>
                       </div>

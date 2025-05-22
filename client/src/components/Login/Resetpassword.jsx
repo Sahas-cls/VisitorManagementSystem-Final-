@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import "./Resetpassword.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -8,6 +7,7 @@ const Resetpassword = () => {
   const [csrfToken, setCsrfToken] = useState();
   const [serverSideErrors, setServerSideErrors] = useState();
   const [successMessage, setSuccessMessage] = useState();
+  const apiUrl = import.meta.env.VITE_API_URL;
   const handleChanges = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -16,13 +16,11 @@ const Resetpassword = () => {
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
-          // alert(response.data.csrfToken);
           const csrf = await response.data.csrfToken;
-          //   console.log(csrf);
           setCsrfToken(csrf);
         }
       } catch (error) {
@@ -37,9 +35,9 @@ const Resetpassword = () => {
     console.log("=================================");
     console.log(formData);
     try {
-      alert("sending post request");
+      // alert("sending post request");
       const response = await axios.post(
-        "http://localhost:3000/user/reset-password",
+        `${apiUrl}/user/reset-password`,
         formData,
         {
           headers: {
@@ -52,20 +50,16 @@ const Resetpassword = () => {
 
       if (response.status === 200) {
         setServerSideErrors("");
-        // alert("password update success");
         setSuccessMessage({ success: "Your password reset success" });
       }
-      //   setServerSideErrors(response.data.errors);
     } catch (error) {
       setSuccessMessage("");
-      alert("error occured");
-      alert(error.response.status);
+      // alert("error occured");
+      // alert(error.response.status);
       if (error.response.status === 400) {
-        // alert(error.response.data.error);
         setServerSideErrors(
           error.response.data.errors || error.response.data.error
         );
-        // console.log("asdfasdf " + serverSideErrors);
       } else if (error.response.status === 404) {
         setServerSideErrors(error.response.data.errors);
       }
@@ -77,112 +71,137 @@ const Resetpassword = () => {
 
   const goBack = (e) => {
     e.preventDefault();
-    // alert("prevented default");
     navigate(-1);
   };
 
   return (
-    <div className="rs-main-div">
-      <form onSubmit={handleSubmit}>
-        <div className="rs-sub-div">
-          <h1>Reset your password</h1>
-          {/* row 1 */}
-          <div className="rs-row">
-            <div className="rs-col">
-              <label htmlFor="token">Token: </label>
-            </div>
+    <div className="flex items-center justify-center min-h-screen p-1 sm:p-6  bg-[#d7dadf] sm:bg-white">
+      <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto ">
+        <div className=" bg-[#d7dadf]  p-6 sm:p-8 rounded-xl sm:shadow-lg sm:border sm:border-black/30 w-full">
+          <h1 className="text-2xl font-bold text-center mb-8 text-gray-800">
+            Reset Your Password
+          </h1>
 
-            <div className="rs-col">
+          {/* Token Field */}
+          <div className="mb-6">
+            <div className="flex flex-col space-y-2">
+              <label
+                htmlFor="token"
+                className="text-sm font-medium text-gray-700"
+              >
+                Token
+              </label>
               <input
                 type="text"
                 name="token"
                 id="token"
-                className="rs-input"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 onChange={handleChanges}
+                placeholder="Enter your token"
               />
-              <p className="text-red-600 text-left">
-                {Array.isArray(serverSideErrors) &&
-                  serverSideErrors.length > 0 &&
-                  serverSideErrors
-                    .filter((error) => error.path === "token") // Filter errors for the 'token' field
-                    .map((error, index) => (
-                      <span key={index}>{error.msg}</span> // Render the error message
-                    ))}
-              </p>
+              {Array.isArray(serverSideErrors) &&
+                serverSideErrors.length > 0 && (
+                  <div className="text-red-500 text-sm mt-1 space-y-1">
+                    {serverSideErrors
+                      .filter((error) => error.path === "token")
+                      .map((error, index) => (
+                        <p key={index}>{error.msg}</p>
+                      ))}
+                  </div>
+                )}
             </div>
           </div>
 
-          {/* row 2 */}
-          <div className="rs-row">
-            <div className="rs-col">
-              <label htmlFor="password">New Password:</label>
-            </div>
-
-            <div className="rs-col">
+          {/* New Password Field */}
+          <div className="mb-6">
+            <div className="flex flex-col space-y-2">
+              <label
+                htmlFor="password"
+                className="text-sm font-medium text-gray-700"
+              >
+                New Password
+              </label>
               <input
                 type="password"
                 name="password"
                 id="password"
-                className="rs-input"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 onChange={handleChanges}
+                placeholder="Enter new password"
               />
-              <p className="text-red-600 text-left">
-                {Array.isArray(serverSideErrors) &&
-                  serverSideErrors.length > 0 &&
-                  serverSideErrors
-                    .filter((error) => error.path === "password") // Filter errors for the 'token' field
-                    .map((error, index) => (
-                      <span key={index}>{error.msg}</span> // Render the error message
-                    ))}
-              </p>
+              {Array.isArray(serverSideErrors) &&
+                serverSideErrors.length > 0 && (
+                  <div className="text-red-500 text-sm mt-1 space-y-1">
+                    {serverSideErrors
+                      .filter((error) => error.path === "password")
+                      .map((error, index) => (
+                        <p key={index}>{error.msg}</p>
+                      ))}
+                  </div>
+                )}
             </div>
           </div>
 
-          {/* row 3 */}
-          <div className="rs-row">
-            <div className="rs-col">
-              <label htmlFor="cpassword">Confirm Password:</label>
-            </div>
-
-            <div className="rs-col">
+          {/* Confirm Password Field */}
+          <div className="mb-6">
+            <div className="flex flex-col space-y-2">
+              <label
+                htmlFor="cpassword"
+                className="text-sm font-medium text-gray-700"
+              >
+                Confirm Password
+              </label>
               <input
                 id="cpassword"
                 name="cpassword"
                 type="password"
-                className="rs-input"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 onChange={handleChanges}
+                placeholder="Confirm your password"
               />
-              <p className="text-red-600 text-left">
-                {Array.isArray(serverSideErrors) &&
-                  serverSideErrors.length > 0 &&
-                  serverSideErrors
-                    .filter((error) => error.path === "cpassword") // Filter errors for the 'token' field
-                    .map((error, index) => (
-                      <span key={index}>{error.msg}</span> // Render the error message
-                    ))}
-              </p>
+              {Array.isArray(serverSideErrors) &&
+                serverSideErrors.length > 0 && (
+                  <div className="text-red-500 text-sm mt-1 space-y-1">
+                    {serverSideErrors
+                      .filter((error) => error.path === "cpassword")
+                      .map((error, index) => (
+                        <p key={index}>{error.msg}</p>
+                      ))}
+                  </div>
+                )}
             </div>
           </div>
 
-          <div className="success text-center font-bold">
-            {successMessage && successMessage.success && successMessage.success}
-          </div>
+          {/* Success Message */}
+          {successMessage?.success && (
+            <div className="mb-6 p-3 bg-green-50 text-green-700 rounded-lg text-center">
+              {successMessage.success}
+            </div>
+          )}
 
-          <div className="error text-center mb-3 font-bold">
-            {Array.isArray(serverSideErrors) ? (
-              serverSideErrors.map((error, index) => (
-                <p key={index}></p> //no need to render validation error here
-              ))
-            ) : (
-              <p>{serverSideErrors}</p>
-            )}
-          </div>
-          <p>&nbsp;</p>
-          <div className="mt-3 rs-buttons text-right">
-            <button className="rs-button rs-back" onClick={goBack}>
+          {/* Server Side Errors */}
+          {!Array.isArray(serverSideErrors) && serverSideErrors && (
+            <div className="mb-6 p-3 bg-red-50 text-red-700 rounded-lg text-center">
+              {serverSideErrors}
+            </div>
+          )}
+
+          {/* Buttons */}
+          <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 mt-8">
+            <button
+              type="submit"
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition font-medium"
+            >
+              Reset Password
+            </button>
+
+            <button
+              type="button"
+              onClick={goBack}
+              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition font-medium"
+            >
               Back
             </button>
-            <button className="rs-button rs-submit">Submit</button>
           </div>
         </div>
       </form>

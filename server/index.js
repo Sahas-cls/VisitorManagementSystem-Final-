@@ -36,7 +36,7 @@ const visiterRoutes = require("./Routes/VisitorRoutes.js");
 server.use("/visitor", visiterRoutes);
 
 const userCategories = require("./Routes/UserCategoryRoutes.js");
-server.use("/userCategory", userCategories)
+server.use("/userCategory", userCategories);
 
 // Generating CSRF token
 server.get("/getCSRFToken", (req, res) => {

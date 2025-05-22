@@ -31,6 +31,8 @@ const Register = () => {
   const [userCategories, setUserCategories] = useState({}); // *to store usercategories that are coming from db
   const [isLoading, setIsLoading] = useState(false);
 
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   // get the csrf token
 
   const getFactories = async () => {
@@ -39,7 +41,7 @@ const Register = () => {
       // alert(csrfToken);
       // alert("sending factory request");
       const response = await axios.get(
-        "http://localhost:3000/department/getAll-Factories",
+        `${apiUrl}/department/getAll-Factories`,
         {
           headers: {
             "X-CSRF-Token": csrfToken,
@@ -66,7 +68,7 @@ const Register = () => {
       const fetchDepartments = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:3000/department/getDep/${factoryId}`
+            `${apiUrl}/department/getDep/${factoryId}`
           );
           if (response) {
             // console.log(response);
@@ -87,7 +89,7 @@ const Register = () => {
     // alert("getting user categories");
     try {
       const userCategories = await axios.get(
-        "http://localhost:3000/userCategory/getAllCategories",
+        `${apiUrl}/userCategory/getAllCategories`,
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
@@ -258,16 +260,12 @@ const Register = () => {
       // alert("Data submitting 12341")
       try {
         setIsLoading(true);
-        const response = await axios.post(
-          "http://localhost:3000/user/register",
-          formData,
-          {
-            headers: {
-              "X-CSRF-Token": csrfToken,
-            },
-            withCredentials: true,
-          }
-        );
+        const response = await axios.post(`${apiUrl}/user/register`, formData, {
+          headers: {
+            "X-CSRF-Token": csrfToken,
+          },
+          withCredentials: true,
+        });
         // Successfully registered
         // alert("Registration successful");
 
@@ -312,7 +310,7 @@ const Register = () => {
   useEffect(() => {
     const fetchCsrfToken = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         setCsrfToken(response.data.csrfToken);
@@ -367,7 +365,9 @@ const Register = () => {
                     autoComplete="off"
                   />
                   {errors.userName && (
-                    <p className="text-red-600 text-sm mt-1">{errors.userName}</p>
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.userName}
+                    </p>
                   )}
                 </div>
 
@@ -396,7 +396,9 @@ const Register = () => {
                     onChange={handleChanges}
                   />
                   {errors.password && (
-                    <p className="text-red-600 text-sm mt-1">{errors.password}</p>
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.password}
+                    </p>
                   )}
                 </div>
 
@@ -410,7 +412,9 @@ const Register = () => {
                     onChange={handleChanges}
                   />
                   {errors.cpassword && (
-                    <p className="text-red-600 text-sm mt-1">{errors.cpassword}</p>
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.cpassword}
+                    </p>
                   )}
                 </div>
 
@@ -434,7 +438,9 @@ const Register = () => {
                       ))}
                   </select>
                   {errors.factory && (
-                    <p className="text-red-600 text-sm mt-1">{errors.factory}</p>
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.factory}
+                    </p>
                   )}
                 </div>
 
@@ -458,7 +464,9 @@ const Register = () => {
                       ))}
                   </select>
                   {errors.department && (
-                    <p className="text-red-600 text-sm mt-1">{errors.department}</p>
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.department}
+                    </p>
                   )}
                 </div>
 
@@ -472,7 +480,9 @@ const Register = () => {
                     onChange={handleChanges}
                   />
                   {errors.mobileNo && (
-                    <p className="text-red-600 text-sm mt-1">{errors.mobileNo}</p>
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.mobileNo}
+                    </p>
                   )}
                 </div>
 
@@ -497,7 +507,9 @@ const Register = () => {
                       })}
                   </select>
                   {errors.userCategory && (
-                    <p className="text-red-600 text-sm mt-1">{errors.userCategory}</p>
+                    <p className="text-red-600 text-sm mt-1">
+                      {errors.userCategory}
+                    </p>
                   )}
                 </div>
               </div>
@@ -526,10 +538,11 @@ const Register = () => {
               {/* Server Errors/Success */}
               {sErrors?.message && (
                 <p
-                  className={`text-center font-bold mb-4 ${sErrors.type === "error" || sErrors.type === "serror"
-                    ? "text-red-600"
-                    : "text-green-600"
-                    }`}
+                  className={`text-center font-bold mb-4 ${
+                    sErrors.type === "error" || sErrors.type === "serror"
+                      ? "text-red-600"
+                      : "text-green-600"
+                  }`}
                 >
                   {sErrors.message}
                 </p>
@@ -547,7 +560,10 @@ const Register = () => {
                 <button
                   type="button"
                   className="w-full md:w-auto px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                  onClick={(e) => { e.preventDefault();(window.location.href = "http://localhost:5173/") }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.location.href = "http://localhost:5173/";
+                  }}
                 >
                   Go to Login
                 </button>

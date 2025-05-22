@@ -19,6 +19,7 @@ const Header = ({
 }) => {
   const [csrfToken, setCsrfToken] = useState("");
   const [userVisible, setUserVisible] = useState(false);
+  const apiUrl = import.meta.env.VITE_API_URL;
   // console.log(toggleSidebar);
   let screenSize = UseWindowWidth();
   const vmsLogo = "../assets/vmsLogo.png";
@@ -32,7 +33,7 @@ const Header = ({
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -71,7 +72,7 @@ const Header = ({
       // Send the logout request to the server
       // alert("calling login aout");
       const response = await axios.post(
-        "http://localhost:3000/user/logout",
+        `${apiUrl}/user/logout`,
         {},
         {
           headers: { "X-CSRF-Token": csrfToken },

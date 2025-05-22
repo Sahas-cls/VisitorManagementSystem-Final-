@@ -17,6 +17,7 @@ const DMain = ({
 }) => {
   // console.log(userId);
   const [csrfToken, setCsrfToken] = useState("");
+  const apiUrl = import.meta.env.VITE_API_URL;
   const [userData, setUserData] = useState({
     userName: "",
     userCategory: "",
@@ -25,7 +26,7 @@ const DMain = ({
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -42,7 +43,7 @@ const DMain = ({
     const getUserData = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3000/user/getToken",
+          `${apiUrl}/user/getToken`,
           { withCredentials: true },
           {
             headers: {

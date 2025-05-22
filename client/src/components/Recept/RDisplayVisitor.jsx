@@ -59,13 +59,14 @@ const RDisplayVisitor = () => {
   const [isSaved, setisSaved] = useState(false);
   const [visitorCategory, setvisitorCategory] = useState({});
   const [visitorPurposes, setvisitorPurposes] = useState({});
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   // to get all visitor categories from backend
   const getVCategories = async () => {
     // alert("getting v categories");
     try {
       const result = await axios.get(
-        `http://localhost:3000/visitor/getVisitor-categories`,
+        `${apiUrl}/visitor/getVisitor-categories`,
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
@@ -85,7 +86,7 @@ const RDisplayVisitor = () => {
     // alert("getting visiting purpose");
     try {
       const result = await axios.get(
-        `http://localhost:3000/visitor/getVisiting_purpose/${category_id}`,
+        `${apiUrl}/visitor/getVisiting_purpose/${category_id}`,
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
@@ -212,7 +213,7 @@ const RDisplayVisitor = () => {
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -232,7 +233,7 @@ const RDisplayVisitor = () => {
     const getDepartments = async () => {
       try {
         const visitorList = await axios.get(
-          "http://localhost:3000/visitor/getDepartments",
+          `${apiUrl}/visitor/getDepartments`,
           {
             headers: { "X-CSRF-Token": csrfToken },
             withCredentials: true,
@@ -282,7 +283,7 @@ const RDisplayVisitor = () => {
       try {
         // alert("sending request");
         const response = await axios.post(
-          "http://localhost:3000/visitor/updateVisitors-reception",
+          `${apiUrl}/visitor/updateVisitors-reception`,
           formData,
           {
             headers: { "X-CSRF-Token": csrfToken },
@@ -410,7 +411,7 @@ const RDisplayVisitor = () => {
     e.preventDefault();
     try {
       const response = axios.post(
-        "http://localhost:3000/visitor/update-visit-reception",
+        `${apiUrl}/visitor/update-visit-reception`,
         () => {}
       );
     } catch (error) {}
@@ -431,7 +432,7 @@ const RDisplayVisitor = () => {
     if (contactPersonEmail !== "" && contactPersonEmail !== null) {
       try {
         const response = await axios.post(
-          "http://localhost:3000/visitor/sendEmail",
+          `${apiUrl}/visitor/sendEmail`,
           { formData: formData, contactPersonEmail: contactPersonEmail },
           {
             headers: { "X-CSRF-Token": csrfToken },

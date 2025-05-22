@@ -31,6 +31,7 @@ const SConteiner = ({
   const [errorMessages, setErrorMessages] = useState("");
   const [visitorList, setVisitorList] = useState([]);
   const [checkedVisitors, setCheckedVisitors] = useState({});
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const navigate = useNavigate();
   const windowWidth = UseWindowWidth();
@@ -63,7 +64,7 @@ const SConteiner = ({
   const getVisitorData = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:3000/visitor/getDepartmentVisitors-securityVisitor`,
+        `${apiUrl}/visitor/getDepartmentVisitors-securityVisitor`,
         {
           params: {
             userDepartmentId: userDepartmentId,
@@ -121,7 +122,7 @@ const SConteiner = ({
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -210,7 +211,7 @@ const SConteiner = ({
     try {
       let formData = { currentDate: selectedDateTime, visit: visit };
       const response = await axios.post(
-        "http://localhost:3000/visitor/updateChackIn",
+        `${apiUrl}/visitor/updateChackIn`,
         formData,
         { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true }
       );
@@ -304,7 +305,7 @@ const SConteiner = ({
     try {
       let formData = { currentDate: selectedDateTime, visit: visit };
       const response = await axios.post(
-        "http://localhost:3000/visitor/updateChackOut",
+        `${apiUrl}/visitor/updateChackOut`,
         formData,
         { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true }
       );
@@ -339,7 +340,7 @@ const SConteiner = ({
 
     try {
       const response = await axios.get(
-        `http://localhost:3000/visitor/getDepartmentVisitors-securityVisitor/${searchKey}`,
+        `${apiUrl}/visitor/getDepartmentVisitors-securityVisitor/${searchKey}`,
         { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true }
       );
 
@@ -367,7 +368,7 @@ const SConteiner = ({
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/visitor/undoCheckOut",
+        `${apiUrl}/visitor/undoCheckOut`,
         { Visit_Id: visit },
         {
           headers: { "X-CSRF-Token": csrfToken },
@@ -407,7 +408,7 @@ const SConteiner = ({
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/visitor/undoCheckIn",
+        `${apiUrl}/visitor/undoCheckIn`,
         { visit },
         { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true }
       );

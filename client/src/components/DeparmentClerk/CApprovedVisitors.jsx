@@ -25,6 +25,7 @@ const CApprovedVisitors = ({
   const [csrfToken, setCsrfToken] = useState("");
   const [errorMessages, setErrorMessages] = useState("");
   const [visitorList, setVisitorList] = useState();
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const navigate = useNavigate(); // Initialize useNavigate hook
 
@@ -41,7 +42,7 @@ const CApprovedVisitors = ({
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -58,7 +59,7 @@ const CApprovedVisitors = ({
       try {
         // alert("sending request 7 days")
         const response = await axios.get(
-          `http://localhost:3000/visitor/selectEditedVisitors-CUser`,
+          `${apiUrl}/visitor/selectEditedVisitors-CUser`,
           {
             params: {
               userDepartmentId: userDepartmentId,
@@ -117,85 +118,103 @@ const CApprovedVisitors = ({
   // }, [windowWidth]);
 
   return (
-    <div className="w-full p-0 m-0 overflow-x-scroll sm:overflow-x-hidden" style={{ backgroundColor: "white" }}>
+    <div
+      className="w-full p-0 m-0 overflow-x-scroll sm:overflow-x-hidden"
+      style={{ backgroundColor: "white" }}
+    >
       {/* <p>{userFactoryId !== undefined ? userFactoryId : "User Name"}</p> */}
       {/* <p>{userDepartmentId !== undefined ? userDepartmentId : "User Name"}</p> */}
       <form action="" onSubmit={() => alert("submitting")} className="w-full">
         <h1 className="text-md mt-2 mb-2 font-extrabold">Allowed Visitors.</h1>
 
         <div className="w-full overflow-x-auto md:overflow-hidden">
-        <table className="w-full ml-1">
-          <thead className="">
-            <tr className="">
-              <th className="pt-1 text-left pb-1 text-left  border-0 bg-blue-500 text-white text-[11px] text-sm">Name</th>
-              <th className=" border-0 bg-blue-500 text-white text-left text-sm">NIC/PPNo</th>
-              <th className=" border-0 bg-blue-500 text-white text-left text-sm">Vehicle Type</th>
-              <th className=" border-0 bg-blue-500 text-white text-left text-sm">Vehicle No</th>
-              <th className=" border-0 bg-blue-500 text-white text-left text-sm">Visiting Date</th>
-              <th className="border-0"></th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {visitorList && visitorList.length > 0 ? (
-              visitorList.map((visitor) => {
-                const vehicleNumbers = visitor.Vehicles.map(
-                  (vehicle) => vehicle.Vehicle_No
-                ).join("/n");
-
-                const vehicleType = visitor.Vehicles.map(
-                  (vehicle) => vehicle.Vehicle_Type
-                ).join("/n");
-
-                return (
-                  <tr
-                    className="odd:bg-blue-100 even:bg-blue-300"
-                    key={visitor.ContactPerson_Id}
-                  >
-                    <td className="p-2 border-r-2 text-sm border-white">{visitor.ContactPerson_Name}</td>
-                    <td className="p-2 border-r-2 text-sm border-white">{visitor.ContactPerson_NIC}</td>
-                    <td className="p-2 border-r-2 text-sm border-white">{vehicleType || "No vehicles"}</td>
-                    <td className="p-2 border-r-2 text-sm border-white">
-                      {vehicleNumbers || "No vehicles"}
-                    </td>
-                    <td className="p-2 border-r-0 border-black w-auto text-sm">
-                      <div className="h-full md:flex md:gap-1">
-                        <div className="w-1/2 text-center md:pr-1 md:h-full md:border-r border-black mb-0">
-                          {new Date(
-                            visitor.Visits[0]?.Date_From
-                          ).toLocaleDateString()}{" "}
-                        </div>
-                        <div className="w-1/2 text-center md:h-full border-black">
-                          {visitor.Visits[0]?.Date_To &&
-                            new Date(
-                              visitor.Visits[0]?.Date_To
-                            ).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </td>
-                    <td
-                      className="bg-white"
-                      style={{ width: "1%", border: "0" }}
-                    >
-                      <FaRegEye
-                        onClick={() => navigateTo(visitor)}
-                        className="hover:text-red-600 font-bolder text-lg sm:text-xl"
-                        style={{ cursor: "pointer" }}
-                      />
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td colSpan={6} className="text-center italic">
-                  No records yet
-                </td>
+          <table className="w-full ml-1">
+            <thead className="">
+              <tr className="">
+                <th className="pt-1 text-left pb-1 text-left  border-0 bg-blue-500 text-white text-[11px] text-sm">
+                  Name
+                </th>
+                <th className=" border-0 bg-blue-500 text-white text-left text-sm">
+                  NIC/PPNo
+                </th>
+                <th className=" border-0 bg-blue-500 text-white text-left text-sm">
+                  Vehicle Type
+                </th>
+                <th className=" border-0 bg-blue-500 text-white text-left text-sm">
+                  Vehicle No
+                </th>
+                <th className=" border-0 bg-blue-500 text-white text-left text-sm">
+                  Visiting Date
+                </th>
+                <th className="border-0"></th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
 
+            <tbody>
+              {visitorList && visitorList.length > 0 ? (
+                visitorList.map((visitor) => {
+                  const vehicleNumbers = visitor.Vehicles.map(
+                    (vehicle) => vehicle.Vehicle_No
+                  ).join("/n");
+
+                  const vehicleType = visitor.Vehicles.map(
+                    (vehicle) => vehicle.Vehicle_Type
+                  ).join("/n");
+
+                  return (
+                    <tr
+                      className="odd:bg-blue-100 even:bg-blue-300"
+                      key={visitor.ContactPerson_Id}
+                    >
+                      <td className="p-2 border-r-2 text-sm border-white">
+                        {visitor.ContactPerson_Name}
+                      </td>
+                      <td className="p-2 border-r-2 text-sm border-white">
+                        {visitor.ContactPerson_NIC}
+                      </td>
+                      <td className="p-2 border-r-2 text-sm border-white">
+                        {vehicleType || "No vehicles"}
+                      </td>
+                      <td className="p-2 border-r-2 text-sm border-white">
+                        {vehicleNumbers || "No vehicles"}
+                      </td>
+                      <td className="p-2 border-r-0 border-black w-auto text-sm">
+                        <div className="h-full md:flex md:gap-1">
+                          <div className="w-1/2 text-center md:pr-1 md:h-full md:border-r border-black mb-0">
+                            {new Date(
+                              visitor.Visits[0]?.Date_From
+                            ).toLocaleDateString()}{" "}
+                          </div>
+                          <div className="w-1/2 text-center md:h-full border-black">
+                            {visitor.Visits[0]?.Date_To &&
+                              new Date(
+                                visitor.Visits[0]?.Date_To
+                              ).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </td>
+                      <td
+                        className="bg-white"
+                        style={{ width: "1%", border: "0" }}
+                      >
+                        <FaRegEye
+                          onClick={() => navigateTo(visitor)}
+                          className="hover:text-red-600 font-bolder text-lg sm:text-xl"
+                          style={{ cursor: "pointer" }}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={6} className="text-center italic">
+                    No records yet
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
 
         {errorMessages && <p className="error text-red-600">{errorMessages}</p>}

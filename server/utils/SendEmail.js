@@ -6,13 +6,13 @@ async function sendEmail(to, subject, text) {
     port: 587,
     secure: false,
     auth: {
-      user: "deneths91@gmail.com",
-      pass: "hnoj mvhc mumz dibk",
+      user: "concordgroupvms@gmail.com",
+      pass: "rhrf zncv pjpf xyls",
     },
   });
 
   const mailOptions = {
-    from: "deneth91@gmail.com",
+    from: "concordgroupvms@gmail.com",
     to: to,
     subject: subject,
     html: text,

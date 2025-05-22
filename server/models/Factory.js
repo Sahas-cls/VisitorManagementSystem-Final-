@@ -24,13 +24,13 @@ module.exports = (sequelize, DataTypes) => {
 
   Factories.associate = (models) => {
     Factories.hasMany(models.department_Users, {
-      foreignKey: "factory_Id",
-      as: "factory",  // Make sure the alias matches
+      foreignKey: "Factory_Id", // Fixed case to match Departments
+      as: "departmentUsers", // Changed alias for clarity (not required elsewhere)
     });
 
     Factories.hasMany(models.Departments, {
       foreignKey: "Factory_Id",
-      as: "departments",  // Ensure this alias is correct as well
+      as: "departments",
     });
   };
 

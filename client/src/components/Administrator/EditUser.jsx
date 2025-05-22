@@ -34,6 +34,7 @@ const EditUser = () => {
   const [userCategories, setUserCategories] = useState({}); // *to store usercategories that are coming from db
   const [isLoading, setIsLoading] = useState(false);
   const [showPW, setShowPW] = useState(false);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const [formData, setFormData] = useState({
     userId: user_Id,
@@ -53,7 +54,7 @@ const EditUser = () => {
   const getFactories = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/department/getAll-Factories",
+        `${apiUrl}/department/getAll-Factories`,
         {
           headers: {
             "X-CSRF-Token": csrfToken,
@@ -77,7 +78,7 @@ const EditUser = () => {
       const fetchDepartments = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:3000/department/getDep/${factoryId}`
+            `${apiUrl}/department/getDep/${factoryId}`
           );
           if (response) {
             setDepartments(response.data);
@@ -96,7 +97,7 @@ const EditUser = () => {
   const getUserCategories = async () => {
     try {
       const userCategories = await axios.get(
-        "http://localhost:3000/userCategory/getAllCategories",
+        `${apiUrl}/userCategory/getAllCategories`,
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
@@ -246,7 +247,7 @@ const EditUser = () => {
       try {
         setIsLoading(true);
         const response = await axios.put(
-          `http://localhost:3000/user/update/${formData.userId}`,
+          `${apiUrl}/user/update/${formData.userId}`,
           formData,
           {
             headers: {
@@ -307,7 +308,7 @@ const EditUser = () => {
       if (result.isConfirmed) {
         setIsLoading(true);
         const response = await axios.delete(
-          `http://localhost:3000/user/delete/${formData.userId}`,
+          `${apiUrl}/user/delete/${formData.userId}`,
           {
             headers: {
               "X-CSRF-Token": csrfToken,
@@ -341,7 +342,7 @@ const EditUser = () => {
   useEffect(() => {
     const fetchCsrfToken = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         setCsrfToken(response.data.csrfToken);

@@ -13,6 +13,7 @@ const CConteiner = ({
   const [csrfToken, setCsrfToken] = useState("");
   const [errorMessages, setErrorMessages] = useState("");
   const [visitorList, setVisitorList] = useState();
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const navigate = useNavigate(); // Initialize useNavigate hook
 
@@ -28,7 +29,7 @@ const CConteiner = ({
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -44,7 +45,7 @@ const CConteiner = ({
     const getVisitorData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/visitor/getDepartmentVisitors/${userDepartmentId}`,
+          `${apiUrl}/visitor/getDepartmentVisitors/${userDepartmentId}`,
           {
             headers: { "X-CSRF-Token": csrfToken },
             withCredentials: true,
@@ -89,7 +90,9 @@ const CConteiner = ({
   return (
     <div className="cContainer">
       <form action="" onSubmit={() => alert("submitting")} className="w-full">
-        <h1 className="cTitle">Application for BOI Entry permits (Internal).</h1>
+        <h1 className="cTitle">
+          Application for BOI Entry permits (Internal).
+        </h1>
 
         <table className="tblVisitor">
           <thead className="bg-gray-300">

@@ -9,16 +9,12 @@ module.exports = (sequelize, DataTypes) => {
     Factory_Id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: "Factories",
-        key: "Factory_Id",
-      },
+      // Foreign key is handled by association
     },
-
     Department_Name: {
       type: DataTypes.STRING,
       allowNull: false,
-      validate: { max: 255 },
+      validate: { len: [1, 255] }, // Fixed: replaced "max" with "len"
     },
     Department_Email: {
       type: DataTypes.STRING,
@@ -28,18 +24,15 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Departments.associate = (models) => {
-    // Correct foreignKey spelling
     Departments.belongsTo(models.Factory, {
-      foreignKey: "Factory_Id", // Correct spelling of foreignKey
-      as: "factory", // Alias for the association
+      foreignKey: "Factory_Id",
+      as: "factory",
     });
 
     Departments.hasMany(models.department_Users, {
       foreignKey: "Department_Id",
       as: "users",
     });
-
-
   };
 
   return Departments;

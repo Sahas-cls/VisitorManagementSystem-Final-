@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./ForgotPassword.css";
+// import "./ForgotPassword.css";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { MdLockReset } from "react-icons/md";
 // import React from "react";
+import resetPasswordImg from "../../../public/reset-password.png";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -11,11 +13,12 @@ const ForgotPassword = () => {
   const [csrfToken, setCsrfToken] = useState("");
   const [emailErrors, setEmailErrors] = useState();
   const [serverSideMsg, setServerSideMsg] = useState({});
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -52,7 +55,7 @@ const ForgotPassword = () => {
 
       try {
         const response = await axios.post(
-          "http://localhost:3000/user/forgot-password",
+          `${apiUrl}/user/forgot-password`,
           formData,
           {
             headers: {
@@ -105,45 +108,60 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="forgotPassword-div">
-      <form onSubmit={handleSubmit}>
-        <div className="sub-div">
-          <div className="form-div">
-            <h1 className="forgot-title">Forgot Password?</h1>
-            <label htmlFor="email">Enter your Email</label>
-            <br />
-            <input
-              type="text"
-              name="email"
-              className=""
-              onChange={handleEmalChange}
-              placeholder="Ex: example2001@gmail.com"
-            />
-            {emailErrors && <p className="error">{emailErrors}</p>}
-            {/* {console.log("cls ", emailErrors)} */}
-            <br />
+    <div className="w-screen h-screen flex bg-gray-400/40 md:bg-white justify-center items-center">
+      <div className="forgotPassword-div w-full md:w-3/6 md:min-h-5/6 md:bg-gray-400/40 md:p-2 xl:w-2/6 xl:min-h-5/6  md:border-2 md:border-black/30 md:shadow-lg rounded-md">
+        <form onSubmit={handleSubmit} className="">
+          <div className="sub-div">
+            <div className="form-div flex flex-col p-5">
+              <h1 className="forgot-title text-center text-xl mb-3 ">
+                Reset Password
+              </h1>
+              <div className="flex justify-center mb-4">
+                <img src={resetPasswordImg} alt="" className="w-40" />
+              </div>
+              <label htmlFor="email">Enter your Email</label>
+              {/* <br /> */}
+              <input
+                type="text"
+                name="email"
+                className="p-2 rounded-md border-black/30 border-2"
+                onChange={handleEmalChange}
+                placeholder="Ex: example2001@gmail.com"
+              />
+              {emailErrors && <p className="error">{emailErrors}</p>}
+              {/* {console.log("cls ", emailErrors)} */}
+              <br />
 
-            <div className="success mt-4 text-wrap text-center font-bold">
-              {serverSideMsg.success && <p>{serverSideMsg.success}</p>}
-            </div>
+              <div className="success mt-4 text-wrap text-center font-bold">
+                {serverSideMsg.success && <p>{serverSideMsg.success}</p>}
+              </div>
 
-            <div className="error">
-              {serverSideMsg.error && <p>{serverSideMsg.error}</p>}
-            </div>
+              <div className="error">
+                {serverSideMsg.error && <p>{serverSideMsg.error}</p>}
+              </div>
 
-            <div className="">{console.log("error obj: ", serverSideMsg)}</div>
+              <div className="">
+                {console.log("error obj: ", serverSideMsg)}
+              </div>
 
-            <div className="buttons text-right">
-              <button className="mr-2 btn-back" onClick={(e) => goBack(e)}>
-                Back
-              </button>
-              <button className="frgBtn btn-reset" style={{ width: "auto" }}>
-                Reset password
-              </button>
+              <div className="buttons text-right grid grid-rows-2 gap-4 px-4">
+                <button
+                  className="mr-2 btn-back bg-blue-500 py-2 px-4 rounded-md w-full hover:text-white"
+                  onClick={(e) => goBack(e)}
+                >
+                  Back
+                </button>
+                <button
+                  className="frgBtn btn-reset bg-green-500 py-2 px-4 rounded-md w-full hover:text-white"
+                  style={{ width: "auto" }}
+                >
+                  Reset password
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

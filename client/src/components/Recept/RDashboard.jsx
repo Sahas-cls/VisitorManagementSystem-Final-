@@ -12,11 +12,12 @@ const RDashboard = () => {
   const [errors, setErrors] = useState({});
   const [csrfToken, setCsrfToken] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -42,7 +43,7 @@ const RDashboard = () => {
         // Step 1: Make the request to generate the Excel file
         setIsLoading(true);
         const response = await axios.post(
-          "http://localhost:3000/visitor/generateExcelRepo",
+          `${apiUrl}/visitor/generateExcelRepo`,
           formData,
           {
             headers: {
@@ -115,7 +116,10 @@ const RDashboard = () => {
 
   return (
     <div className="w-full min-h-full flex justify-center">
-      <div className="flex px-2 w-full h-100vh justify-center items-center md:h-2/4"  style={{backgroundColor:"white"}}>
+      <div
+        className="flex px-2 w-full h-100vh justify-center items-center md:h-2/4"
+        style={{ backgroundColor: "white" }}
+      >
         {isLoading && (
           <div className="text-center w-full h-full">
             <div className="loader-overlay w-full h-full">
@@ -124,13 +128,20 @@ const RDashboard = () => {
             </div>
           </div>
         )}
-        <form onSubmit={handleSubmit} className="border border-gray-500 shadow-custom1 rounded-md p-5 mt-14 boxShadow md:w-[60%] bg-gradient-to-bl from-blue-100 to-blue-300 h-full flex flex-col justify-center items-center">
-        <h1 className="text-md mt-2 mb-8 font-extrabold">Select a date period</h1>
+        <form
+          onSubmit={handleSubmit}
+          className="border border-gray-500 shadow-custom1 rounded-md p-5 mt-14 boxShadow md:w-[60%] bg-gradient-to-bl from-blue-100 to-blue-300 h-full flex flex-col justify-center items-center"
+        >
+          <h1 className="text-md mt-2 mb-8 font-extrabold">
+            Select a date period
+          </h1>
           <table className="">
             <tr className="">
               <td className="p-1">
                 {" "}
-                <label className="text-font-esm md:text-sm" htmlFor="">From</label>
+                <label className="text-font-esm md:text-sm" htmlFor="">
+                  From
+                </label>
               </td>
 
               <td className="p-1">
@@ -149,7 +160,9 @@ const RDashboard = () => {
             <tr>
               <td className="p-1">
                 {" "}
-                <label className="text-font-esm md:text-sm" htmlFor="">To</label>
+                <label className="text-font-esm md:text-sm" htmlFor="">
+                  To
+                </label>
               </td>
 
               <td className="p-1">

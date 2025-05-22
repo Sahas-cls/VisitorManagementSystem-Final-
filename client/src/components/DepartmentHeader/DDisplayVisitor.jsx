@@ -43,13 +43,14 @@ const DDisplayVisitor = () => {
   const [errorMessages, setErrorMessages] = useState();
   const [visitorCategory, setvisitorCategory] = useState({});
   const [visitorPurposes, setvisitorPurposes] = useState({});
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   // to get all visitor categories from backend
   const getVCategories = async () => {
     // alert("getting v categories");
     try {
       const result = await axios.get(
-        `http://localhost:3000/visitor/getVisitor-categories`,
+        `${apiUrl}/visitor/getVisitor-categories`,
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
@@ -68,7 +69,7 @@ const DDisplayVisitor = () => {
   const getVisitingPurpose = async (category_id) => {
     try {
       const result = await axios.get(
-        `http://localhost:3000/visitor/getVisiting_purpose/${category_id}`,
+        `${apiUrl}/visitor/getVisiting_purpose/${category_id}`,
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
@@ -207,7 +208,7 @@ const DDisplayVisitor = () => {
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -226,7 +227,7 @@ const DDisplayVisitor = () => {
     const getDepartments = async () => {
       try {
         const visitorList = await axios.get(
-          `http://localhost:3000/visitor/getDepartments/${userFactoryId}`,
+          `${apiUrl}/visitor/getDepartments/${userFactoryId}`,
           {
             headers: { "X-CSRF-Token": csrfToken },
             withCredentials: true,
@@ -336,7 +337,7 @@ const DDisplayVisitor = () => {
       setIsLoading(true);
       try {
         const response = await axios.post(
-          "http://localhost:3000/visitor/updateVisitor-dhead",
+          `${apiUrl}/visitor/updateVisitor-dhead`,
           formData,
           {
             headers: { "X-CSRF-Token": csrfToken },

@@ -17,12 +17,13 @@ const SuddenVisit = (userFactoryId) => {
   const [csrfToken, setCsrfToken] = useState("");
   const [departments, setDepartments] = useState({});
   const [validationErrorsS, setValidationErrorsS] = useState({});
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const factoryId = userFactoryId.userFactoryId;
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -42,7 +43,7 @@ const SuddenVisit = (userFactoryId) => {
       try {
         // alert("getting departments");
         const response = await axios.get(
-          `http://localhost:3000/department/getDep/${factoryId}`
+          `${apiUrl}/department/getDep/${factoryId}`
         );
         if (response) {
           // console.log("got departments");
@@ -303,7 +304,7 @@ const SuddenVisit = (userFactoryId) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/visitor/createSuddenvisit",
+        `${apiUrl}/visitor/createSuddenvisit`,
         formData,
         {
           headers: { "x-CSRF-Token": csrfToken },
@@ -347,7 +348,7 @@ const SuddenVisit = (userFactoryId) => {
     >
       <form onSubmit={handleSubmit}>
         <div className="">
-          <h1 className="text-md mt-2 mb-2 font-extrabold">
+          <h1 className="text-md mt-2 mb-2 text-center text-xl font-extrabold">
             Sudden Visit application for BOI entry permits (Internal)
           </h1>
         </div>

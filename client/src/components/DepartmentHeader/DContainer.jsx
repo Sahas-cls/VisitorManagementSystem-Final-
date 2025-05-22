@@ -26,6 +26,7 @@ const DConteiner = ({
   const [csrfToken, setCsrfToken] = useState("");
   const [errorMessages, setErrorMessages] = useState("");
   const [visitorList, setVisitorList] = useState();
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const navigate = useNavigate(); // Initialize useNavigate hook
 
@@ -43,7 +44,7 @@ const DConteiner = ({
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -60,7 +61,7 @@ const DConteiner = ({
       // alert(userDepartmentId);
       try {
         const response = await axios.get(
-          `http://localhost:3000/visitor/getVisitors-dhead`,
+          `${apiUrl}/visitor/getVisitors-dhead`,
           {
             params: {
               userDepartmentId: userDepartmentId,
@@ -118,11 +119,21 @@ const DConteiner = ({
           <table className="w-full">
             <thead className="">
               <tr>
-                <th className="pt-1 text-left pb-1 text-left  border-0 bg-blue-500 text-white">Name</th>
-                <th className="border-0 bg-blue-500 text-white text-left">NIC/PPNo</th>
-                <th className="border-0 bg-blue-500 text-white text-left">Vehicle Type</th>
-                <th className="border-0 bg-blue-500 text-white text-left">Vehicle No</th>
-                <th className="border-0 bg-blue-500 text-white text-left">Visiting Date</th>
+                <th className="pt-1 text-left pb-1 text-left  border-0 bg-blue-500 text-white">
+                  Name
+                </th>
+                <th className="border-0 bg-blue-500 text-white text-left">
+                  NIC/PPNo
+                </th>
+                <th className="border-0 bg-blue-500 text-white text-left">
+                  Vehicle Type
+                </th>
+                <th className="border-0 bg-blue-500 text-white text-left">
+                  Vehicle No
+                </th>
+                <th className="border-0 bg-blue-500 text-white text-left">
+                  Visiting Date
+                </th>
               </tr>
             </thead>
 
@@ -138,11 +149,22 @@ const DConteiner = ({
                   ).join("/n");
 
                   return (
-                    <tr className="odd:bg-blue-100 even:bg-blue-300 text-sm" key={visitor.ContactPerson_Id}>
-                      <td className="p-2 border-r-2 border-white text-sm">{visitor.ContactPerson_Name}</td>
-                      <td className="p-2 border-r-2 border-white text-sm">{visitor.ContactPerson_NIC}</td>
-                      <td className="p-2 border-r-2 border-white text-sm">{vehicleType || "No vehicles"}</td>
-                      <td className="p-2 border-r-2 border-white text-sm">{vehicleNumbers || "No vehicles"}</td>
+                    <tr
+                      className="odd:bg-blue-100 even:bg-blue-300 text-sm"
+                      key={visitor.ContactPerson_Id}
+                    >
+                      <td className="p-2 border-r-2 border-white text-sm">
+                        {visitor.ContactPerson_Name}
+                      </td>
+                      <td className="p-2 border-r-2 border-white text-sm">
+                        {visitor.ContactPerson_NIC}
+                      </td>
+                      <td className="p-2 border-r-2 border-white text-sm">
+                        {vehicleType || "No vehicles"}
+                      </td>
+                      <td className="p-2 border-r-2 border-white text-sm">
+                        {vehicleNumbers || "No vehicles"}
+                      </td>
                       <td className="td-Dates td-dates p-2 border-r-0 border-white flex flex-col md:flex-row gap-1 w-auto text-sm">
                         <div className="w-auto md:w-1/2 text-center h-full border-r pr-1 border-black">
                           {new Date(
@@ -157,7 +179,13 @@ const DConteiner = ({
                             ).toLocaleDateString()}
                         </div>
                       </td>
-                      <td style={{ width: "1%", border: "0", background: "white" }}>
+                      <td
+                        style={{
+                          width: "1%",
+                          border: "0",
+                          background: "white",
+                        }}
+                      >
                         <FaRegEye
                           onClick={() => navigateTo(visitor)}
                           className="hover:text-red-600 font-bolder text-lg hover:scale-110 duration-300"
@@ -176,7 +204,6 @@ const DConteiner = ({
               )}
             </tbody>
           </table>
-
         </div>
 
         {errorMessages && <p className="error text-red-600">{errorMessages}</p>}

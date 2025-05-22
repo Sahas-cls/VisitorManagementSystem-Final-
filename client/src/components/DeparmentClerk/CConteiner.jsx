@@ -24,6 +24,7 @@ const CConteiner = ({
   const [csrfToken, setCsrfToken] = useState("");
   const [errorMessages, setErrorMessages] = useState("");
   const [visitorList, setVisitorList] = useState();
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const navigate = useNavigate(); // Initialize useNavigate hook
 
@@ -40,7 +41,7 @@ const CConteiner = ({
   useEffect(() => {
     const getCsrf = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/getCSRFToken", {
+        const response = await axios.get(`${apiUrl}/getCSRFToken`, {
           withCredentials: true,
         });
         if (response) {
@@ -56,7 +57,7 @@ const CConteiner = ({
     const getVisitorData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/visitor/getDepartmentVisitors`,
+          `${apiUrl}/visitor/getDepartmentVisitors`,
           {
             params: {
               userDepartmentId: userDepartmentId,
@@ -117,19 +118,27 @@ const CConteiner = ({
       {/* <p>{userFactoryId !== undefined ? userFactoryId : "User Name"}</p> */}
       {/* <p>{userDepartmentId !== undefined ? userDepartmentId : "User Name"}</p> */}
       <form action="" onSubmit={() => alert("submitting")} className="w-full">
-        <h1 className="text-md mt-2 mb-2 font-extrabold">
-          New Visitors List.
-        </h1>
+        <h1 className="text-md mt-2 mb-2 font-extrabold">New Visitors List.</h1>
 
         <div className="w-full overflow-x-auto">
           <table className="w-full">
             <thead className="position-sticky">
               <tr className="">
-                <th className="pt-1 text-left pb-1 text-left  border-0 bg-blue-500 text-white text-sm">Name</th>
-                <th className="border-0 bg-blue-500 text-white text-left text-sm">NIC/PPNo</th>
-                <th className="border-0 bg-blue-500 text-white text-left text-sm">Vehicle Type</th>
-                <th className="border-0 bg-blue-500 text-white text-left text-sm">Vehicle No</th>
-                <th className="border-0 bg-blue-500 text-white text-left text-sm">Visiting Date</th>
+                <th className="pt-1 text-left pb-1 text-left  border-0 bg-blue-500 text-white text-sm">
+                  Name
+                </th>
+                <th className="border-0 bg-blue-500 text-white text-left text-sm">
+                  NIC/PPNo
+                </th>
+                <th className="border-0 bg-blue-500 text-white text-left text-sm">
+                  Vehicle Type
+                </th>
+                <th className="border-0 bg-blue-500 text-white text-left text-sm">
+                  Vehicle No
+                </th>
+                <th className="border-0 bg-blue-500 text-white text-left text-sm">
+                  Visiting Date
+                </th>
                 <th className="border-0"></th>
               </tr>
             </thead>
@@ -146,12 +155,26 @@ const CConteiner = ({
                   ).join("/n");
 
                   return (
-                    <tr className="odd:bg-blue-100 even:bg-blue-300 text-sm" key={visitor.ContactPerson_Id}>
-                      <td className="p-2 border-r-2 border-white text-sm">{visitor.ContactPerson_Name}</td>
-                      <td className="p-2 border-r-2 border-white text-sm">{visitor.ContactPerson_NIC}</td>
-                      <td className="p-2 border-r-2 border-white text-sm">{vehicleType || "No vehicles"}</td>
-                      <td className="p-2 border-r-2 border-white text-sm">{vehicleNumbers || "No vehicles"}</td>
-                      <td className="p-2 border-r-0 border-black w-auto text-sm" style={{ display: "" }}>
+                    <tr
+                      className="odd:bg-blue-100 even:bg-blue-300 text-sm"
+                      key={visitor.ContactPerson_Id}
+                    >
+                      <td className="p-2 border-r-2 border-white text-sm">
+                        {visitor.ContactPerson_Name}
+                      </td>
+                      <td className="p-2 border-r-2 border-white text-sm">
+                        {visitor.ContactPerson_NIC}
+                      </td>
+                      <td className="p-2 border-r-2 border-white text-sm">
+                        {vehicleType || "No vehicles"}
+                      </td>
+                      <td className="p-2 border-r-2 border-white text-sm">
+                        {vehicleNumbers || "No vehicles"}
+                      </td>
+                      <td
+                        className="p-2 border-r-0 border-black w-auto text-sm"
+                        style={{ display: "" }}
+                      >
                         <div className="h-full md:flex md:gap-1">
                           <div className="w-1/2 text-center md:pr-1 md:h-full md:border-r border-black mb-0">
                             {new Date(
@@ -166,7 +189,10 @@ const CConteiner = ({
                           </div>
                         </div>
                       </td>
-                      <td className="bg-white" style={{ width: "1%", border: "0" }}>
+                      <td
+                        className="bg-white"
+                        style={{ width: "1%", border: "0" }}
+                      >
                         <FaRegEye
                           onClick={() => navigateTo(visitor)}
                           className="hover:text-red-600 text-lg hover:scale-110 duration-300"
