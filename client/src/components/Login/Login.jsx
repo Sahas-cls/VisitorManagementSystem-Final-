@@ -345,9 +345,9 @@ const Login = () => {
                 <a
                   className="hover:text-red-600 text-center"
                   target="blank"
-                  href="http://localhost:5173/visitor-registration"
+                  href="http://128.199.26.137/visitor-registration"
                 >
-                  http://localhost:5173/visitor-registration
+                  http://128.199.26.137/visitor-registration
                 </a>
               </span>
             </div>
