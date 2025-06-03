@@ -47,7 +47,22 @@ visiterRoutes.get("/getVisitor-categories", async (req, res) => {
     }
   } catch (error) {
     console.error("error while fetching visitor categories: ", error);
-    return res.status(500).json({ success: false, data: "" });
+const updateVisit = {
+      Department_Id: Requested_Department,
+      Date_From: Date_From,
+      Requested_Officer: Requested_Officer,
+      Visitor_Category: Visitor_Category,
+      Purpose: Purpose,
+      Date_To: Date_To,
+      Time_From: Time_From,
+      Time_To: Time_To,
+      Breakfast: Breakfast || null,
+      Lunch: Lunch || null,
+      Tea: Tea || null,
+      Num_of_Days: Num_of_Days,
+      Remark: Remark,
+      Last_Modified_By: userId,
+    };    return res.status(500).json({ success: false, data: "" });
   }
 });
 
@@ -718,9 +733,9 @@ visiterRoutes.post(
       Date_To: Date_To,
       Time_From: Time_From,
       Time_To: Time_To,
-      Breakfast: Breakfast,
-      Lunch: Lunch,
-      Tea: Tea,
+      Breakfast: Breakfast || false,
+      Lunch: Lunch || false,
+      Tea: Tea || false,
       Num_of_Days: Num_of_Days,
       Remark: Remark,
       Last_Modified_By: userId,
@@ -890,9 +905,9 @@ visiterRoutes.post(
       Date_To: Date_To,
       Time_From: Time_From,
       Time_To: Time_To,
-      Breakfast: Breakfast,
-      Lunch: Lunch,
-      Tea: Tea,
+      Breakfast: Breakfast || false,
+      Lunch: Lunch || false,
+      Tea: Tea || false,
       Num_of_Days: Num_of_Days,
       Remark: Remark,
       D_Head_Approval: true,
@@ -1121,9 +1136,9 @@ visiterRoutes.post(
       Requested_Officer: Requested_Officer,
       Purpose: Purpose,
       Visitor_Category: Visitor_Category,
-      Breakfast: Breakfast,
-      Lunch: Lunch,
-      Tea: Tea,
+      Breakfast: Breakfast || null,
+      Lunch: Lunch || null,
+      Tea: Tea || null,
       Remark: Remark,
 
       // Last_Modified_By: userId,
@@ -1484,11 +1499,11 @@ visiterRoutes.post(
         Time_To: entryPermit.timeTo,
         Num_of_Days: noOfDays,
         Factory_Id: userFactoryId.userFactoryId,
-        Breakfast: breakfast,
-        Lunch: lunch,
+        Breakfast: breakfast || null,
+        Lunch: lunch || null,
         Purpose: entryPermit.purpose,
         Visitor_Category: entryRequest.visitorCategory,
-        Tea: tea,
+        Tea: tea || null,
         Remark: mealplan.additionalNote,
       };
 
