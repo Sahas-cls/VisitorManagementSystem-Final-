@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import DSidebar from "./dSidebar";
+import DSidebar from "./DSidebar";
 import DContainer from "./DContainer";
-import DReport from "./dReport";
+import DReport from "./DReport";
 import axios from "axios";
 import Header from "../../Header";
 import DApprovedVisitors from "./DApprovedVisitors";
@@ -15,7 +15,7 @@ const DMain = ({
   userDepartmentId,
   userFactoryId,
 }) => {
-  // console.log(userId);
+  console.log("factory id", userFactoryId);
   const [csrfToken, setCsrfToken] = useState("");
   const apiUrl = import.meta.env.VITE_API_URL;
   const [userData, setUserData] = useState({
@@ -30,7 +30,7 @@ const DMain = ({
           withCredentials: true,
         });
         if (response) {
-          // alert(response.data.csrfToken);
+          console.log(response.data.csrfToken);
           const csrf = await response.data.csrfToken;
           setCsrfToken(csrf);
         }

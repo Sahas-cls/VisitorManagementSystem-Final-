@@ -105,7 +105,7 @@ userRoutes.post(
       user_password: hashedPassword,
       Department_Id: department,
       mobile_No: mobileNo,
-      Factory_Id: factory,
+      factory_Id: factory,
     };
 
     try {
@@ -153,12 +153,12 @@ userRoutes.post(
             userEmail: user.user_email,
             userCategory: user.user_category,
             departmentId: user.Department_Id,
-            factoryId: user.Factory_Id,
+            factoryId: user.factory_Id,
           },
           process.env.JWT_SECRET,
           { expiresIn: "1h" }
         );
-        console.log("factory_Id: ", user.factory_Id);
+        // console.log(token);
 
         res.cookie("authToken", token, { httpOnly: true, secure: false });
         console.log("Login success-------------------->cms");
@@ -172,7 +172,7 @@ userRoutes.post(
         });
       } else {
         return res.status(401).json({
-          msg: "The credentials you provided don't seem to match our records",
+          msg: "Oops! The credentials you provided don't seem to match our records",
         });
       }
     } catch (error) {
@@ -185,12 +185,13 @@ module.exports = userRoutes;
 
 //to verify user auth token
 userRoutes.get("/getToken", async (req, res) => {
-  console.log("token verify route called");
+  console.log("token route called");
 
   const token = await req.cookies.authToken;
   if (token) {
     try {
       //decoding authToken
+      console.log("Authtoken called");
       const decodedToken = jwt.verify(
         token,
         "Y3J5P2l!aS@N%hUv$1aKeT@9dXqL&8Rz#xWmO*4bQfG"

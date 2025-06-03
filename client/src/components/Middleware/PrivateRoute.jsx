@@ -27,17 +27,21 @@ const PrivateRoute = ({ element }) => {
   const [userFactoryId, setUserFactoryId] = useState("");
   const [userId, setUserId] = useState("");
   const apiUrl = import.meta.env.VITE_API_URL;
+  //const apiUrl = "http://128.199.26.137";
+  //console.log(apiUrl);
 
   // alert("private route: " + userDepartmentId);
-
+  console.log("Private route running");
   useEffect(() => {
     const getToken = async () => {
+      console.log("getting user token");
       try {
+        console.log("inside the try");
         const response = await axios.get(`${apiUrl}/user/getToken`, {
           withCredentials: true,
         });
 
-        console.log("response", response);
+        console.log("response", response.data.data.userName);
 
         if (response.data.data.userName) {
           console.log(response);
@@ -64,10 +68,12 @@ const PrivateRoute = ({ element }) => {
           // alert(response.data.data.userCategory);
           // alert(userFactory);
         } else {
+          console.log("Inside the else");
           setIsAuthenticated(false);
-          alert("Authentication fail");
+          //alert("Authentication fail");
         }
       } catch (error) {
+	console.log("Inside the catch");
         console.error("Error verifying token:", error.message);
         setIsAuthenticated(false);
       }
@@ -87,8 +93,8 @@ const PrivateRoute = ({ element }) => {
   }
 
   // Redirect based on user role
-  // alert(userCategory);
-  // console.log("user factory Id private routes: " + userFactoryId);
+   alert(userCategory);
+   console.log("user factory Id private routes: " + userFactoryId);
   switch (userCategory) {
     case "Reception":
       return (
@@ -147,7 +153,8 @@ const PrivateRoute = ({ element }) => {
         />
       );
     case "Admin":
-      return (
+     alert("admin login");  
+    return (
         <AMain
           userId={userId}
           userName={userName}

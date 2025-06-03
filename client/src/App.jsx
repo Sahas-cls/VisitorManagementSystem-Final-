@@ -23,6 +23,7 @@ import Resetpassword from "./components/Login/Resetpassword";
 import EditVisitor from "./components/Recept/EditVisitor";
 import EditUser from "./components/Administrator/EditUser";
 import SMain from "./components/SecurityOfficer/SMain";
+import AMain from "./components/Administrator/AMain";
 // import PopupBox from './components/Recept/popupBox';
 
 function App() {
@@ -49,7 +50,7 @@ function App() {
           <Route path="/report-clerk" element={<PrivateRoute />} />
           <Route path="/dashboard-hr" element={<PrivateRoute />} />
           <Route path="/dashboard-recept" element={<PrivateRoute />} />
-          <Route path="/dashboard-administrator" element={<PrivateRoute />} />
+          <Route path="/dashboard-administrator" element={<AMain/>} />
           <Route path="/dashboard-security-officer" element={<SMain />} />
           <Route path="/edit-users" element={<EditUser />} />
           <Route path="/editVisitor" element={<CDisplayVisitor />} />

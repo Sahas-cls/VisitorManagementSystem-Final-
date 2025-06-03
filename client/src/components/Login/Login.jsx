@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import { FaUser, FaVoicemail } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
@@ -14,6 +15,7 @@ const Login = () => {
   const [Serrors, setSErrors] = useState({});
   const apiUrl = import.meta.env.VITE_API_URL;
   // alert(apiUrl);
+  const navigate = useNavigate();
 
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -150,30 +152,29 @@ const Login = () => {
           // alert(`response data: ${userCategory}`);
 
           switch (userCategory) {
-            case "Department Head":
-              window.location.href = "/dashboard-d-head";
-              break;
-            case "Department User":
-              // alert("duser");
-              window.location.href = "/dashboard-clerk";
-              break;
-            case "Reception":
-              window.location.href = "/dashboard-recept";
-              break;
-            case "HR User":
-              window.location.href = "/dashboard-hr";
-              break;
-            case "Security Officer":
-              window.location.href = "/dashboard-security-officer";
-              break;
-            case "Admin":
-              // alert('admin')
-              window.location.href = "/dashboard-administrator";
-              break;
-            default:
-              // alert("xknown user category");
-              break;
-          }
+              case "Department Head":
+                navigate("/dashboard-d-head");
+                break;
+              case "Department User":
+                // alert("duser");
+                navigate("/dashboard-clerk");
+                break;
+              case "Reception":
+                navigate("/dashboard-recept");
+                break;
+              case "HR User":
+                navigate("/dashboard-hr");
+                break;
+              case "Security Officer":
+                navigate("/dashboard-security-officer");
+                break;
+              case "Admin":
+                navigate("/dashboard-administrator");
+                break;
+              default:
+                // navigate("/unauthorized-access");
+                break;
+            }
         } else {
           // alert(response.data.msg);
           throw Error(response.data.msg);
@@ -231,7 +232,7 @@ const Login = () => {
           >
             <div className="w-full px-2">
               <label htmlFor="email">Email: </label>
-              <div className="bg-white flex items-center w-full p-1 rounded-md ">
+              <div className="bg-white border-2 border-black/40 md:border-none flex items-center w-full p-1 rounded-md ">
                 <input
                   className="w-full h-full outline-none p-1.5 bg-white"
                   type="text"
@@ -254,7 +255,7 @@ const Login = () => {
 
             <div className="w-full px-2">
               <label htmlFor="password">Password: </label>
-              <div className="bg-white flex items-center w-full p-1 rounded-md">
+              <div className="bg-white border-2 border-black/40 md:border-none flex items-center w-full p-1 rounded-md">
                 <input
                   className="w-full h-full outline-none p-1.5 bg-white"
                   type="password"

@@ -25,11 +25,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    factory_Id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
+//    factory_Id: {
+//      type: DataTypes.INTEGER,
+ //     allowNull: false,
       // REMOVE the references here since we'll handle it in associations
-    },
+   // },
     mobile_No: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -57,7 +57,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     department_Users.belongsTo(models.Factory, { // Changed to plural to match table name
-      foreignKey: "factory_Id",
+      foreignKey: "Factory_Id",
       as: "factory", // Changed to singular for consistency
     });
   };

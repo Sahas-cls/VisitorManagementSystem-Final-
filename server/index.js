@@ -14,12 +14,12 @@ server.use(cookieParser());
 
 // CORS configuration
 const corsOptions = {
-  origin: "http://localhost:5173",
+  origin: "http://128.199.26.137",
   credentials: true,
 };
 server.use(cors(corsOptions));
 
-// server.use(cors());
+//server.use(cors());
 
 // CSRF protection middleware
 const csrfProtection = csrf({ cookie: true });
