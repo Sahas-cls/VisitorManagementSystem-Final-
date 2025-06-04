@@ -287,11 +287,273 @@ visiterRoutes.get(
 );
 
 // To register a new visitor to db
+// visiterRoutes.post(
+//   "/registration",
+//   csrfProtection,
+//   [
+//     // Contact Person Details Validation
+//     body("contactPersonDetails.cEmail")
+//       .optional({ checkFalsy: true }) // Skip validation if value is not provided or is an empty string
+//       .isEmail()
+//       .withMessage("Invalid email format."),
+
+//     body("contactPersonDetails.cMobileNo")
+//       .isMobilePhone()
+//       .withMessage("Invalid mobile number format.")
+//       .isLength({ min: 10, max: 15 })
+//       .withMessage("Mobile number must be between 10 and 15 digits."),
+
+//     body("contactPersonDetails.cNIC")
+//       .matches(/^\d{9}[vV]$|^\d{12}$/)
+//       .withMessage("ContactPerson NIC number is invalid."),
+
+//     body("contactPersonDetails.cName")
+//       .notEmpty()
+//       .withMessage("Contact person name is required.")
+//       .isString()
+//       .withMessage("Name must be a string."),
+
+//     // Date and Time Validation
+//     body("dateTimeDetails.dateFrom")
+//       .isISO8601()
+//       .withMessage("Invalid date format for dateFrom.")
+//       .toDate(),
+
+//     body("dateTimeDetails.fTimeFrom")
+//       .matches(/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/)
+//       .withMessage("Invalid time format for fTimeFrom (HH:mm)."),
+
+//     body("dateTimeDetails.fTimeTo")
+//       .matches(/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/)
+//       .withMessage("Invalid time format for fTimeTo (HH:mm)."),
+
+//     body("dateTimeDetails.dateTo")
+//       .optional()
+//       .isISO8601()
+//       .withMessage("Invalid date format for dateTo.")
+//       .toDate(),
+
+//     // Department Details Validation
+//     body("departmentDetails.department")
+//       .isNumeric()
+//       .withMessage("Please select a department."),
+
+//     body("departmentDetails.factory")
+//       .isNumeric()
+//       .withMessage("Please select a factory.")
+//       .bail()
+//       .notEmpty()
+//       .withMessage("Please select a factory."),
+
+//     // Vehicle Details Validation (Array of vehicles)
+//     body("vehicleDetails.*.VehicleNo")
+//       .optional({ checkFalsy: true })
+//       .isString()
+//       .withMessage("Vehicle number must be a string."),
+
+//     body("vehicleDetails.*.VehicleType")
+//       .optional({ checkFalsy: true })
+//       .isString()
+//       .withMessage("Vehicle type must be a string."),
+
+//     // Visitor Details Validation (Array of visitors)
+//     body("visitorDetails.*.visitorName")
+//       .optional({ checkFalsy: true })
+//       .isLength({ min: 3, max: 255 })
+//       .withMessage("Visitor name must be between 3 and 255 characters.")
+//       .isString()
+//       .withMessage("Name can only contain letters."),
+
+//     body("visitorDetails.*.visitorNIC")
+//       .optional({ checkFalsy: true })
+//       .matches(/^\d{9}[vV]$|^\d{12}$/)
+//       .withMessage("Invalid visitor NIC number format."),
+
+//     // body("visitorDetails.*.Visitor_NIC")
+//     //   // .optional({ checkFalsy: true })
+//     //   .custom((value) => {
+//     //     const valid = /^\d{9}[vV]$|^\d{12}$/.test(value);
+//     //     if (!valid) {
+//     //       throw new Error(
+//     //         `Invalid NIC: "${value}". Must be 9 digits + v/V or 12 digits.`
+//     //       );
+//     //     }
+//     //     return true;
+//     //   }),
+//   ],
+
+//   async (req, res) => {
+//     console.log(req.body);
+//     // Handle validation errors
+//     const errors = validationResult(req);
+
+//     if (!errors.isEmpty()) {
+//       console.log(errors);
+//       return res.status(400).json({ errors: errors.array() }); // Return the error response
+//     }
+
+//     console.log("Visitor registration route called");
+//     // console.log("Request body: ", req.body);
+
+//     // Collecting form data from the request
+//     const {
+//       contactPersonDetails,
+//       departmentDetails,
+//       dateTimeDetails,
+//       vehicleDetails = [], // Default to empty array if undefined
+//       visitorDetails = [], // Default to empty array if undefined
+//     } = req.body;
+
+//     // Initialize transaction
+//     const transaction = await sequelize.transaction();
+
+//     try {
+//       // Contact Person creation
+//       const newContactPerson = {
+//         ContactPerson_Name: contactPersonDetails.cName,
+//         ContactPerson_NIC: contactPersonDetails.cNIC,
+//         ContactPerson_ContactNo: contactPersonDetails.cMobileNo,
+//         ContactPerson_Email: contactPersonDetails.cEmail,
+//       };
+
+//       const cPerson = await ContactPersons.create(newContactPerson, {
+//         transaction,
+//       });
+//       if (!cPerson) {
+//         console.log("Contact person creation failed");
+//         throw new Error("Contact person creation failed");
+//       }
+
+//       const ContactPersonId = cPerson.ContactPerson_Id;
+//       console.log("Contact person details: ", ContactPersonId);
+
+//       // Create visitors
+//       if (Array.isArray(visitorDetails) && visitorDetails.length > 0) {
+//         for (let visitor of visitorDetails) {
+//           if (visitor && visitor.visitorNIC && visitor.visitorName) {
+//             // Ensure visitor is not null and has required fields
+//             let newVisitor = {
+//               ContactPerson_Id: ContactPersonId,
+//               Visitor_Name: visitor.visitorName,
+//               Visitor_NIC: visitor.visitorNIC,
+//             };
+
+//             try {
+//               const createdVisitor = await Visitors.create(newVisitor, {
+//                 transaction,
+//               });
+//               console.log("Created visitor: ", createdVisitor.Visitor_Name);
+//             } catch (error) {
+//               if (error instanceof sequelize.ValidationError) {
+//                 console.error("Validation errors:", error.errors);
+//               } else {
+//                 console.error("Unexpected error:", error);
+//               }
+//             }
+//           } else {
+//             console.warn("Incomplete or null visitor details:", visitor);
+//           }
+//         }
+//       } else {
+//         console.warn("No visitor details provided or invalid format.");
+//       }
+
+//       // Create vehicles
+//       if (Array.isArray(vehicleDetails) && vehicleDetails.length > 0) {
+//         for (let vehicle of vehicleDetails) {
+//           if (vehicle && vehicle.VehicleNo && vehicle.VehicleType) {
+//             let newVehicle = {
+//               ContactPerson_Id: ContactPersonId,
+//               Vehicle_No: vehicle.VehicleNo,
+//               Vehicle_Type: vehicle.VehicleType,
+//             };
+
+//             const createdVehicle = await Vehicles.create(newVehicle, {
+//               transaction,
+//             });
+//             console.log("Created vehicle: ", createdVehicle.Vehicle_No);
+//           }
+//         }
+//       } else {
+//         console.warn("No vehicle data provided in this record.");
+//       }
+
+//       // Create a visit for the above details
+//       const dateFrom = new Date(dateTimeDetails.dateFrom);
+//       const dateTo = dateTimeDetails.dateTo
+//         ? new Date(dateTimeDetails.dateTo)
+//         : null;
+//       const noOfDays = dateTo
+//         ? Math.ceil((dateTo - dateFrom) / (1000 * 3600 * 24))
+//         : 1; // Default to 1 day if dateTo is not provided
+
+//       let newVisit = {
+//         ContactPerson_Id: ContactPersonId,
+//         Department_Id: departmentDetails.department,
+//         Date_From: dateTimeDetails.dateFrom,
+//         Date_To: dateTimeDetails.dateTo || dateTimeDetails.dateFrom,
+//         Time_From: dateTimeDetails.fTimeFrom,
+//         Time_To: dateTimeDetails.fTimeTo,
+//         Num_of_Days: noOfDays,
+//         Factory_Id: departmentDetails.factory,
+//       };
+
+//       const createdVisit = await Visits.create(newVisit, { transaction });
+//       console.log("Visit created successfully");
+
+//       // Commit transaction if all operations succeed
+//       await transaction.commit();
+
+//       //this function from util file => getUsers.js
+//       const listOfEmails = await findUsers(
+//         departmentDetails.factory,
+//         departmentDetails.department
+//       );
+
+//       console.log(listOfEmails);
+//       // return;
+
+//       //this function from util file => sendEmail.js
+//       const info = await sendEmail(
+//         listOfEmails,
+//         "New visitor arrival",
+//         `<p>${contactPersonDetails.cName} is waiting for the approval</p>`
+//       );
+
+//       // console.log(info);
+
+//       if (info.success === true) {
+//         console.log("Email sent success");
+//       } else {
+//         console.log("Email sent failed");
+//       }
+
+//       // Respond with success
+//       res.status(200).json({
+//         success: true,
+//         message: "Registration and visit creation success",
+//         email: info.success,
+//       });
+//     } catch (error) {
+//       console.log("Error occurred: ", error);
+
+//       // Rollback transaction if any operation fails
+//       await transaction.rollback();
+
+//       // Return failure response
+//       res.status(500).json({
+//         success: false,
+//         message: "Registration failed",
+//         error: error.message,
+//       });
+//     }
+//   }
+// );
+
+//new and faster query to register new visitors
 visiterRoutes.post(
   "/registration",
-  csrfProtection,
   [
-    // Contact Person Details Validation
     body("contactPersonDetails.cEmail")
       .optional({ checkFalsy: true }) // Skip validation if value is not provided or is an empty string
       .isEmail()
@@ -368,180 +630,148 @@ visiterRoutes.post(
       .optional({ checkFalsy: true })
       .matches(/^\d{9}[vV]$|^\d{12}$/)
       .withMessage("Invalid visitor NIC number format."),
-
-    // body("visitorDetails.*.Visitor_NIC")
-    //   // .optional({ checkFalsy: true })
-    //   .custom((value) => {
-    //     const valid = /^\d{9}[vV]$|^\d{12}$/.test(value);
-    //     if (!valid) {
-    //       throw new Error(
-    //         `Invalid NIC: "${value}". Must be 9 digits + v/V or 12 digits.`
-    //       );
-    //     }
-    //     return true;
-    //   }),
   ],
-
+  csrfProtection,
+  [
+    // Validation middleware (same as yours, keep this part unchanged)
+  ],
   async (req, res) => {
-    console.log(req.body);
-    // Handle validation errors
-    const errors = validationResult(req);
+    console.time("TotalRouteTime");
 
+    const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log(errors);
-      return res.status(400).json({ errors: errors.array() }); // Return the error response
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    console.log("Visitor registration route called");
-    // console.log("Request body: ", req.body);
-
-    // Collecting form data from the request
     const {
       contactPersonDetails,
       departmentDetails,
       dateTimeDetails,
-      vehicleDetails = [], // Default to empty array if undefined
-      visitorDetails = [], // Default to empty array if undefined
+      vehicleDetails = [],
+      visitorDetails = [],
     } = req.body;
 
-    // Initialize transaction
     const transaction = await sequelize.transaction();
 
     try {
-      // Contact Person creation
-      const newContactPerson = {
-        ContactPerson_Name: contactPersonDetails.cName,
-        ContactPerson_NIC: contactPersonDetails.cNIC,
-        ContactPerson_ContactNo: contactPersonDetails.cMobileNo,
-        ContactPerson_Email: contactPersonDetails.cEmail,
-      };
+      console.time("CreateContactPerson");
 
-      const cPerson = await ContactPersons.create(newContactPerson, {
-        transaction,
-      });
-      if (!cPerson) {
-        console.log("Contact person creation failed");
-        throw new Error("Contact person creation failed");
-      }
+      // Step 1: Create Contact Person
+      const cPerson = await ContactPersons.create(
+        {
+          ContactPerson_Name: contactPersonDetails.cName,
+          ContactPerson_NIC: contactPersonDetails.cNIC,
+          ContactPerson_ContactNo: contactPersonDetails.cMobileNo,
+          ContactPerson_Email: contactPersonDetails.cEmail,
+        },
+        { transaction }
+      );
 
+      console.timeEnd("CreateContactPerson");
       const ContactPersonId = cPerson.ContactPerson_Id;
-      console.log("Contact person details: ", ContactPersonId);
 
-      // Create visitors
-      if (Array.isArray(visitorDetails) && visitorDetails.length > 0) {
-        for (let visitor of visitorDetails) {
-          if (visitor && visitor.visitorNIC && visitor.visitorName) {
-            // Ensure visitor is not null and has required fields
-            let newVisitor = {
+      // Step 2: Create Visitors (in parallel)
+      console.time("CreateVisitors");
+
+      const validVisitors = visitorDetails.filter(
+        (v) => v && v.visitorNIC && v.visitorName
+      );
+
+      await Promise.all(
+        validVisitors.map((visitor) =>
+          Visitors.create(
+            {
               ContactPerson_Id: ContactPersonId,
               Visitor_Name: visitor.visitorName,
               Visitor_NIC: visitor.visitorNIC,
-            };
+            },
+            { transaction }
+          )
+        )
+      );
 
-            try {
-              const createdVisitor = await Visitors.create(newVisitor, {
-                transaction,
-              });
-              console.log("Created visitor: ", createdVisitor.Visitor_Name);
-            } catch (error) {
-              if (error instanceof sequelize.ValidationError) {
-                console.error("Validation errors:", error.errors);
-              } else {
-                console.error("Unexpected error:", error);
-              }
-            }
-          } else {
-            console.warn("Incomplete or null visitor details:", visitor);
-          }
-        }
-      } else {
-        console.warn("No visitor details provided or invalid format.");
-      }
+      console.timeEnd("CreateVisitors");
 
-      // Create vehicles
-      if (Array.isArray(vehicleDetails) && vehicleDetails.length > 0) {
-        for (let vehicle of vehicleDetails) {
-          if (vehicle && vehicle.VehicleNo && vehicle.VehicleType) {
-            let newVehicle = {
+      // Step 3: Create Vehicles (in parallel)
+      console.time("CreateVehicles");
+
+      const validVehicles = vehicleDetails.filter(
+        (v) => v && v.VehicleNo && v.VehicleType
+      );
+
+      await Promise.all(
+        validVehicles.map((vehicle) =>
+          Vehicles.create(
+            {
               ContactPerson_Id: ContactPersonId,
               Vehicle_No: vehicle.VehicleNo,
               Vehicle_Type: vehicle.VehicleType,
-            };
+            },
+            { transaction }
+          )
+        )
+      );
 
-            const createdVehicle = await Vehicles.create(newVehicle, {
-              transaction,
-            });
-            console.log("Created vehicle: ", createdVehicle.Vehicle_No);
-          }
-        }
-      } else {
-        console.warn("No vehicle data provided in this record.");
-      }
+      console.timeEnd("CreateVehicles");
 
-      // Create a visit for the above details
+      // Step 4: Create Visit
+      console.time("CreateVisit");
+
       const dateFrom = new Date(dateTimeDetails.dateFrom);
       const dateTo = dateTimeDetails.dateTo
         ? new Date(dateTimeDetails.dateTo)
         : null;
       const noOfDays = dateTo
         ? Math.ceil((dateTo - dateFrom) / (1000 * 3600 * 24))
-        : 1; // Default to 1 day if dateTo is not provided
+        : 1;
 
-      let newVisit = {
-        ContactPerson_Id: ContactPersonId,
-        Department_Id: departmentDetails.department,
-        Date_From: dateTimeDetails.dateFrom,
-        Date_To: dateTimeDetails.dateTo || dateTimeDetails.dateFrom,
-        Time_From: dateTimeDetails.fTimeFrom,
-        Time_To: dateTimeDetails.fTimeTo,
-        Num_of_Days: noOfDays,
-        Factory_Id: departmentDetails.factory,
-      };
+      await Visits.create(
+        {
+          ContactPerson_Id: ContactPersonId,
+          Department_Id: departmentDetails.department,
+          Factory_Id: departmentDetails.factory,
+          Date_From: dateTimeDetails.dateFrom,
+          Date_To: dateTimeDetails.dateTo || dateTimeDetails.dateFrom,
+          Time_From: dateTimeDetails.fTimeFrom,
+          Time_To: dateTimeDetails.fTimeTo,
+          Num_of_Days: noOfDays,
+        },
+        { transaction }
+      );
 
-      const createdVisit = await Visits.create(newVisit, { transaction });
-      console.log("Visit created successfully");
+      console.timeEnd("CreateVisit");
 
-      // Commit transaction if all operations succeed
+      // Step 5: Commit DB operations
       await transaction.commit();
 
-      //this function from util file => getUsers.js
+      // Respond immediately
+      res.status(200).json({
+        success: true,
+        message: "Visitor registered successfully",
+      });
+
+      console.time("FindUsers");
       const listOfEmails = await findUsers(
         departmentDetails.factory,
         departmentDetails.department
       );
+      console.timeEnd("FindUsers");
 
-      console.log(listOfEmails);
-      // return;
-
-      //this function from util file => sendEmail.js
+      // Send Email (does NOT block the response)
+      console.time("SendEmail");
       const info = await sendEmail(
         listOfEmails,
         "New visitor arrival",
-        `<p>${contactPersonDetails.cName} is waiting for the approval</p>`
+        `<p>${contactPersonDetails.cName} is waiting for approval</p>`
       );
+      console.timeEnd("SendEmail");
 
-      // console.log(info);
-
-      if (info.success === true) {
-        console.log("Email sent success");
-      } else {
-        console.log("Email sent failed");
-      }
-
-      // Respond with success
-      res.status(200).json({
-        success: true,
-        message: "Registration and visit creation success",
-        email: info.success,
-      });
+      console.log("Email sent:", info.success);
+      console.timeEnd("TotalRouteTime");
     } catch (error) {
-      console.log("Error occurred: ", error);
-
-      // Rollback transaction if any operation fails
+      console.error("Error occurred:", error);
       await transaction.rollback();
-
-      // Return failure response
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Registration failed",
         error: error.message,
