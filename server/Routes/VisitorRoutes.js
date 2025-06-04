@@ -47,7 +47,7 @@ visiterRoutes.get("/getVisitor-categories", async (req, res) => {
     }
   } catch (error) {
     console.error("error while fetching visitor categories: ", error);
-const updateVisit = {
+    const updateVisit = {
       Department_Id: Requested_Department,
       Date_From: Date_From,
       Requested_Officer: Requested_Officer,
@@ -62,7 +62,8 @@ const updateVisit = {
       Num_of_Days: Num_of_Days,
       Remark: Remark,
       Last_Modified_By: userId,
-    };    return res.status(500).json({ success: false, data: "" });
+    };
+    return res.status(500).json({ success: false, data: "" });
   }
 });
 
@@ -1136,9 +1137,9 @@ visiterRoutes.post(
       Requested_Officer: Requested_Officer,
       Purpose: Purpose,
       Visitor_Category: Visitor_Category,
-      Breakfast: Breakfast || null,
-      Lunch: Lunch || null,
-      Tea: Tea || null,
+      Breakfast: Breakfast || false,
+      Lunch: Lunch || false,
+      Tea: Tea || false,
       Remark: Remark,
 
       // Last_Modified_By: userId,
