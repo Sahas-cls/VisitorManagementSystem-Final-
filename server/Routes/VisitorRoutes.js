@@ -553,6 +553,97 @@ visiterRoutes.get(
 //new and faster query to register new visitors
 visiterRoutes.post(
   "/registration",
+  [
+    //     // Contact Person Details Validation
+    body("contactPersonDetails.cEmail")
+      .optional({ checkFalsy: true }) // Skip validation if value is not provided or is an empty string
+      .isEmail()
+      .withMessage("Invalid email format."),
+
+    body("contactPersonDetails.cMobileNo")
+      .isMobilePhone()
+      .withMessage("Invalid mobile number format.")
+      .isLength({ min: 10, max: 15 })
+      .withMessage("Mobile number must be between 10 and 15 digits."),
+
+    body("contactPersonDetails.cNIC")
+      .matches(/^\d{9}[vV]$|^\d{12}$/)
+      .withMessage("ContactPerson NIC number is invalid."),
+
+    body("contactPersonDetails.cName")
+      .notEmpty()
+      .withMessage("Contact person name is required.")
+      .isString()
+      .withMessage("Name must be a string."),
+
+    //     // Date and Time Validation
+    body("dateTimeDetails.dateFrom")
+      .isISO8601()
+      .withMessage("Invalid date format for dateFrom.")
+      .toDate(),
+
+    body("dateTimeDetails.fTimeFrom")
+      .matches(/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/)
+      .withMessage("Invalid time format for fTimeFrom (HH:mm)."),
+
+    body("dateTimeDetails.fTimeTo")
+      .matches(/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/)
+      .withMessage("Invalid time format for fTimeTo (HH:mm)."),
+
+    body("dateTimeDetails.dateTo")
+      .optional()
+      .isISO8601()
+      .withMessage("Invalid date format for dateTo.")
+      .toDate(),
+
+    //     // Department Details Validation
+    body("departmentDetails.department")
+      .isNumeric()
+      .withMessage("Please select a department."),
+
+    body("departmentDetails.factory")
+      .isNumeric()
+      .withMessage("Please select a factory.")
+      .bail()
+      .notEmpty()
+      .withMessage("Please select a factory."),
+
+    //     // Vehicle Details Validation (Array of vehicles)
+    body("vehicleDetails.*.VehicleNo")
+      .optional({ checkFalsy: true })
+      .isString()
+      .withMessage("Vehicle number must be a string."),
+
+    body("vehicleDetails.*.VehicleType")
+      .optional({ checkFalsy: true })
+      .isString()
+      .withMessage("Vehicle type must be a string."),
+
+    //     // Visitor Details Validation (Array of visitors)
+    body("visitorDetails.*.visitorName")
+      .optional({ checkFalsy: true })
+      .isLength({ min: 3, max: 255 })
+      .withMessage("Visitor name must be between 3 and 255 characters.")
+      .isString()
+      .withMessage("Name can only contain letters."),
+
+    body("visitorDetails.*.visitorNIC")
+      .optional({ checkFalsy: true })
+      .matches(/^\d{9}[vV]$|^\d{12}$/)
+      .withMessage("Invalid visitor NIC number format."),
+
+    //     // body("visitorDetails.*.Visitor_NIC")
+    //     //   // .optional({ checkFalsy: true })
+    //     //   .custom((value) => {
+    //     //     const valid = /^\d{9}[vV]$|^\d{12}$/.test(value);
+    //     //     if (!valid) {
+    //     //       throw new Error(
+    //     //         `Invalid NIC: "${value}". Must be 9 digits + v/V or 12 digits.`
+    //     //       );
+    //     //     }
+    //     //     return true;
+    //     //   }),
+  ],
   csrfProtection,
   [
     // Validation middleware (same as yours, keep this part unchanged)
