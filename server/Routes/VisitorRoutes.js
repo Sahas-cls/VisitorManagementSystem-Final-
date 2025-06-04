@@ -575,7 +575,6 @@ visiterRoutes.post(
       .isString()
       .withMessage("Name must be a string."),
 
-    // Date and Time Validation
     body("dateTimeDetails.dateFrom")
       .isISO8601()
       .withMessage("Invalid date format for dateFrom.")
@@ -594,8 +593,6 @@ visiterRoutes.post(
       .isISO8601()
       .withMessage("Invalid date format for dateTo.")
       .toDate(),
-
-    // Department Details Validation
     body("departmentDetails.department")
       .isNumeric()
       .withMessage("Please select a department."),
@@ -607,7 +604,6 @@ visiterRoutes.post(
       .notEmpty()
       .withMessage("Please select a factory."),
 
-    // Vehicle Details Validation (Array of vehicles)
     body("vehicleDetails.*.VehicleNo")
       .optional({ checkFalsy: true })
       .isString()
@@ -617,8 +613,7 @@ visiterRoutes.post(
       .optional({ checkFalsy: true })
       .isString()
       .withMessage("Vehicle type must be a string."),
-
-    // Visitor Details Validation (Array of visitors)
+    //     // Visitor Details Validation (Array of visitors)
     body("visitorDetails.*.visitorName")
       .optional({ checkFalsy: true })
       .isLength({ min: 3, max: 255 })
