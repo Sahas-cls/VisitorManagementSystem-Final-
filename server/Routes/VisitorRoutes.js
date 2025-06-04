@@ -1136,9 +1136,9 @@ visiterRoutes.post(
       Requested_Officer: Requested_Officer,
       Purpose: Purpose,
       Visitor_Category: Visitor_Category,
-      Breakfast: Breakfast || null,
-      Lunch: Lunch || null,
-      Tea: Tea || null,
+      Breakfast: Breakfast || false,
+      Lunch: Lunch || false,
+      Tea: Tea || false,
       Remark: Remark,
 
       // Last_Modified_By: userId,
