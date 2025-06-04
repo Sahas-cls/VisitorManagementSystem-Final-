@@ -629,6 +629,31 @@ const CDisplayVisitor = () => {
             </div>
           </div>
 
+          {/* Status Messages */}
+          <div className="mt-6 mb-4">
+            {successOrError.msg && (
+              <div
+                className={`p-4 rounded-lg text-center font-bold ${
+                  successOrError.type === "error"
+                    ? "bg-red-100 text-red-700"
+                    : "bg-green-100 text-green-700"
+                }`}
+              >
+                {successOrError.msg}
+              </div>
+            )}
+            {successMessages.msg && (
+              <div className="p-4 bg-green-100 text-green-700 rounded-lg text-center font-bold text-lg">
+                {successMessages.msg}
+              </div>
+            )}
+            {errorMessages && (
+              <div className="p-4 bg-red-100 text-red-700 rounded-lg text-center">
+                {errorMessages}
+              </div>
+            )}
+          </div>
+
           {/* Main Content - Two Column Layout */}
           <div className="m-0 flex flex-col lg:flex-row gap-4 lg:gap-[2%] w-full">
             {/* Left Column - Entry Permit Request */}
@@ -999,31 +1024,6 @@ const CDisplayVisitor = () => {
                 </table>
               </div>
             </div>
-          </div>
-
-          {/* Status Messages */}
-          <div className="mt-6">
-            {successOrError.msg && (
-              <div
-                className={`p-4 rounded-lg text-center font-bold ${
-                  successOrError.type === "error"
-                    ? "bg-red-100 text-red-700"
-                    : "bg-green-100 text-green-700"
-                }`}
-              >
-                {successOrError.msg}
-              </div>
-            )}
-            {successMessages.msg && (
-              <div className="p-4 bg-green-100 text-green-700 rounded-lg text-center font-bold text-lg">
-                {successMessages.msg}
-              </div>
-            )}
-            {errorMessages && (
-              <div className="p-4 bg-red-100 text-red-700 rounded-lg text-center">
-                {errorMessages}
-              </div>
-            )}
           </div>
         </div>
       </form>

@@ -73,7 +73,7 @@ const PrivateRoute = ({ element }) => {
           //alert("Authentication fail");
         }
       } catch (error) {
-	console.log("Inside the catch");
+        console.log("Inside the catch");
         console.error("Error verifying token:", error.message);
         setIsAuthenticated(false);
       }
@@ -93,8 +93,8 @@ const PrivateRoute = ({ element }) => {
   }
 
   // Redirect based on user role
-   alert(userCategory);
-   console.log("user factory Id private routes: " + userFactoryId);
+  //  alert(userCategory);
+  console.log("user factory Id private routes: " + userFactoryId);
   switch (userCategory) {
     case "Reception":
       return (
@@ -153,8 +153,8 @@ const PrivateRoute = ({ element }) => {
         />
       );
     case "Admin":
-     alert("admin login");  
-    return (
+      //  alert("admin login");
+      return (
         <AMain
           userId={userId}
           userName={userName}
@@ -164,7 +164,7 @@ const PrivateRoute = ({ element }) => {
           userFactoryId={userFactoryId}
         />
       );
-      alert("admin");
+      // alert("admin");
       break;
 
     default:

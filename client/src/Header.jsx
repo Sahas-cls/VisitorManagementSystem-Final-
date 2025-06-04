@@ -100,7 +100,7 @@ const Header = ({
   };
   // alert(displayHamMenu);
   return (
-    <header className=" bg-gradient-to-r from-[#3b82f6] to-blue-900 min-h-20 flex justify-between px-9 border-b-2 border-b-white">
+    <header className=" bg-gradient-to-r from-[#3b82f6] to-blue-900 min-h-20 flex justify-between px-4 md:px-9 border-b-2 border-b-white">
       <div
         className={`flex items-center ml-9 ${
           displayHamMenu === false ? "hidden" : ""
@@ -123,8 +123,8 @@ const Header = ({
       {/* <img width="200px" className="" src={companyLogo} alt="Logo img" /> */}
 
       <div className="flex items-center justify-center">
-        <div className="text-center flex items-center">
-          <h1 className="mr-4 text-xl font-semibold mt-6 text-white header-greeting">
+        <div className="text-center flex flex-row items-center justify-center">
+          <h1 className="mr-4 text-xl font-semibold text-white header-greeting">
             Hi{" "}
             <span className="header-greeting" style={{ color: "White" }}>
               {userName}
@@ -134,7 +134,7 @@ const Header = ({
           {/* <p className="text-right mr-4">{userDepartment}</p> */}
 
           <FaUserCircle
-            className="uIcon text-white header-icons"
+            className=" text-white text-3xl  header-icons"
             onClick={changeUserDrop}
             style={{ cursor: "pointer" }}
           />

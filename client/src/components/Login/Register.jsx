@@ -343,11 +343,11 @@ const Register = () => {
         </div>
 
         {/* Right Div - Form */}
-        <div className="w-full h-full md:w-4/5 lg:w-3/4 p-6 md:p-8 bg-gradient-to-b from-blue-300 via-gray-400/50 to-blue-300 flex items-center">
+        <div className="w-full h-full md:w-4/5 lg:w-3/4 p-6 md:p-8 bg-white md:bg-gradient-to-b from-blue-300 via-gray-400/50 to-blue-300 flex items-center">
           <form onSubmit={handleSubmit} className="w-full">
             <div className="registration">
               <div className="flex justify-center mb-4">
-                <FaRegUserCircle className="text-6xl md:text-7xl text-blue-700 xl:mb-3" />
+                <FaRegUserCircle className="text-6xl md:text-7xl xl:mb-3" />
               </div>
               <h1 className="text-2xl md:text-3xl text-center mb-6 font-bold text-gray-800">
                 Create New Member
@@ -549,24 +549,28 @@ const Register = () => {
               )}
 
               {/* Buttons */}
-              <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:space-x-4 justify-center xl:mt-10">
-                <button
-                  className="w-full md:w-auto px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                  type="submit"
-                >
-                  Register
-                </button>
+              <div className="grid grid-rows-2 gap-4 grid-cols-1 md:grid-rows-1 md:grid-cols-2 xl:mt-10 md:-space-x-7">
+                <div className="flex justify-center">
+                  <button
+                    className="bg-green-600 w-3/4 rounded-md text-white hover:bg-green-500 py-2"
+                    type="submit"
+                  >
+                    Register
+                  </button>
+                </div>
 
-                <button
-                  type="button"
-                  className="w-full md:w-auto px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    window.location.href = "http://localhost:5173/";
-                  }}
-                >
-                  Go to Login
-                </button>
+                <div className="flex justify-center">
+                  <button
+                    type="button"
+                    className="bg-blue-600 w-3/4 rounded-md text-white hover:bg-blue-500 py-2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.location.href = "http://localhost:5173/";
+                    }}
+                  >
+                    Go to Login
+                  </button>
+                </div>
               </div>
             </div>
           </form>

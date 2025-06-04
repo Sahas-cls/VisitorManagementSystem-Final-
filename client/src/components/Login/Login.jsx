@@ -152,29 +152,29 @@ const Login = () => {
           // alert(`response data: ${userCategory}`);
 
           switch (userCategory) {
-              case "Department Head":
-                navigate("/dashboard-d-head");
-                break;
-              case "Department User":
-                // alert("duser");
-                navigate("/dashboard-clerk");
-                break;
-              case "Reception":
-                navigate("/dashboard-recept");
-                break;
-              case "HR User":
-                navigate("/dashboard-hr");
-                break;
-              case "Security Officer":
-                navigate("/dashboard-security-officer");
-                break;
-              case "Admin":
-                navigate("/dashboard-administrator");
-                break;
-              default:
-                // navigate("/unauthorized-access");
-                break;
-            }
+            case "Department Head":
+              navigate("/dashboard-d-head");
+              break;
+            case "Department User":
+              // alert("duser");
+              navigate("/dashboard-clerk");
+              break;
+            case "Reception":
+              navigate("/dashboard-recept");
+              break;
+            case "HR User":
+              navigate("/dashboard-hr");
+              break;
+            case "Security Officer":
+              navigate("/dashboard-security-officer");
+              break;
+            case "Admin":
+              navigate("/dashboard-administrator");
+              break;
+            default:
+              // navigate("/unauthorized-access");
+              break;
+          }
         } else {
           // alert(response.data.msg);
           throw Error(response.data.msg);
@@ -307,8 +307,7 @@ const Login = () => {
                 type="button"
                 className="text-center w-3/4 bg-blue-600 hover:bg-blue-700 text-white font-bold p-1 py-2 rounded-md hover:tracking-wider hover:scale-105 duration-300"
                 onClick={(e) => {
-                  e.preventDefault(),
-                    (window.location.href = "http://localhost:5173/register");
+                  e.preventDefault(), navigate("/register");
                 }}
               >
                 Create an Account

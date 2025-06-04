@@ -4,6 +4,7 @@ const cors = require("cors");
 const csrf = require("csurf");
 const cookieParser = require("cookie-parser");
 const db = require("./models");
+require("dotenv").config();
 
 const server = express();
 
@@ -14,39 +15,38 @@ server.use(cookieParser());
 
 // CORS configuration
 const corsOptions = {
-  origin: "http://128.199.26.137",
+  origin: [process.env.FRONTEND_URL],
   credentials: true,
 };
 server.use(cors(corsOptions));
-
-//server.use(cors());
 
 // CSRF protection middleware
 const csrfProtection = csrf({ cookie: true });
 server.use(csrfProtection);
 
-// Importing user routes
+// Routes
 const userRoutes = require("./Routes/UserRoutes.js");
 server.use("/user", userRoutes);
-// Importing department routes
+
 const departmentRoutes = require("./Routes/DepartmentRoutes.js");
 server.use("/department", departmentRoutes);
 
-const visiterRoutes = require("./Routes/VisitorRoutes.js");
-server.use("/visitor", visiterRoutes);
+const visitorRoutes = require("./Routes/VisitorRoutes.js");
+server.use("/visitor", visitorRoutes);
 
 const userCategories = require("./Routes/UserCategoryRoutes.js");
 server.use("/userCategory", userCategories);
 
-// Generating CSRF token
+// CSRF token route
 server.get("/getCSRFToken", (req, res) => {
-  // console.log(req.csrfToken());
-  console.log("csrftoken requested");
-  console.log(req.csrfToken());
+  console.log("CSRF token requested");
   res.json({ csrfToken: req.csrfToken() });
 });
 
+// Start server
 const port = process.env.PORT || 3000;
 db.sequelize.sync().then(() => {
-  server.listen(port, () => console.log(`Server is running on port ${port}`));
+  server.listen(port, () => {
+    console.log(`Server is running on ${port}`);
+  });
 });
