@@ -602,7 +602,7 @@ const VisitorF = () => {
           <div className="flex justify-center">
             <div className="">
               <label htmlFor="">
-                Visiting Factory <span className="text-red-600">*</span>:{" "}
+                Factory <span className="text-red-600">*</span>:{" "}
               </label>
               <select
                 name="factory"
@@ -640,7 +640,7 @@ const VisitorF = () => {
           <div className="flex justify-center">
             <div className="">
               <label htmlFor="">
-                Visiting Department <span className="text-red-600">*</span>:{" "}
+                Department <span className="text-red-600">*</span>:{" "}
               </label>
               <select
                 style={{ cursor: "pointer" }}
