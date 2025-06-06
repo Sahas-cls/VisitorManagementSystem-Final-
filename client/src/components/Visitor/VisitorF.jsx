@@ -584,7 +584,9 @@ const VisitorF = () => {
   };
 
   return (
-    <div className="visitor-container">
+    <div className="visitor-container md:px-6 ">
+      {/* bg-[radial-gradient(circle_at_bottom_left,_rgba(107,183,255,0.247),_white)] */}
+      {/* <div class="absolute top-0 -z-10 h-full w-full bg-white"><div class="absolute bottom-auto left-auto right-0 top-0 h-[500px] w-[500px] -translate-x-[30%] translate-y-[20%] rounded-full bg-[rgba(173,109,244,0.5)] opacity-50 blur-[80px]"></div></div> */}
       {isLoading && (
         <div className="text-center w-full h-full">
           <div className="loader-overlay w-full h-full">
@@ -594,83 +596,91 @@ const VisitorF = () => {
         </div>
       )}
       <form onSubmit={handleSubmit}>
-        <h1 className="vTitle">Visitor Registration Form</h1>
+        <h1 className="text-center mt-8 text-2xl text-blue-900 underline font-extrabold uppercase">
+          Visitor Registration
+        </h1>
 
-        <div className="vFactoryDepartment">
-          <div>
-            <label htmlFor="">
-              Visiting Factory <span className="text-red-600">*</span>:{" "}
-            </label>
-            <select
-              name="factory"
-              style={{ cursor: "pointer" }}
-              className="vInput"
-              onChange={(e) => {
-                handleDeparmentChanges(e);
-                fetchDepartments(e);
-              }}
-            >
-              <option value="">Select Factory</option>
-              {Array.isArray(factories) &&
-                factories.map((factory) => {
-                  return (
-                    <option value={factory.Factory_Id}>
-                      {factory.Factory_Name}
-                    </option>
-                  );
-                })}
-              {/* <option value="Concord Apparel">Concord Apparel</option>
+        <div className="grid grid-cols-1 grid-rows-2 md:grid-cols-2 md:grid-rows-1 mt-14">
+          <div className="flex justify-center">
+            <div className="">
+              <label htmlFor="">
+                Factory <span className="text-red-600">*</span>:{" "}
+              </label>
+              <select
+                name="factory"
+                style={{ cursor: "pointer" }}
+                className="vInput"
+                onChange={(e) => {
+                  handleDeparmentChanges(e);
+                  fetchDepartments(e);
+                }}
+              >
+                <option value="">Select Factory</option>
+                {Array.isArray(factories) &&
+                  factories.map((factory) => {
+                    return (
+                      <option value={factory.Factory_Id}>
+                        {factory.Factory_Name}
+                      </option>
+                    );
+                  })}
+                {/* <option value="Concord Apparel">Concord Apparel</option>
               <option value="Concord Footwear">Concord Footwear</option>
               <option value="Guston Lanka">Guston Lanka</option> */}
-            </select>
-            {Array.isArray(serverSideErrors) &&
-              serverSideErrors
-                .filter((err) => err.path === "departmentDetails.factory")
-                .map((err, index) => (
-                  <p className="error" key={index}>
-                    {err.msg}
-                  </p>
-                ))}
+              </select>
+              {Array.isArray(serverSideErrors) &&
+                serverSideErrors
+                  .filter((err) => err.path === "departmentDetails.factory")
+                  .map((err, index) => (
+                    <p className="error" key={index}>
+                      {err.msg}
+                    </p>
+                  ))}
+            </div>
           </div>
 
-          <div>
-            <label htmlFor="">
-              Visiting Department <span className="text-red-600">*</span>:{" "}
-            </label>
-            <select
-              style={{ cursor: "pointer" }}
-              name="department"
-              className="vInput"
-              onChange={handleDeparmentChanges}
-            >
-              <option value="Selected Department">Select Department</option>
-              {Array.isArray(departments) &&
-                departments.map((department) => {
-                  return (
-                    <option value={department.Department_Id}>
-                      {department.Department_Name}
-                    </option>
-                  );
-                })}
-            </select>
-            {Array.isArray(serverSideErrors) &&
-              serverSideErrors
-                .filter((err) => err.path === "departmentDetails.department")
-                .map((err, index) => (
-                  <p className="error" key={index}>
-                    {err.msg}
-                  </p>
-                ))}
+          <div className="flex justify-center">
+            <div className="">
+              <label htmlFor="">
+                Department <span className="text-red-600">*</span>:{" "}
+              </label>
+              <select
+                style={{ cursor: "pointer" }}
+                name="department"
+                className="vInput"
+                onChange={handleDeparmentChanges}
+              >
+                <option value="Selected Department">Select Department</option>
+                {Array.isArray(departments) &&
+                  departments.map((department) => {
+                    return (
+                      <option value={department.Department_Id}>
+                        {department.Department_Name}
+                      </option>
+                    );
+                  })}
+              </select>
+              {Array.isArray(serverSideErrors) &&
+                serverSideErrors
+                  .filter((err) => err.path === "departmentDetails.department")
+                  .map((err, index) => (
+                    <p className="error" key={index}>
+                      {err.msg}
+                    </p>
+                  ))}
+            </div>
           </div>
         </div>
 
-        <div className="contactDateTimeDiv flex">
-          <div className="contactDiv vsub-div">
-            <div className="top subTpk">Contact Persons Details</div>
-            <div className="bottom">
+        <div className="contactDateTimeDiv flex gap-6 md:mt-6">
+          <div className="w-11/12 rounded-md shadow-lg px-2 py-4 border-2 border-black/20 vsub-div">
+            <div className="text-lg mb-4 text-blue-900 tracking-wider backdrop:blur-2xl">
+              Contact Persons Details
+            </div>
+            <div className="bottom ">
               <table>
                 <tbody>
-                  <tr>
+                  <tr className="">
                     <td>
                       <label htmlFor="">
                         Contact Person <span className="text-red-600">*</span>
@@ -679,7 +689,7 @@ const VisitorF = () => {
                     <td>
                       <input
                         type="text"
-                        className="vInput"
+                        className="px-2 py-1 border border-black/40 rounded-md w-full mt-2"
                         name="cName"
                         onChange={handleContactPerson}
                         placeholder="Enter Name"
@@ -712,7 +722,7 @@ const VisitorF = () => {
                     <td>
                       <input
                         type="text"
-                        className="vInput"
+                        className="px-2 py-1 border border-black/40 rounded-md w-full mt-2"
                         name="cNIC"
                         onChange={handleContactPerson}
                         placeholder="Enter NIC number"
@@ -747,7 +757,7 @@ const VisitorF = () => {
                     <td>
                       <input
                         type="text"
-                        className="vInput"
+                        className=" px-2 py-1 border border-black/40 rounded-md w-full mt-2"
                         name="cMobileNo"
                         onChange={handleContactPerson}
                         placeholder="Enter mobile number"
@@ -781,7 +791,7 @@ const VisitorF = () => {
                     <td>
                       <input
                         type="text"
-                        className="vInput"
+                        className=" px-2 py-1 border border-black/40 rounded-md w-full mt-2"
                         name="cEmail"
                         onChange={handleContactPerson}
                         placeholder="Enter email"
@@ -811,145 +821,109 @@ const VisitorF = () => {
             </div>
           </div>
 
-          <div className="contactDiv vsub-div">
-            <div className="top subTpk">Visiting Date & Time</div>
-            <div className="bottom">
-              <table>
-                <tbody>
-                  <tr>
-                    <td>
-                      <label htmlFor="">
-                        From <span className="text-red-600">*</span>
-                      </label>
-                    </td>
-                    <td>
-                      <span>
-                        <input
-                          type="date"
-                          name="dateFrom"
-                          onChange={handleDate}
-                          className="vInput w-full mb-1"
-                        />
-
-                        {Array.isArray(serverSideErrors) &&
-                          serverSideErrors
-                            .filter(
-                              (err) => err.path === "dateTimeDetails.dateFrom"
-                            )
-                            .map((err, index) => (
-                              <p className="error" key={index}>
-                                {err.msg}
-                              </p>
-                            ))}
-
-                        <p className="error">
-                          {dateTimeErrors.dateFrom && dateTimeErrors.dateFrom}
-                        </p>
-                        {errorsCPerson.dateFrom && (
-                          <p className="error">{errorsCPerson.dateFrom}</p>
-                        )}
-                      </span>
-                      <div className="text-left flex">
-                        <span>
-                          <input
-                            type="time"
-                            name="fTimeFrom"
-                            onChange={handleDate}
-                          />
-                          <br />
-                          {Array.isArray(serverSideErrors) &&
-                            serverSideErrors
-                              .filter(
-                                (err) =>
-                                  err.path === "dateTimeDetails.fTimeFrom"
-                              )
-                              .map((err, index) => (
-                                <p className="error text-left" key={index}>
-                                  {err.msg}
-                                </p>
-                              ))}
-                        </span>
-                        <span className="ml-6 mr-6">To</span>
-
-                        <span>
-                          <input
-                            type="time"
-                            name="fTimeTo"
-                            onChange={handleDate}
-                          />
-                          {Array.isArray(serverSideErrors) &&
-                            serverSideErrors
-                              .filter(
-                                (err) => err.path === "dateTimeDetails.fTimeTo"
-                              )
-                              .map((err, index) => (
-                                <p className="error text-left" key={index}>
-                                  {err.msg}
-                                </p>
-                              ))}
-                          <br />
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label htmlFor="">To</label>
-                    </td>
-                    <td>
-                      <input
-                        type="date"
-                        className="vInput w-full mb-1"
-                        name="dateTo"
-                        onChange={handleDate}
-                      />
-
-                      {Array.isArray(serverSideErrors) &&
-                        serverSideErrors
-                          .filter(
-                            (err) => err.path === "dateTimeDetails.dateTo"
-                          )
-                          .map((err, index) => (
-                            <p className="error" key={index}>
-                              {err.msg}
-                            </p>
-                          ))}
-
-                      <p className="error">
-                        {dateTimeErrors.dateTo && dateTimeErrors.dateTo}
-                      </p>
-                      <div className="text-left">
-                        {/* <td className="flex">
-                          <span>
-                            <input
-                              type="time"
-                              name="tTimeFrom"
-                              onChange={handleDate}
-                            />
-                          </span>
-
-                          <span className="ml-6 mr-6">To</span>
-
-                          <span>
-                            <input
-                              type="time"
-                              name="tTimeTo"
-                              onChange={handleDate}
-                            />
-                          </span>
-                        </td> */}
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+          <div className="w-11/12 rounded-md shadow-lg px-2 py-4 border-2 border-black/20 vsub-div mt-2 md:mt-0">
+            <div className="text-lg mb-4 text-blue-900 tracking-wider backdrop:blur-2xl">
+              Visiting Date & Time
             </div>
+            <div className="grid grid-cols-1 grid-rows-3 px-4">
+              <div className="flex justify-between">
+                <label className="">
+                  Date From<span className="text-red-600">*</span>{" "}
+                </label>
+                <div className="">
+                  <input
+                    type="date"
+                    name="dateFrom"
+                    onChange={handleDate}
+                    className="mb-1 px-2 py-1 rounded-md border w-52 border-black/50"
+                  />
+                  {/* displaying errors */}
+                  {Array.isArray(serverSideErrors) &&
+                    serverSideErrors
+                      .filter((err) => err.path === "dateTimeDetails.dateFrom")
+                      .map((err, index) => (
+                        <p className="error" key={index}>
+                          {err.msg}
+                        </p>
+                      ))}
+                </div>
+              </div>
+
+              <div className="flex justify-between">
+                <label className="">
+                  Time <span className="text-red-600">*</span>
+                </label>
+                <div className="flex gap-4 items-center">
+                  <div className="">
+                    <input
+                      type="time"
+                      name="fTimeFrom"
+                      className="px-2 py-1 rounded-md w-20"
+                      onChange={handleDate}
+                    />
+                    {Array.isArray(serverSideErrors) &&
+                      serverSideErrors
+                        .filter(
+                          (err) => err.path === "dateTimeDetails.fTimeFrom"
+                        )
+                        .map((err, index) => (
+                          <p className="error text-left" key={index}>
+                            {err.msg}
+                          </p>
+                        ))}
+                  </div>
+                  <span>To</span>
+                  <div className="">
+                    <input
+                      type="time"
+                      name="fTimeTo"
+                      className="px-2 py-1 rounded-md w-20"
+                      onChange={handleDate}
+                    />
+
+                    {Array.isArray(serverSideErrors) &&
+                      serverSideErrors
+                        .filter((err) => err.path === "dateTimeDetails.fTimeTo")
+                        .map((err, index) => (
+                          <p className="error text-left" key={index}>
+                            {err.msg}
+                          </p>
+                        ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-between mt-2">
+                <label className="">
+                  Date To <span className="text-red-600">*</span>
+                </label>
+                <div className="">
+                  <input
+                    type="date"
+                    name="dateTo"
+                    onChange={handleDate}
+                    className="mb-1 px-2 py-1 rounded-md border w-52 border-black/50"
+                  />
+                  {Array.isArray(serverSideErrors) &&
+                    serverSideErrors
+                      .filter((err) => err.path === "dateTimeDetails.dateTo")
+                      .map((err, index) => (
+                        <p className="error" key={index}>
+                          {err.msg}
+                        </p>
+                      ))}
+                </div>
+              </div>
+            </div>
+            <div className="bottom"></div>
           </div>
         </div>
 
-        <div className="contactDateTimeDiv flex">
-          <div className="contactDiv vsub-div">
-            <div className="top subTpk">Vehicle Details</div>
+        <div className="contactDateTimeDiv flex md:gap-6 md:mt-6">
+          <div className="w-11/12 rounded-md shadow-lg px-2 py-4 border-2 border-black/20 vsub-div mt-4 md:mt-0">
+            <div className="text-lg mb-4 text-blue-900 tracking-wider">
+              Vehicle Details
+            </div>
             <div className="bottom">
               <table className="tblVehicles">
                 <thead>
@@ -1008,8 +982,10 @@ const VisitorF = () => {
             </div>
           </div>
 
-          <div className="contactDiv vsub-div">
-            <div className="top subTpk">Visitor Details</div>
+          <div className="w-11/12 rounded-md shadow-lg px-2 py-4 border-2 border-black/20 vsub-div mt-4 md:mt-0">
+            <div className="text-lg mb-4 text-blue-900 tracking-wider">
+              Visitor Details
+            </div>
             <div className="bottom">
               <table className="tblVehicles w-full">
                 <thead>
