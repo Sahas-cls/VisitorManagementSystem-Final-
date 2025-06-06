@@ -20,6 +20,8 @@ const AMain = ({
     setView(value);
   };
 
+  
+
   useEffect(() => {
     // This effect runs when screenSize changes (e.g., window resize)
     if (screenSize < 700) {
@@ -28,11 +30,11 @@ const AMain = ({
       setToggleSidebar(true); // Show sidebar on larger screens
     }
 
-    console.log("toggleSidebar:", toggleSidebar);
+    // console.log("toggleSidebar:", toggleSidebar);
   }, [screenSize]); // Dependency array ensures it runs when screen size changes
 
   return (
-    <div>
+    <div className="max-h-screen overflow-y-hidden">
       <Header
         userId={userId}
         userName={userName}

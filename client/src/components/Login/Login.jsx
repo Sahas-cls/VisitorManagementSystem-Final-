@@ -210,7 +210,7 @@ const Login = () => {
   };
 
   return (
-    <div className="w-screen min-h-screen flex justify-center ">
+    <div className="w-screen min-h-screen flex justify-center bg-[radial-gradient(circle_at_bottom_center,_rgba(107,183,255,0.147),_rgba(207,253,255,0.147))]">
       <div className="w-full h-container flex justify-center md:shadow-custom md:w-3/4 md:my-3 lg:w-3/6 lg:my-3 lg:p-0">
         <div className="left-div hidden sm:block sm:w-2/6 sm:min-h-full bg-no-repeat bg-cover bg-center">
           {/* <h1>Welcome</h1>
@@ -338,16 +338,21 @@ const Login = () => {
                   className="mr-1 hover:text-red-600 hover:font-bold text-xl"
                   onClick={() =>
                     copyToClipboard(
-                      "http://localhost:5173/visitor-registration"
+                      `${
+                        import.meta.env.VITE_FRONTEND_URL
+                      }/visitor-registration`
                     )
                   }
                 />
                 <a
                   className="hover:text-red-600 text-center"
                   target="blank"
-                  href="http://128.199.26.137/visitor-registration"
+                  href={`${
+                    import.meta.env.VITE_FRONTEND_URL
+                  }/visitor-registration`}
                 >
-                  http://128.199.26.137/visitor-registration
+                  {/* ${`http://128.199.26.137/visitor-registration`} */}
+                  {`${import.meta.env.VITE_FRONTEND_URL}/visitor-registration`}
                 </a>
               </span>
             </div>
