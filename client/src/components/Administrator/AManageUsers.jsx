@@ -94,7 +94,7 @@ const AManageUsers = () => {
     navigate("/edit-users", { state: { visitors: visitor } });
     // console.log("navigate to: ", visitor);
   };
-  console.log(userList);
+  // console.log(userList);
 
   // Delete user function
   const handleDelete = async (visitorId) => {
@@ -280,33 +280,35 @@ const AManageUsers = () => {
           </div>
         </div>
       )}
-      <h1 className="text-md mt-2 mb-2 font-extrabold text-blue-950">
+      <h1 className="text-xl text-center mb-4 mt-2 font-extrabold uppercase tracking-widest text-blue-950">
         Users List
       </h1>
       <div className="w-full">
-        <div className="flex justify-end w-full">
+        <div className="flex  justify-center md:justify-end w-full">
           <div className="">
             <button
-              className="p-2 mb-4 mr-4 bg-blue-500 text-white hover:bg-blue-600 flex"
+              className="p-2 rounded-md mb-4 px-2 mr-4 bg-blue-500 text-white hover:bg-blue-600 flex"
               onClick={() => navigate("/register")}
             >
-              <FaUserPlus className="text-2xl" />
-              <p className="text-md">Add New User</p>
+              <FaUserPlus className="text-lg mr-0 md:mr-1" />
+              <p className="text-sm md:text-md">Add New User</p>
             </button>
           </div>
         </div>
       </div>
       <div className="w-full">
-        <div className="flex justify-between mb-4">
-          <div className="flex">
-            <fieldset className="flex">
-              <div className=""></div>
-              <label htmlFor="factory">Select Factory: </label>
+        <div className="grid grid-cols-1 mb-4 grid-rows-2 ">
+          <div className="flex justify-center md:justify-end md:mr-4">
+            <fieldset className="flex items-center">
+              {/* <div className=""></div> */}
+              {/* <label htmlFor="factory" className="whitespace-nowrap">
+                Filter By:{" "}
+              </label> */}
               <select
                 name=""
                 id="factory"
                 style={{ cursor: "pointer" }}
-                className="bg-white border-2 border-zinc-400 rounded-md ml-2"
+                className="bg-white border-2 border-zinc-400 rounded-md py-1 px-2"
                 onChange={(e) => addFilter(e)}
               >
                 <option value="" selected={selectedFactory === ""}>
@@ -327,101 +329,103 @@ const AManageUsers = () => {
               </select>
               {/* <FaFilter className="text-2xl ml-2 text-green-500 hover:text-green-600 cursor-pointer" /> */}
               <FaFilterCircleXmark
-                className="text-2xl ml-2 text-red-500 hover:text-red-600 cursor-pointer"
+                className="text-xl md:text-2xl ml-2 text-red-500 hover:text-red-600 cursor-pointer"
                 onClick={(e) => clearFilters(e)}
               />
             </fieldset>
           </div>
 
-          <div className="bg-white border-2 border-slate-300 rounded-lg">
-            <div className="w-56 bg-white h-8 mr-3 rounded-xl flex">
+          <div className="bg-white rounded-lg mt-4 flex justify-center md:justify-end md:flex-auto ">
+            <div className="bg-white h-8 rounded-xl flex space-x-2 md:mr-4">
               <input
                 type="text"
-                className="rounded-xl px-3 h-full outline-none w-full h-full"
+                className="bg-white border-2 border-zinc-400 rounded-md py-1 px-2"
                 placeholder="Search by user name..."
                 name="searchKey"
                 onChange={handleSearchKey}
                 value={searchKey}
               />
               <FaSearch
-                className="text-xl mt-2 cursor-pointer"
+                className="text-xl mt-2 cursor-pointer hover:scale-110 duration-150"
                 onClick={(e) => searchByName(e)}
               />
             </div>
           </div>
         </div>
 
-        <table className="w-full">
-          <thead>
-            <tr className="bg-blue-500 text-white" style={{ color: "white" }}>
-              <th className="text-left text-white" style={{ border: "0" }}>
-                Id
-              </th>
-              <th className="text-left text-white" style={{ border: "0" }}>
-                Name
-              </th>
-              <th className="text-left text-white" style={{ border: "0" }}>
-                Email
-              </th>
-              <th className="text-left text-white" style={{ border: "0" }}>
-                Category
-              </th>
-              {/* <th className="text-left " style={{ border: "0" }}>
+        <div className="max-w-screen overflow-x-auto h-80">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-blue-500 text-white" style={{ color: "white" }}>
+                <th className="text-left text-white" style={{ border: "0" }}>
+                  Id
+                </th>
+                <th className="text-left text-white" style={{ border: "0" }}>
+                  Name
+                </th>
+                <th className="text-left text-white" style={{ border: "0" }}>
+                  Email
+                </th>
+                <th className="text-left text-white" style={{ border: "0" }}>
+                  Category
+                </th>
+                {/* <th className="text-left " style={{ border: "0" }}>
                 Factory
               </th> */}
-              <th className="text-left text-white" style={{ border: "0" }}>
-                Department
-              </th>
-              <th className="text-left text-white" style={{ border: "0" }}>
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* <tr> */}
-            {Array.isArray(userList) && userList.length > 0 ? (
-              userList.map((user) => {
-                return (
-                  <tr className="odd:bg-blue-100 even:bg-blue-300 text-sm">
-                    <td className="text-left py-2 pr-3 text-wrap pl-1">
-                      {user.user_Id}
-                    </td>
-                    <td className="text-left py-2 pr-3 text-wrap">
-                      {user.user_Name}
-                    </td>
-                    <td className="text-left py-2 pr-3 text-wrap">
-                      {user.user_email}
-                    </td>
-                    <td className="text-left py-2 pr-3 text-wrap">
-                      {user.user_category}
-                    </td>
-                    {/* <td className="text-left pb-2 pr-3 text-wrap">
+                <th className="text-left text-white" style={{ border: "0" }}>
+                  Department
+                </th>
+                <th className="md:text-left text-white text-center" style={{ border: "0" }}>
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* <tr> */}
+              {Array.isArray(userList) && userList.length > 0 ? (
+                userList.map((user) => {
+                  return (
+                    <tr className="odd:bg-blue-100 even:bg-blue-300 text-sm">
+                      <td className="text-left text-sm pl-2 py-2 pr-3 text-wrap border-white border">
+                        {user.user_Id}
+                      </td>
+                      <td className="text-left text-sm pl-2 py-2 pr-3 text-wrap border-white border">
+                        {user.user_Name}
+                      </td>
+                      <td className="text-left text-sm pl-2 py-2 pr-3 text-wrap border-white border">
+                        {user.user_email}
+                      </td>
+                      <td className="text-left text-sm pl-2 py-2 pr-3 text-wrap border-white border">
+                        {user.user_category}
+                      </td>
+                      {/* <td className="text-left pb-2 pr-3 text-wrap">
                       {user.factory_Id}
                     </td> */}
-                    <td className="text-left pb-2 pr-3 text-wrap">
-                      {user.Department.Department_Name}
-                    </td>
-                    <td className="text-left pb-2 pr-3 text-wrap w-36">
-                      <FaEdit
-                        onClick={(e) => navigateTo(user, e)}
-                        className="inline mr-2 text-2xl hover:text-blue-500"
-                      />
-                      <MdDeleteForever
-                        onClick={() => handleDelete(user.user_Id)}
-                        className="inline text-2xl hover:text-red-500"
-                      />
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
-              <td colSpan={6}>
-                <p className="text-center mt-2">No users found!</p>
-              </td>
-            )}
-            {/* </tr> */}
-          </tbody>
-        </table>
+                      <td className="text-left text-sm pl-2 pb-2 pr-3 text-wrap border-white border">
+                        {user.Department.Department_Name}
+                      </td>
+                      <td className="flex items-center justify-center text-left pb-2 pr-3 text-wrap w-36">
+                        <FaEdit
+                          onClick={(e) => navigateTo(user, e)}
+                          className="inline mr-2 text-2xl hover:text-blue-500"
+                        />
+                        <MdDeleteForever
+                          onClick={() => handleDelete(user.user_Id)}
+                          className="inline text-2xl hover:text-red-500"
+                        />
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <td colSpan={6}>
+                  <p className="text-center mt-2">No users found!</p>
+                </td>
+              )}
+              {/* </tr> */}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
