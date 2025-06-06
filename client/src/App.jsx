@@ -50,7 +50,7 @@ function App() {
           <Route path="/report-clerk" element={<PrivateRoute />} />
           <Route path="/dashboard-hr" element={<PrivateRoute />} />
           <Route path="/dashboard-recept" element={<PrivateRoute />} />
-          <Route path="/dashboard-administrator" element={<AMain/>} />
+          <Route path="/dashboard-administrator" element={<PrivateRoute />} />
           <Route path="/dashboard-security-officer" element={<SMain />} />
           <Route path="/edit-users" element={<EditUser />} />
           <Route path="/editVisitor" element={<CDisplayVisitor />} />

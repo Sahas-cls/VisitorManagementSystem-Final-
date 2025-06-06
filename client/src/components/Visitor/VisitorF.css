@@ -8,6 +8,16 @@
   /* background-color: rgb(221, 217, 217); */
 }
 
+/* @media (max-width: 425px) {
+  .visitor-container {
+    background: radial-gradient(
+      circle at bottom left,
+      rgba(107, 183, 255, 0.247),
+      white
+    );
+  }
+} */
+
 .vTitle {
   margin-top: 20px;
   font-weight: bold;
@@ -229,7 +239,6 @@
 
 .vf-icon {
   font-size: 1.4rem;
-
 }
 
 .vsub-div {
@@ -255,7 +264,12 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(150, 138, 138, 0.208); /* Semi-transparent background */
+  background-color: rgba(
+    150,
+    138,
+    138,
+    0.208
+  ); /* Semi-transparent background */
   z-index: 9999; /* Ensure it overlays on top */
 }
 

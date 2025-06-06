@@ -584,7 +584,9 @@ const VisitorF = () => {
   };
 
   return (
-    <div className="visitor-container md:px-6">
+    <div className="visitor-container md:px-6 ">
+      {/* bg-[radial-gradient(circle_at_bottom_left,_rgba(107,183,255,0.247),_white)] */}
+      {/* <div class="absolute top-0 -z-10 h-full w-full bg-white"><div class="absolute bottom-auto left-auto right-0 top-0 h-[500px] w-[500px] -translate-x-[30%] translate-y-[20%] rounded-full bg-[rgba(173,109,244,0.5)] opacity-50 blur-[80px]"></div></div> */}
       {isLoading && (
         <div className="text-center w-full h-full">
           <div className="loader-overlay w-full h-full">
@@ -672,7 +674,7 @@ const VisitorF = () => {
 
         <div className="contactDateTimeDiv flex gap-6 md:mt-6">
           <div className="w-11/12 rounded-md shadow-lg px-2 py-4 border-2 border-black/20 vsub-div">
-            <div className="text-lg mb-4 text-blue-900 tracking-wider">
+            <div className="text-lg mb-4 text-blue-900 tracking-wider backdrop:blur-2xl">
               Contact Persons Details
             </div>
             <div className="bottom ">
@@ -820,7 +822,7 @@ const VisitorF = () => {
           </div>
 
           <div className="w-11/12 rounded-md shadow-lg px-2 py-4 border-2 border-black/20 vsub-div mt-2 md:mt-0">
-            <div className="text-lg mb-4 text-blue-900 tracking-wider">
+            <div className="text-lg mb-4 text-blue-900 tracking-wider backdrop:blur-2xl">
               Visiting Date & Time
             </div>
             <div className="grid grid-cols-1 grid-rows-3 px-4">
