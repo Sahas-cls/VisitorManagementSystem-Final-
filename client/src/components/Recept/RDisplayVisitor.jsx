@@ -13,10 +13,13 @@ import { FaPlusCircle } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import swal from "sweetalert2";
 import "./RContainer.css";
+import { useFormik } from "formik";
+import * as yup from "yup";
 
 const RDisplayVisitor = () => {
   const location = useLocation();
   const visitor = location.state?.visitor; // Access the passed visitor data
+  const approvalStatus = true;
 
   console.log(
     "All details: ======================================================"
@@ -534,6 +537,26 @@ const RDisplayVisitor = () => {
     setVehicleErrors(updatedErrors);
   };
 
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const validations = yup.object({
+    refNumber: yup.string().required("Reference number required"),
+    issuedDate: yup
+      .date()
+      .required("Issued date required")
+      .min(yesterday, "Date cannot be in past"),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      refNumber: "",
+      issuedDate: "",
+    },
+    validations: validations,
+    onSubmit: handleSubmit,
+  });
+
   return (
     <div className="w-full flex flex-col mb-4 bg-white">
       <form>
@@ -577,6 +600,7 @@ const RDisplayVisitor = () => {
                       <select
                         name="Requested_Department"
                         className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+                        disabled={approvalStatus}
                       >
                         <option value="">Select a Department:</option>
                         {Array.isArray(departmentList) &&
@@ -609,6 +633,7 @@ const RDisplayVisitor = () => {
                         name="Date_From"
                         className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
                         defaultValue={`${reqDate}`}
+                        disabled={approvalStatus}
                       />
                     </div>
                     {errors.Date_From && (
@@ -625,6 +650,7 @@ const RDisplayVisitor = () => {
                         name="Requested_Officer"
                         defaultValue={Visits.Requested_Officer}
                         type="text"
+                        disabled={approvalStatus}
                       />
                     </div>
                     {errors.Requested_Officer && (
@@ -642,6 +668,7 @@ const RDisplayVisitor = () => {
                         name="Visitor_Category"
                         className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
                         value={Visits.visitor_category_id}
+                        disabled={approvalStatus}
                       >
                         <option
                           selected={Visits.Visitor_Category === ""}
@@ -684,6 +711,7 @@ const RDisplayVisitor = () => {
                       <select
                         name="Purpose"
                         className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+                        disabled={approvalStatus}
                       >
                         <option
                           value=""
@@ -724,6 +752,7 @@ const RDisplayVisitor = () => {
                             type="date"
                             name="Date_From"
                             defaultValue={reqDate}
+                            disabled={approvalStatus}
                           />
                         </div>
                         <div className="flex-1">
@@ -733,6 +762,7 @@ const RDisplayVisitor = () => {
                             type="date"
                             name="Date_To"
                             defaultValue={dateTo >= today ? dateTo : null}
+                            disabled={approvalStatus}
                           />
                         </div>
                       </div>
@@ -755,6 +785,7 @@ const RDisplayVisitor = () => {
                             type="time"
                             name="Time_From"
                             defaultValue={timeFrom}
+                            disabled={approvalStatus}
                           />
                         </div>
                         <div className="flex-1">
@@ -763,6 +794,7 @@ const RDisplayVisitor = () => {
                             type="time"
                             name="Time_To"
                             defaultValue={timeTo}
+                            disabled={approvalStatus}
                           />
                         </div>
                       </div>
@@ -820,6 +852,8 @@ const RDisplayVisitor = () => {
                           defaultChecked={Visits.Breakfast === true}
                           id="Breakfast"
                           className="mr-1"
+                          defaultValue={timeTo}
+                          disabled={approvalStatus}
                         />
                         <label htmlFor="Breakfast" className="text-sm">
                           Breakfast
@@ -832,6 +866,8 @@ const RDisplayVisitor = () => {
                           id="Lunch"
                           defaultChecked={Visits.Lunch === true}
                           className="mr-1"
+                          defaultValue={timeTo}
+                          disabled={approvalStatus}
                         />
                         <label htmlFor="Lunch" className="text-sm">
                           Lunch
@@ -844,6 +880,8 @@ const RDisplayVisitor = () => {
                           defaultChecked={Visits.Tea === true}
                           id="Tea"
                           className="mr-1"
+                          defaultValue={timeTo}
+                          disabled={approvalStatus}
                         />
                         <label htmlFor="Tea" className="text-sm">
                           Tea
@@ -860,6 +898,7 @@ const RDisplayVisitor = () => {
                         className="text-sm bg-white border rounded border-slate-400 p-1 w-full"
                         defaultValue={Visits.Remark}
                         readOnly={true}
+                        disabled={approvalStatus}
                       ></textarea>
                     </div>
                   </div>
@@ -924,22 +963,45 @@ const RDisplayVisitor = () => {
             <div className="grid grid-cols-1 gap-4 mb-4">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <label className="text-sm sm:w-1/3">Reference Number:</label>
-                <input
-                  type="text"
-                  name="refNumber"
-                  className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
-                  onChange={handleRefChanges}
-                />
+                <div className="">
+                  <input
+                    type="text"
+                    name="refNumber"
+                    value={formik.values.refNumber}
+                    className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+                    onChange={(e) => {
+                      handleRefChanges(e), formik.handleChange(e);
+                    }}
+                    onBlur={formik.handleBlur}
+                  />
+
+                  {formik.touched.refNumber && formik.errors.refNumber && (
+                    <div className="text-red-600">
+                      {formik.errors.refNumber}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <label className="text-sm sm:w-1/3">Issued Date:</label>
-                <input
-                  type="Date"
-                  name="issuedDate"
-                  onChange={handleRefChanges}
-                  className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
-                />
+                <div className="">
+                  <input
+                    type="Date"
+                    name="issuedDate"
+                    value={formik.values.issuedDate}
+                    onBlur={formik.handleBlur}
+                    onChange={(e) => {
+                      handleRefChanges(e), formik.handleChange(e);
+                    }}
+                    className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+                  />
+                  {formik.touched.issuedDate && formik.errors.issuedDate && (
+                    <div className="text-red-600">
+                      {formik.errors.issuedDate}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
