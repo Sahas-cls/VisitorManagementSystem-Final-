@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import "./VisitorF.css";
 import axios from "axios";
 import { MdDelete } from "react-icons/md";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 const VisitorF = () => {
   const [csrfToken, setCsrfToken] = useState("");
@@ -25,6 +27,9 @@ const VisitorF = () => {
   const [disableSubmitButton, setDisableSubmitButton] = useState(true);
   const [serverSideErrors, setserverSideErrors] = useState({});
   const apiUrl = import.meta.env.VITE_API_URL;
+  const vToday = new Date();
+  vToday.setHours(0, 0, 0, 0);
+
   // !to get all factory details
   const getFactories = async () => {
     // alert("getting factories");
@@ -440,7 +445,7 @@ const VisitorF = () => {
 
   //handle submit event
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    // e.preventDefault();
     // Validate contact person fields (or any other fields)
     const { cName, cMobileNo, cEmail } = contactPerson;
     const subErrors = {};
@@ -583,6 +588,54 @@ const VisitorF = () => {
     // }
   };
 
+  // YUP VALIDATIONS
+  const validationSchema = Yup.object({
+    factory: Yup.number().required("Select a factory"),
+    department: Yup.number().required("Select a department"),
+    cName: Yup.string()
+      .min(3, "Name should have at least 4 characters")
+      .max(254, "Name should have less than 254 characters")
+      .required("Name required"),
+    cNIC: Yup.string()
+      .matches(/^(\d{9}[vV]|\d{12})$/, "Invalid nic format")
+      .required("NIC required"),
+    cMobileNo: Yup.string()
+      .matches(/^0\d{9}$/, "Invalid mobile number")
+      .required("Mobile number required"),
+    cEmail: Yup.string().email("Invalid email"),
+    dateFrom: Yup.date()
+      .required("Date required")
+      .min(vToday, "Date cannot be in past"),
+    dateTo: Yup.date()
+      .required("Date required")
+      .min(vToday, "Date cannot be in past"),
+  });
+
+  // FORMIK CONFIG
+  const Formik = useFormik({
+    initialValues: {
+      factory: "",
+      department: "",
+      cName: "",
+      cNIC: "",
+      cMobileNo: "",
+      cEmail: "",
+      dateFrom: "",
+      fTimeFrom: "",
+      fTimeTo: "",
+      dateTo: "",
+      VehicleType: "",
+      VehicleNo: "",
+      visitorName: "",
+      visitorNIC: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: handleSubmit,
+    validateOnBlur: true,
+    validateOnChange: true,
+    validateOnMount: true,
+  });
+
   return (
     <div className="visitor-container md:px-6 ">
       {/* bg-[radial-gradient(circle_at_bottom_left,_rgba(107,183,255,0.247),_white)] */}
@@ -595,7 +648,7 @@ const VisitorF = () => {
           </div>
         </div>
       )}
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={Formik.handleSubmit}>
         <h1 className="text-center mt-8 text-2xl text-blue-900 underline font-extrabold uppercase">
           Visitor Registration
         </h1>
@@ -610,7 +663,10 @@ const VisitorF = () => {
                 name="factory"
                 style={{ cursor: "pointer" }}
                 className="vInput"
+                value={Formik.values.factory}
+                onBlur={Formik.handleBlur}
                 onChange={(e) => {
+                  Formik.handleChange(e);
                   handleDeparmentChanges(e);
                   fetchDepartments(e);
                 }}
@@ -628,14 +684,17 @@ const VisitorF = () => {
               <option value="Concord Footwear">Concord Footwear</option>
               <option value="Guston Lanka">Guston Lanka</option> */}
               </select>
-              {Array.isArray(serverSideErrors) &&
+              {Formik.touched.factory && Formik.errors.factory && (
+                <div className="text-red-600">{Formik.errors.factory}</div>
+              )}
+              {/* {Array.isArray(serverSideErrors) &&
                 serverSideErrors
                   .filter((err) => err.path === "departmentDetails.factory")
                   .map((err, index) => (
                     <p className="error" key={index}>
                       {err.msg}
                     </p>
-                  ))}
+                  ))} */}
             </div>
           </div>
 
@@ -647,8 +706,13 @@ const VisitorF = () => {
               <select
                 style={{ cursor: "pointer" }}
                 name="department"
+                value={Formik.values.department}
+                // onChange={Formik.handleChange}
+                onBlur={Formik.handleBlur}
                 className="vInput"
-                onChange={handleDeparmentChanges}
+                onChange={(e) => {
+                  handleDeparmentChanges(e), Formik.handleChange(e);
+                }}
               >
                 <option value="Selected Department">Select Department</option>
                 {Array.isArray(departments) &&
@@ -660,14 +724,20 @@ const VisitorF = () => {
                     );
                   })}
               </select>
-              {Array.isArray(serverSideErrors) &&
+              {Formik.touched.department && Formik.errors.department && (
+                <div className="text-red-600">{Formik.errors.department}</div>
+              )}
+              {/* {Array.isArray(serverSideErrors) &&
                 serverSideErrors
                   .filter((err) => err.path === "departmentDetails.department")
                   .map((err, index) => (
                     <p className="error" key={index}>
                       {err.msg}
                     </p>
-                  ))}
+                  ))} */}
+              {/* {Formik.touched.department && Formik.errors.department && (
+                <div className="text-red-600">{Formik.errors.department}</div>
+              )} */}
             </div>
           </div>
         </div>
@@ -691,14 +761,24 @@ const VisitorF = () => {
                         type="text"
                         className="px-2 py-1 border border-black/40 rounded-md w-full mt-2"
                         name="cName"
-                        onChange={handleContactPerson}
+                        value={Formik.values.cName}
+                        onBlur={Formik.handleBlur}
+                        onChange={(e) => {
+                          handleContactPerson(e), Formik.handleChange(e);
+                        }}
                         placeholder="Enter Name"
                       />
-                      {errorsCPerson.cName && (
+                      {/* {errorsCPerson.cName && (
                         <p className="error">{errorsCPerson.cName}</p>
                       )}
                       {subErros.cName && (
                         <p className="error">{subErros.cName}</p>
+                      )} */}
+
+                      {Formik.touched.cName && Formik.errors.cName && (
+                        <div className="text-red-600">
+                          {Formik.errors.cName}
+                        </div>
                       )}
 
                       {Array.isArray(serverSideErrors) &&
@@ -724,9 +804,16 @@ const VisitorF = () => {
                         type="text"
                         className="px-2 py-1 border border-black/40 rounded-md w-full mt-2"
                         name="cNIC"
-                        onChange={handleContactPerson}
+                        value={Formik.values.cNIC}
+                        onBlur={Formik.handleBlur}
+                        onChange={(e) => {
+                          handleContactPerson(e), Formik.handleChange(e);
+                        }}
                         placeholder="Enter NIC number"
                       />
+                      {Formik.touched.cNIC && Formik.errors.cNIC && (
+                        <div className="text-red-600">{Formik.errors.cNIC}</div>
+                      )}
 
                       {Array.isArray(serverSideErrors) &&
                         serverSideErrors
@@ -739,13 +826,13 @@ const VisitorF = () => {
                             </p>
                           ))}
 
-                      {errorsCPerson.cNIC && (
+                      {/* {errorsCPerson.cNIC && (
                         <p className="error">{errorsCPerson.cNIC}</p>
                       )}
 
                       {subErros.cMobileNo && (
                         <p className="error">{subErros.cMobileNo}</p>
-                      )}
+                      )} */}
                     </td>
                   </tr>
                   <tr>
@@ -759,10 +846,18 @@ const VisitorF = () => {
                         type="text"
                         className=" px-2 py-1 border border-black/40 rounded-md w-full mt-2"
                         name="cMobileNo"
-                        onChange={handleContactPerson}
+                        value={Formik.values.cMobileNo}
+                        onBlur={Formik.handleBlur}
+                        onChange={(e) => {
+                          handleContactPerson(e), Formik.handleChange(e);
+                        }}
                         placeholder="Enter mobile number"
                       />
-
+                      {Formik.touched.cMobileNo && Formik.errors.cMobileNo && (
+                        <div className="text-red-600">
+                          {Formik.errors.cMobileNo}
+                        </div>
+                      )}
                       {Array.isArray(serverSideErrors) &&
                         serverSideErrors
                           .filter(
@@ -775,13 +870,13 @@ const VisitorF = () => {
                             </p>
                           ))}
 
-                      {errorsCPerson.cMobileNo && (
+                      {/* {errorsCPerson.cMobileNo && (
                         <p className="error">{errorsCPerson.cMobileNo}</p>
                       )}
 
                       {subErros.cMobileNo && (
                         <p className="error">{subErros.cMobileNo}</p>
-                      )}
+                      )} */}
                     </td>
                   </tr>
                   <tr>
@@ -793,10 +888,19 @@ const VisitorF = () => {
                         type="text"
                         className=" px-2 py-1 border border-black/40 rounded-md w-full mt-2"
                         name="cEmail"
-                        onChange={handleContactPerson}
+                        value={Formik.values.cEmail}
+                        // onChange={Formik.handleChange}
+                        onBlur={Formik.handleBlur}
+                        onChange={(e) => {
+                          handleContactPerson(e), Formik.handleChange(e);
+                        }}
                         placeholder="Enter email"
                       />
-
+                      {Formik.touched.cEmail && Formik.errors.cEmail && (
+                        <div className="text-red-600">
+                          {Formik.errors.cEmail}
+                        </div>
+                      )}
                       {Array.isArray(serverSideErrors) &&
                         serverSideErrors
                           .filter(
@@ -808,12 +912,12 @@ const VisitorF = () => {
                             </p>
                           ))}
 
-                      {errorsCPerson.cEmail && (
+                      {/* {errorsCPerson.cEmail && (
                         <p className="error">{errorsCPerson.cEmail}</p>
                       )}
                       {subErros.cEmail && (
                         <p className="error">{subErros.cEmail}</p>
-                      )}
+                      )} */}
                     </td>
                   </tr>
                 </tbody>
@@ -834,9 +938,17 @@ const VisitorF = () => {
                   <input
                     type="date"
                     name="dateFrom"
-                    onChange={handleDate}
+                    value={Formik.values.dateFrom}
+                    // onChange={Formik.handleChange}
+                    onBlur={Formik.handleBlur}
+                    onChange={(e) => {
+                      handleDate(e), Formik.handleChange(e);
+                    }}
                     className="mb-1 px-2 py-1 rounded-md border w-52 border-black/50"
                   />
+                  {Formik.touched.dateFrom && Formik.errors.dateFrom && (
+                    <div className="text-red-600">{Formik.errors.dateFrom}</div>
+                  )}
                   {/* displaying errors */}
                   {Array.isArray(serverSideErrors) &&
                     serverSideErrors
@@ -901,9 +1013,17 @@ const VisitorF = () => {
                   <input
                     type="date"
                     name="dateTo"
-                    onChange={handleDate}
+                    value={Formik.values.dateTo}
+                    // onChange={Formik.handleChange}
+                    onBlur={Formik.handleBlur}
+                    onChange={(e) => {
+                      handleDate(e), Formik.handleChange(e);
+                    }}
                     className="mb-1 px-2 py-1 rounded-md border w-52 border-black/50"
                   />
+                  {Formik.touched.dateTo && Formik.errors.dateTo && (
+                    <div className="text-red-600">{Formik.errors.dateTo}</div>
+                  )}
                   {Array.isArray(serverSideErrors) &&
                     serverSideErrors
                       .filter((err) => err.path === "dateTimeDetails.dateTo")
@@ -1041,14 +1161,46 @@ const VisitorF = () => {
                   ))}
                 </tbody>
               </table>
-              {Array.isArray(serverSideErrors) &&
+              {/* {Array.isArray(serverSideErrors) &&
                 serverSideErrors
                   .filter((err) => err.path === "visitorDetails[0].visitorNIC")
                   .map((err, index) => (
                     <p className="error" key={index}>
                       {err.msg}
                     </p>
-                  ))}
+                  ))} */}
+
+              {Array.isArray(serverSideErrors) &&
+                // Step 1: Filter only visitorNIC-related errors
+                [
+                  ...new Set(
+                    serverSideErrors
+                      .filter((err) =>
+                        /^visitorDetails\[\d+\]\.visitorNIC$/.test(err.path)
+                      )
+                      .map((err) => {
+                        const match = err.path.match(
+                          /^visitorDetails\[(\d+)\]\.visitorNIC$/
+                        );
+                        return match ? Number(match[1]) : null;
+                      })
+                      .filter((i) => i !== null)
+                  ),
+                ].map((index) => {
+                  const errorMessages = serverSideErrors
+                    .filter(
+                      (err) =>
+                        err.path === `visitorDetails[${index}].visitorNIC`
+                    )
+                    .map((err) => err.msg)
+                    .join(" / ");
+
+                  return (
+                    <p key={index} className="error">
+                      Visitor {index + 1} NIC: {errorMessages}
+                    </p>
+                  );
+                })}
             </div>
           </div>
         </div>
