@@ -40,6 +40,8 @@ const CDisplayVisitor = () => {
   const timeTo = Visits?.Time_To;
 
   // Validation schema
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
   const validationSchema = yup.object({
     Requested_Department: yup.number().required("Department is required"),
     Requested_Officer: yup
@@ -51,7 +53,7 @@ const CDisplayVisitor = () => {
     Req_Date: yup
       .date()
       .required("Request date is required")
-      .min(new Date(), "Date cannot be in the past"),
+      .min(yesterday, "Date cannot be in the past"),
     Date_From: yup
       .date()
       .required("From date is required")
