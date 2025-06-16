@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+	import React, { useState } from "react";
 import Login from "./components/Login/Login";
 import CMain from "./components/DeparmentClerk/CMain";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -33,18 +33,17 @@ function App() {
       <Router>
         <Routes>
           {/* <Route path='' element={<Login />} />
-          <Route path='/register' element={<Register />} />
+          <Route path='/register' element={<VisitorF />} />
           <Route path="/dashboard-clerk" element={<CMain />} />
           <Route path='/dashboard-d-head' element={<DMain />}></Route>
           <Route path='/report-clerk' element={<CReport />}></Route>
           <Route path='/dashboard-hr' element={<HMain />}></Route>
           <Route path='/dashboard-recept' element={<RMain />}></Route>
           <Route path='/sudden-visits' element={<SuddenVisit />}></Route>
-          <Route path='/visitor-registration' element={<VisitorF />}></Route> */}
+          <Route path="/visitor-registration" element={<VisitorF />} />
           {/* <PrivateRoute /> */}
           <Route path="" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/visitor-registration" element={<VisitorF />} />
           <Route path="/dashboard-clerk" element={<PrivateRoute />} />
           <Route path="/dashboard-d-head" element={<PrivateRoute />} />
           <Route path="/report-clerk" element={<PrivateRoute />} />
@@ -65,6 +64,7 @@ function App() {
           <Route path="/reset-user-password" element={<Resetpassword />} />
           {/* to edit visitors details - reception */}
           <Route path="/edit-visit-recept" element={<EditVisitor />} />
+	  <Route path="/new-visitor" element={<VisitorF/>} />
         </Routes>
       </Router>
     </div>

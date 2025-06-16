@@ -113,7 +113,7 @@ const DApprovedVisitors = ({
     <div className="dContainer" style={{ backgroundColor: "white" }}>
       {/* <h1>4654: {userId || 123}</h1> */}
       <form action="" onSubmit={() => alert("submitting")} className="w-full">
-        <h1 className="text-md mt-2 font-extrabold mb-2">Approved Visitors</h1>
+        <h1 className="text-xl mt-2 font-extrabold text-center mb-2">Approved Visitors</h1>
 
         <div className="w-full overflow-x-auto">
           <table className="w-full">

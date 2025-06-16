@@ -565,7 +565,7 @@ const Register = () => {
                     className="bg-blue-600 w-3/4 rounded-md text-white hover:bg-blue-500 py-2"
                     onClick={(e) => {
                       e.preventDefault();
-                      window.location.href = "http://localhost:5173/";
+                      window.location.href = `${import.meta.env.VITE_FRONTEND_URL}/`;
                     }}
                   >
                     Go to Login

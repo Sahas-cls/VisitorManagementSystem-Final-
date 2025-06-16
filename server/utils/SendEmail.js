@@ -1,37 +1,42 @@
-const nodemailer = require("nodemailer");
+//import { Resend } from 'resend';
+const { Resend } =  require('resend')
 
-async function sendEmail(to, subject, text) {
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: "concordgroupvms@gmail.com",
-      pass: "rhrf zncv pjpf xyls",
-    },
-  });
+// Initialize Resend with your API key
+const resend = new Resend(process.env.RESEND_API_KEY); // Store key in .env
 
-  const mailOptions = {
-    from: "concordgroupvms@gmail.com",
-    to: to,
-    subject: subject,
-    html: text,
-  };
-
+async function sendEmail(to, subject, html) {
   try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log(("Message sent: %s", info.messageId));
+    const { data, error } = await resend.emails.send({
+      from: process.env.FROM_EMAIL || 'onboarding@resend.dev', // Set this in .env
+      to: to,
+      subject: subject,
+      html: html,
+    });
+
+    if (error) {
+      console.error('Resend API error:', error);
+      return {
+        success: false,
+        message: 'Failed to send email',
+        error: error.message
+      };
+    }
+
+    console.log('Email sent successfully. ID:', data.id);
     return {
       success: true,
-      message: "Email sent success fully",
+      message: 'Email sent successfully',
+      data: data
     };
   } catch (error) {
-    console.error("Error sending email: %s", error);
+    console.error('Unexpected error:', error);
     return {
       success: false,
-      message: "Failed to send email",
+      message: 'Unexpected error occurred',
+      error: error.message
     };
   }
 }
 
-module.exports = sendEmail;
+module.exports = {sendEmail};
+//export { sendEmail }; // ES Modules export

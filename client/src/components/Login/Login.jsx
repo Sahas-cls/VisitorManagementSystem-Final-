@@ -349,10 +349,10 @@ const Login = () => {
                   target="blank"
                   href={`${
                     import.meta.env.VITE_FRONTEND_URL
-                  }/visitor-registration`}
+                  }/new-visitor`}
                 >
-                  {/* ${`http://128.199.26.137/visitor-registration`} */}
-                  {`${import.meta.env.VITE_FRONTEND_URL}/visitor-registration`}
+                  {/* ${`${import.meta.env.VITE_FRONTEND_URL}/new-visitor`} */}
+                  {`${import.meta.env.VITE_FRONTEND_URL}/new-visitor`}
                 </a>
               </span>
             </div>
