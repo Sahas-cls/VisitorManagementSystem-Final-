@@ -1,42 +1,57 @@
-//import { Resend } from 'resend';
-const { Resend } =  require('resend')
+const { Resend } = require("resend");
+require("dotenv").config();
 
-// Initialize Resend with your API key
-const resend = new Resend(process.env.RESEND_API_KEY); // Store key in .env
+const resend = new Resend(process.env.RESEND_API_KEY); // Make sure this is in your .env file
 
-async function sendEmail(to, subject, html) {
+async function sendEmail(to, subject, text) {
+  let recipients;
+
+  
+  if (typeof to === "string") {
+    recipients = to.split(",").map(email => email.trim());
+  } else if (Array.isArray(to)) {
+    recipients = to;
+  } else {
+    console.error("Invalid 'to' format:", to);
+    return {
+      success: false,
+      message: "Invalid recipient format",
+    };
+  }
+
   try {
-    const { data, error } = await resend.emails.send({
-      from: process.env.FROM_EMAIL || 'onboarding@resend.dev', // Set this in .env
-      to: to,
+    const result = await resend.emails.send({
+      from: "Concord VMS <vms@guston-dev.site>", // ✅ Must match your verified domain
+      to: recipients,
       subject: subject,
-      html: html,
+      html: text,
     });
 
-    if (error) {
-      console.error('Resend API error:', error);
+    // 🔍 Debug Logs
+    console.log("Resend response:", result);
+    console.log("Recipients:", recipients);
+
+    // ✅ Success condition fixed
+    if (result?.data?.id) {
+      return {
+        success: true,
+        message: "Email sent successfully",
+      };
+    } else {
       return {
         success: false,
-        message: 'Failed to send email',
-        error: error.message
+        message: "Email send attempted, but no ID returned.",
       };
     }
 
-    console.log('Email sent successfully. ID:', data.id);
-    return {
-      success: true,
-      message: 'Email sent successfully',
-      data: data
-    };
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error("Error sending email:");
+    console.error(error?.response?.data || error.message || error);
     return {
       success: false,
-      message: 'Unexpected error occurred',
-      error: error.message
+      message: "Failed to send email",
     };
   }
 }
 
-module.exports = {sendEmail};
-//export { sendEmail }; // ES Modules export
+module.exports = sendEmail;

@@ -78,7 +78,9 @@ const SConteiner = ({
         setVisitorList(response.data.data);
         console.log("data from backend", response.data.data);
         // Initialize checkedVisitors state with existing check-in/out times
+       
         const initialChecked = {};
+        if (Array.isArray(response?.data?.data)) {
         response.data.data.forEach((visitor) => {
           const visit = visitor.Visits[0];
           if (visit.Check_In || visit.Check_Out) {
@@ -86,8 +88,9 @@ const SConteiner = ({
               checkedIn: visit.Check_In,
               checkedOut: visit.Check_Out,
             };
-          }
-        });
+           }
+         });
+        }
         setCheckedVisitors(initialChecked);
       }
     } catch (error) {

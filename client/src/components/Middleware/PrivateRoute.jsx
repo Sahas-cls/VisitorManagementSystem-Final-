@@ -93,7 +93,7 @@ const PrivateRoute = ({ element }) => {
   }
 
   // Redirect based on user role
-  //  alert(userCategory);
+    //alert(userCategory);
   // console.log("user factory Id private routes: " + userFactoryId);
   switch (userCategory) {
     case "Reception":

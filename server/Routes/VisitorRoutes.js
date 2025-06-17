@@ -1867,24 +1867,23 @@ visiterRoutes.get(
                 { Reference_No: { [Op.ne]: null } },
                 { Reference_No: { [Op.ne]: "" } },
               ],
-              // [Op.and]: [
-              //   // Ensure the current date falls within the given Date_From and Date_To
-              //   sequelize.where(
-              //     sequelize.fn("DATE", sequelize.col("Visits.Date_From")),
-              //     {
-              //       [Op.lte]: sequelize.fn("CURDATE"),
-              //     }
-              //   ),
-              //   sequelize.where(
-              //     sequelize.fn("DATE", sequelize.col("Visits.Date_To")),
-              //     {
-              //       [Op.gte]: sequelize.fn("CURDATE"),
-              //     }
-              //   ),
-              //   // You can add further constraints based on the factory and department IDs if needed
-              //   { Factory_Id: facId },
-              //   { Department_Id: depId },
-              // ],
+               [Op.and]: [
+                 // Ensure the current date falls within the given Date_From and Date_To
+                 sequelize.where(
+                   sequelize.fn("DATE", sequelize.col("Visits.Date_From")),
+                   {
+                     [Op.lte]: sequelize.fn("CURDATE"),
+                   }
+                 ),
+                 sequelize.where(
+                   sequelize.fn("DATE", sequelize.col("Visits.Date_To")),
+                   {
+                     [Op.gte]: sequelize.fn("CURDATE"),
+                   }
+                 ),
+                 // You can add further constraints based on the factory and department IDs if needed
+                 { Factory_Id: facId },
+               ],
             },
             required: true,
           },
