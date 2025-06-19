@@ -15,12 +15,14 @@ import axios from "axios";
 
 const SuddenVisit = (userFactoryId) => {
   // Validation Schema
+  const yearsterDay = new Date();
+  yearsterDay.setDate(yearsterDay.getDate() - 1);
   const validationSchema = Yup.object().shape({
     entryRequest: Yup.object().shape({
       reqDept: Yup.string().required("Please select a department"),
       reqDate: Yup.date()
         .required("Please select a date")
-        .min(new Date(), "You cannot select past dates"),
+        .min(yearsterDay, "You cannot select past dates"),
       reqOfficer: Yup.string()
         .required("Officer name required")
         .matches(/^[A-Za-z\s]{3,255}$/, "Invalid name format"),
@@ -32,7 +34,7 @@ const SuddenVisit = (userFactoryId) => {
       purpose: Yup.string().required("Please select visit purpose"),
       dateFrom: Yup.date()
         .required("Date required")
-        .min(new Date(), "Past dates for 'from' date"),
+        .min(yearsterDay, "Past dates for 'from' date"),
       dateTo: Yup.date()
         .required("Please select a to date")
         .min(Yup.ref("dateFrom"), "Date cannot be before 'from' date"),
