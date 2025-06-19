@@ -340,7 +340,7 @@ const Login = () => {
                     copyToClipboard(
                       `${
                         import.meta.env.VITE_FRONTEND_URL
-                      }/visitor-registration`
+                      }/new-visitor`
                     )
                   }
                 />
