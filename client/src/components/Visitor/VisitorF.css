@@ -8,6 +8,45 @@
   /* background-color: rgb(221, 217, 217); */
 }
 
+.background {
+  content: "";
+  position: relative;
+  backdrop-filter: blur(5px);
+  z-index: 0;
+}
+
+.background::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  filter: blur(2px);
+  opacity: 0.2;
+
+  background: white;
+}
+
+.background::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -2;
+  filter: blur(2px);
+  opacity: 0.7;
+
+  /* background-image: url('../../assets/VisitorRegistration/Background 1.jpg'); */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  /* background-size: 200px; */
+}
+
 /* @media (max-width: 425px) {
   .visitor-container {
     background: radial-gradient(
@@ -163,14 +202,17 @@
   .contactDateTimeDiv {
     width: 100%;
   }
+
   .vTitle {
     font-size: 1.3rem;
   }
+
   .contactDateTimeDiv {
     flex-direction: column;
     align-items: center;
     width: 100%;
   }
+
   .contactDiv {
     width: 85vw;
   }
@@ -203,6 +245,7 @@
     text-align: left;
     margin-left: 10px;
   }
+
   .errorCenter {
     color: red;
     font-size: 10px;
@@ -210,6 +253,7 @@
     text-align: center;
     margin-left: 10px;
   }
+
   .guidLine {
     margin-left: 10px;
     margin-right: 10px;
@@ -264,19 +308,21 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(
-    150,
-    138,
-    138,
-    0.208
-  ); /* Semi-transparent background */
-  z-index: 9999; /* Ensure it overlays on top */
+  background-color: rgba(150,
+      138,
+      138,
+      0.208);
+  /* Semi-transparent background */
+  z-index: 9999;
+  /* Ensure it overlays on top */
 }
 
 /* The loader itself */
 .loader {
-  border: 8px solid #f3f3f3; /* Light gray background */
-  border-top: 8px solid #3498db; /* Blue color for the spinning part */
+  border: 8px solid #f3f3f3;
+  /* Light gray background */
+  border-top: 8px solid #3498db;
+  /* Blue color for the spinning part */
   border-radius: 50%;
   width: 50px;
   height: 50px;
@@ -288,6 +334,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { FaKiss, FaPlusCircle } from "react-icons/fa";
+import { FaPlusCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "./VisitorF.css";
 import axios from "axios";
 import { MdDelete } from "react-icons/md";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { ClipLoader } from "react-spinners";
+import swal from "sweetalert2"
 
 const VisitorF = () => {
   const [csrfToken, setCsrfToken] = useState("");
@@ -21,21 +23,17 @@ const VisitorF = () => {
   const [errorMessages, setErrorMessages] = useState();
   const [visitorList, setVisitorList] = useState();
   const [departmentList, setDepartmentList] = useState({});
-  let errorMessage = ""; //to store errors from server side
-  const [factories, setFactories] = useState({}); //to store all factories
-  const [departments, setDepartments] = useState({}); //to soter all departments according to the factory
+  let errorMessage = "";
+  const [factories, setFactories] = useState({});
+  const [departments, setDepartments] = useState({});
   const [disableSubmitButton, setDisableSubmitButton] = useState(true);
   const [serverSideErrors, setserverSideErrors] = useState({});
   const apiUrl = import.meta.env.VITE_API_URL;
   const vToday = new Date();
   vToday.setHours(0, 0, 0, 0);
 
-  // !to get all factory details
   const getFactories = async () => {
-    // alert("getting factories");
     try {
-      // alert(csrfToken);
-      // alert("sending factory request");
       const response = await axios.get(
         `${apiUrl}/department/getAll-Factories`,
         {
@@ -47,25 +45,19 @@ const VisitorF = () => {
       );
       if (response) {
         setFactories(response.data.data);
-      } else {
-        alert("response failed");
       }
     } catch (error) {
       console.log(error.message);
     }
   };
 
-  // !to get factory details
   const fetchDepartments = async (e) => {
-    const factoryId = e.target.value; //to fetch departments according to selected factory
-    // alert(factoryId);
-    // return
+    const factoryId = e.target.value;
     try {
       const response = await axios.get(
         `${apiUrl}/department/getDep/${factoryId}`
       );
       if (response) {
-        // setDepartments(response.data);
         setDepartments(response.data);
       }
     } catch (error) {
@@ -80,21 +72,15 @@ const VisitorF = () => {
           withCredentials: true,
         });
         if (response.status === 200) {
-          // console.log("csrf" + response.data.csrfToken);
           const csrf = await response.data.csrfToken;
-          // console.log(csrf);
-          // alert("csrf token" + response.data.csrfToken);
           setCsrfToken(csrf);
-        } else {
-          response.data.error;
         }
       } catch (error) {
-        alert(`Error while fetching csrf token:- ${error}`);
+        console.error(`Error while fetching csrf token:- ${error}`);
       }
     };
     getCsrf();
 
-    //to get department details
     const getDepartments = async () => {
       try {
         const visitorList = await axios.get(
@@ -105,7 +91,6 @@ const VisitorF = () => {
           }
         );
         if (visitorList) {
-          // console.log(visitorList.data.data);
           setDepartmentList(visitorList.data.data);
         }
       } catch (error) {
@@ -114,7 +99,6 @@ const VisitorF = () => {
     };
     getDepartments();
 
-    // ?================================================
     getFactories();
   }, []);
 
@@ -125,7 +109,6 @@ const VisitorF = () => {
 
   const handleDeparmentChanges = (e) => {
     const { name, value } = e.target;
-
     setDepartmentFactory({
       ...departmentFactory,
       [name]: value,
@@ -135,7 +118,7 @@ const VisitorF = () => {
   const handleContactPerson = (e) => {
     const { name, value } = e.target;
     const newErrorsCPerson = { ...errorsCPerson };
-    // alert(name);
+
     switch (name) {
       case "cName":
         if (!value) {
@@ -158,7 +141,6 @@ const VisitorF = () => {
             newErrorsCPerson.cNIC = "Invalid NIC number";
           } else {
             delete newErrorsCPerson.cNIC;
-            // alert(value);
           }
         }
         break;
@@ -190,7 +172,6 @@ const VisitorF = () => {
     }
 
     setErrorsCPerson(newErrorsCPerson);
-    // alert(value);
     if (Object.keys(newErrorsCPerson).length === 0) {
       setContactPerson({
         ...contactPerson,
@@ -199,18 +180,14 @@ const VisitorF = () => {
     }
   };
 
-  //state for store date and time details
   const [dateTime, setDateTime] = useState({});
   const [dateTimeErrors, setDateTimeErrors] = useState({});
   const dateTimeError = {};
   const today = new Date().toLocaleDateString("en-CA");
-  const [showLoader, setShowLoader] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
   const handleDate = (e) => {
     const { name, value } = e.target;
-    // if (value < today) {
-    //   alert("Incorrect date");
-    // }
 
     switch (name) {
       case "dateFrom":
@@ -224,12 +201,9 @@ const VisitorF = () => {
 
       case "dateTo":
         const dateTo = dateTime.dateFrom || today;
-        // alert(dateTo);
-        // alert("date to");
         if (value !== "") {
           if (value < today) {
             dateTimeError.dateTo = "Date cannot be in the past";
-            // alert("Date cannot be past");
           } else {
             delete dateTimeError.dateTo;
           }
@@ -247,7 +221,6 @@ const VisitorF = () => {
         break;
     }
 
-    // alert(name);
     setDateTime({
       ...dateTime,
       [name]: value,
@@ -261,39 +234,31 @@ const VisitorF = () => {
   const [vehicleErrors, setVehicleErrors] = useState({});
   const vehicleError = {};
 
-  //to handlevehicle changes of vehicle use state
   const handleVehicleChanges = (index, e) => {
     const { name, value } = e.target;
 
-    // Validate VehicleType input
     if (name === "VehicleType") {
       if (!value) {
-        vehicleErrors.VehicleType = "Vehicle type required"; // Update error message
-        setVehicleErrors({ ...vehicleErrors }); // Trigger re-render by updating the state
-        // return; // Exit early if validation fails
+        vehicleErrors.VehicleType = "Vehicle type required";
+        setVehicleErrors({ ...vehicleErrors });
       } else {
         if (!/^[A-Za-z]{3,30}/.test(value)) {
-          vehicleErrors.VehicleType = "Invalid vehicle type"; // Update error message
-          setVehicleErrors({ ...vehicleErrors }); // Trigger re-render by updating the state
-          // return; // Exit early if validation fails
+          vehicleErrors.VehicleType = "Invalid vehicle type";
+          setVehicleErrors({ ...vehicleErrors });
         } else {
-          delete vehicleErrors.VehicleType; // Remove error message if valid
-          setVehicleErrors({ ...vehicleErrors }); // Trigger re-render by updating the state
+          delete vehicleErrors.VehicleType;
+          setVehicleErrors({ ...vehicleErrors });
         }
       }
     }
 
     const updatedVehicles = [...vehicles];
     updatedVehicles[index][name] = value;
-    setVehicles(updatedVehicles); // Update the vehicles state
+    setVehicles(updatedVehicles);
   };
 
-  console.log("vehicels ", vehicles);
-
-  //to add new vehicle rows
   const handleVehiclePlus = () => {
     const { VehicleNo, VehicleType } = vehicles[vehicles.length - 1];
-    // alert(VehicleNo);
 
     if (!VehicleNo) {
       vehicleError.VehicleNo = "Vehicle no required*";
@@ -307,20 +272,15 @@ const VisitorF = () => {
       delete vehicleError.VehicleType;
     }
 
-    // alert("v Errors " + Object.keys(vehicleError));
     setVehicleErrors(vehicleError);
-
-    // alert(Object.keys(vehicleError).length);
 
     if (Object.keys(vehicleError).length === 0) {
       const newVehicle = [...vehicles, { VehicleNo: "", VehicleType: "" }];
       setVehicles(newVehicle);
     }
-    // alert("adding vehicle");
   };
 
   const removeVisitor = (e, index) => {
-    // alert(index);
     e.preventDefault();
     const updatedVisitors = visitors.filter((_, i) => i !== index);
 
@@ -330,78 +290,42 @@ const VisitorF = () => {
     setVisitors(updatedVisitors);
   };
 
-  // const removeVehicle = (e, index) => {
-  //   e.preventDefault();
-  //   // if (index <= 0) {
-  //   //   return;
-  //   // }
-  //   // console.log("Removing vehicle at index:", index); // Debugging line
-
-  //   // Create a new array of vehicles excluding the vehicle at the given index
-  //   const updatedVehicles = vehicles.filter((_, i) => i !== index);
-
-  //   // console.log("Updated vehicles:", updatedVehicles); // Debugging line
-  //   // console.log(updatedVehicles);
-  //   // Update the state with the new list of vehicles
-  //   setVehicles(updatedVehicles);
-
-  //   // Optional: Remove the vehicle's error from the errors state (if needed)
-
-  //   const updatedErrors = { ...vehicleErrors };
-  //   // alert(updatedVehicles.length);
-  //   alert(updatedVehicles.length)
-  //   if (updatedVehicles.length === 0) {
-  //     alert("from inside of if condition")
-  //     return;
-  //   }
-
-  //   delete updatedErrors[index];
-  //   setVehicleErrors(updatedErrors);
-  // };
-
   const removeVehicle = (e, index) => {
     e.preventDefault();
 
-    // Filter out the selected vehicle
     const updatedVehicles = vehicles.filter((_, i) => i !== index);
 
-    // alert(updatedVehicles.length); // For debugging
     if (updatedVehicles.length === 0) {
-      // alert("from inside of if condition");
       return;
     }
 
     setVehicles(updatedVehicles);
 
-    // Optionally remove associated error
     const updatedErrors = { ...vehicleErrors };
     delete updatedErrors[index];
     setVehicleErrors(updatedErrors);
   };
 
-  //handle visitor changes
   const [visitors, setVisitors] = useState([
     {
       visitorName: "",
       visitorNIC: "",
     },
   ]);
-  //to soter visitors errors
+
   const [visitorErrors, setVisitorErrors] = useState({});
   const visitorError = {};
-  //to set visitors errors
+
   const handleVisitorChanges = (index, e) => {
     const { name, value } = e.target;
-    // alert(value);
     const updateVisitor = [...visitors];
     updateVisitor[index][name] = value;
     setVisitors(updateVisitor);
   };
 
   const handleVisitorsPlus = () => {
-    // alert("clicked")
     const { visitorName, visitorNIC } = visitors[visitors.length - 1];
-    // alert(visitorName);
+
     if (!visitorName) {
       visitorError.visitorName = "Visitor name required*";
     } else {
@@ -411,7 +335,6 @@ const VisitorF = () => {
       } else {
         delete visitorError.visitorName;
       }
-      // delete visitorError.visitorName;
     }
 
     if (!visitorNIC) {
@@ -428,10 +351,8 @@ const VisitorF = () => {
       const newVisitor = [...visitors, { visitorName: "", visitorNIC: "" }];
       setVisitors(newVisitor);
     }
-    // alert(visitorNIC);
   };
 
-  //to store form data
   const [formData, setformData] = useState({
     departmentDetails: {},
     contactPersonDetails: {},
@@ -439,14 +360,10 @@ const VisitorF = () => {
     vehicleDetails: {},
     dateTimeDetails: {},
   });
-  //to store errors in submit event
-  const [subErros, setSubErrors] = useState({});
-  const subErrors = {};
 
-  //handle submit event
+  const [subErros, setSubErrors] = useState({});
+
   const handleSubmit = async (e) => {
-    // e.preventDefault();
-    // Validate contact person fields (or any other fields)
     const { cName, cMobileNo, cEmail } = contactPerson;
     const subErrors = {};
 
@@ -476,11 +393,7 @@ const VisitorF = () => {
       delete subErrors.cEmail;
     }
 
-    // If no errors, continue with form submission
-    // if (Object.keys(subErrors).length === 0) {
-    // Directly create the formData object with the latest state values
     const newFormData = {
-      // visitId:
       departmentDetails: departmentFactory,
       contactPersonDetails: contactPerson,
       visitorDetails: visitors,
@@ -488,17 +401,13 @@ const VisitorF = () => {
       dateTimeDetails: dateTime,
     };
 
-    // console.log(newFormData);
-
     try {
       setIsLoading(true);
-      // alert(csrfToken);
-      // console.log("loging: ", newFormData);
       const response = await axios.post(
         `${apiUrl}/visitor/registration`,
-        newFormData, // Request body
+        newFormData,
         {
-          headers: { "X-CSRF-Token": csrfToken }, // Headers
+          headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
         }
       );
@@ -508,46 +417,27 @@ const VisitorF = () => {
         setSubErrors(false);
         setErrorMessages("");
         setSuccessMessage({ operation: "success", mail: response.data.email });
-        // alert("Visit creation success");
         navigate("/visitor-success", { replace: true });
-        if (response.data.success && response.data.success === true) {
-          // alert("Mail sent success");
-        } else {
-          // alert("Mail sent failed");
-        }
       }
     } catch (error) {
       setIsLoading(false);
       setSubErrors(false);
-      // alert("Error");
       console.log(error);
       if (error.isAxiosError) {
         let errorMessage = "An error occurred.";
 
         if (error.response) {
-          // Server responded with an error status code
           switch (error.response.status) {
             case 400:
-              // alert(response.errors);
-              // Access validation errors sent from backend
               const validationErrors = error.response.data.errors;
               setserverSideErrors(validationErrors);
-              console.log("server side errors", validationErrors);
-              // console.log("Validation errors:", validationErrors);
               setErrorMessages(
                 validationErrors.map((err) => err.msg).join("\n, * ")
-                // this.return
               );
               errorMessage =
                 error.response.data.error ||
                 "Bad request. Please check your input. error code 400";
               break;
-            // console.log(error.errors);
-            // setErrorMessages("Bad request. Please check your input.");
-            // errorMessage =
-            //   error.response.data.error ||
-            //   "Bad request. Please check your input. error code 400";
-            // break;
             case 404:
               setErrorMessages("Resource page not found. error code 404");
               errorMessage = "Resource not found.";
@@ -564,31 +454,28 @@ const VisitorF = () => {
                 error.response.data.message || "An unexpected error occurred.";
           }
         } else if (error.request) {
-          // No response received (network issue)
           setErrorMessages(
             "Network error. Please check your internet connection."
           );
           errorMessage =
             "Network error. Please check your internet connection.";
         }
-
-        // alert(errorMessage); // Show the error message to the user
       } else {
-        // Non-Axios error (e.g., programming errors)
         setErrorMessages("An unexpected error occurred.");
-        // alert("An unexpected error occurred.");
         console.error("Error:", error);
       }
     }
-    // } else {
-    // setErrorMessages(
-    // "Please fill all the required(*) details before submit data"
-    // );
-    // alert("Please fill all the required fields");
-    // }
   };
 
-  // YUP VALIDATIONS
+  const showInstructions = () => {
+    if (disableSubmitButton === true) {
+      swal.fire({
+        title: "visitor instructions"
+        
+      })
+    }
+  }
+
   const validationSchema = Yup.object({
     factory: Yup.number().required("Select a factory"),
     department: Yup.number().required("Select a department"),
@@ -611,7 +498,6 @@ const VisitorF = () => {
       .min(vToday, "Date cannot be in past"),
   });
 
-  // FORMIK CONFIG
   const Formik = useFormik({
     initialValues: {
       factory: "",
@@ -637,615 +523,419 @@ const VisitorF = () => {
   });
 
   return (
-    <div className="visitor-container md:px-6 ">
-      {/* bg-[radial-gradient(circle_at_bottom_left,_rgba(107,183,255,0.247),_white)] */}
-      {/* <div class="absolute top-0 -z-10 h-full w-full bg-white"><div class="absolute bottom-auto left-auto right-0 top-0 h-[500px] w-[500px] -translate-x-[30%] translate-y-[20%] rounded-full bg-[rgba(173,109,244,0.5)] opacity-50 blur-[80px]"></div></div> */}
+    <div className="visitor-container min-h-screen bg-gray-50 md:py-8 md:px-4 sm:px-0 lg:px-8">
       {isLoading && (
-        <div className="text-center w-full h-full">
-          <div className="loader-overlay w-full h-full">
-            <div className="loader"></div>
-            {/* <h1 className="text-center">Loading</h1> */}
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
+            <ClipLoader size={50} color="#3b82f6" />
+            <p className="mt-4 text-lg font-medium text-gray-700">Processing your request...</p>
           </div>
         </div>
       )}
-      <form onSubmit={Formik.handleSubmit}>
-        <h1 className="text-center mt-8 text-2xl text-blue-900 underline font-extrabold uppercase">
-          Visitor Registration
-        </h1>
 
-        <div className="grid grid-cols-1 grid-rows-2 md:grid-cols-2 md:grid-rows-1 mt-14">
-          <div className="flex justify-center">
-            <div className="">
-              <label htmlFor="">
-                Factory <span className="text-red-600">*</span>:{" "}
-              </label>
-              <select
-                name="factory"
-                style={{ cursor: "pointer" }}
-                className="vInput"
-                value={Formik.values.factory}
-                onBlur={Formik.handleBlur}
-                onChange={(e) => {
-                  Formik.handleChange(e);
-                  handleDeparmentChanges(e);
-                  fetchDepartments(e);
-                }}
-              >
-                <option value="">Select Factory</option>
-                {Array.isArray(factories) &&
-                  factories.map((factory) => {
-                    return (
-                      <option value={factory.Factory_Id}>
-                        {factory.Factory_Name}
-                      </option>
-                    );
-                  })}
-                {/* <option value="Concord Apparel">Concord Apparel</option>
-              <option value="Concord Footwear">Concord Footwear</option>
-              <option value="Guston Lanka">Guston Lanka</option> */}
-              </select>
-              {Formik.touched.factory && Formik.errors.factory && (
-                <div className="text-red-600">{Formik.errors.factory}</div>
-              )}
-              {/* {Array.isArray(serverSideErrors) &&
-                serverSideErrors
-                  .filter((err) => err.path === "departmentDetails.factory")
-                  .map((err, index) => (
-                    <p className="error" key={index}>
-                      {err.msg}
-                    </p>
-                  ))} */}
-            </div>
-          </div>
-
-          <div className="flex justify-center">
-            <div className="">
-              <label htmlFor="">
-                Department <span className="text-red-600">*</span>:{" "}
-              </label>
-              <select
-                style={{ cursor: "pointer" }}
-                name="department"
-                value={Formik.values.department}
-                // onChange={Formik.handleChange}
-                onBlur={Formik.handleBlur}
-                className="vInput"
-                onChange={(e) => {
-                  handleDeparmentChanges(e), Formik.handleChange(e);
-                }}
-              >
-                <option value="Selected Department">Select Department</option>
-                {Array.isArray(departments) &&
-                  departments.map((department) => {
-                    return (
-                      <option value={department.Department_Id}>
-                        {department.Department_Name}
-                      </option>
-                    );
-                  })}
-              </select>
-              {Formik.touched.department && Formik.errors.department && (
-                <div className="text-red-600">{Formik.errors.department}</div>
-              )}
-              {/* {Array.isArray(serverSideErrors) &&
-                serverSideErrors
-                  .filter((err) => err.path === "departmentDetails.department")
-                  .map((err, index) => (
-                    <p className="error" key={index}>
-                      {err.msg}
-                    </p>
-                  ))} */}
-              {/* {Formik.touched.department && Formik.errors.department && (
-                <div className="text-red-600">{Formik.errors.department}</div>
-              )} */}
-            </div>
-          </div>
+      <form onSubmit={Formik.handleSubmit} className="max-w-7xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Visitor Registration</h1>
+          <p className="text-blue-600 font-medium">Concord Group</p>
         </div>
 
-        <div className="contactDateTimeDiv flex gap-6 md:mt-6">
-          <div className="w-11/12 rounded-md shadow-lg px-2 py-4 border-2 border-black/20 vsub-div">
-            <div className="text-lg mb-4 text-blue-900 tracking-wider backdrop:blur-2xl">
-              Contact Persons Details
-            </div>
-            <div className="bottom ">
-              <table>
-                <tbody>
-                  <tr className="">
-                    <td>
-                      <label htmlFor="">
-                        Contact Person <span className="text-red-600">*</span>
-                      </label>
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        className="px-2 py-1 border border-black/40 rounded-md w-full mt-2"
-                        name="cName"
-                        value={Formik.values.cName}
-                        onBlur={Formik.handleBlur}
-                        onChange={(e) => {
-                          handleContactPerson(e), Formik.handleChange(e);
-                        }}
-                        placeholder="Enter Name"
-                      />
-                      {/* {errorsCPerson.cName && (
-                        <p className="error">{errorsCPerson.cName}</p>
-                      )}
-                      {subErros.cName && (
-                        <p className="error">{subErros.cName}</p>
-                      )} */}
-
-                      {Formik.touched.cName && Formik.errors.cName && (
-                        <div className="text-red-600">
-                          {Formik.errors.cName}
-                        </div>
-                      )}
-
-                      {Array.isArray(serverSideErrors) &&
-                        serverSideErrors
-                          .filter(
-                            (err) => err.path === "contactPersonDetails.cName"
-                          )
-                          .map((err, index) => (
-                            <p className="error" key={index}>
-                              {err.msg}
-                            </p>
-                          ))}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label htmlFor="">
-                        NIC Number <span className="text-red-600">*</span>
-                      </label>
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        className="px-2 py-1 border border-black/40 rounded-md w-full mt-2"
-                        name="cNIC"
-                        value={Formik.values.cNIC}
-                        onBlur={Formik.handleBlur}
-                        onChange={(e) => {
-                          handleContactPerson(e), Formik.handleChange(e);
-                        }}
-                        placeholder="Enter NIC number"
-                      />
-                      {Formik.touched.cNIC && Formik.errors.cNIC && (
-                        <div className="text-red-600">{Formik.errors.cNIC}</div>
-                      )}
-
-                      {Array.isArray(serverSideErrors) &&
-                        serverSideErrors
-                          .filter(
-                            (err) => err.path === "contactPersonDetails.cNIC"
-                          )
-                          .map((err, index) => (
-                            <p className="error" key={index}>
-                              {err.msg}
-                            </p>
-                          ))}
-
-                      {/* {errorsCPerson.cNIC && (
-                        <p className="error">{errorsCPerson.cNIC}</p>
-                      )}
-
-                      {subErros.cMobileNo && (
-                        <p className="error">{subErros.cMobileNo}</p>
-                      )} */}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label htmlFor="">
-                        Mobile No <span className="text-red-600">*</span>
-                      </label>
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        className=" px-2 py-1 border border-black/40 rounded-md w-full mt-2"
-                        name="cMobileNo"
-                        value={Formik.values.cMobileNo}
-                        onBlur={Formik.handleBlur}
-                        onChange={(e) => {
-                          handleContactPerson(e), Formik.handleChange(e);
-                        }}
-                        placeholder="Enter mobile number"
-                      />
-                      {Formik.touched.cMobileNo && Formik.errors.cMobileNo && (
-                        <div className="text-red-600">
-                          {Formik.errors.cMobileNo}
-                        </div>
-                      )}
-                      {Array.isArray(serverSideErrors) &&
-                        serverSideErrors
-                          .filter(
-                            (err) =>
-                              err.path === "contactPersonDetails.cMobileNo"
-                          )
-                          .map((err, index) => (
-                            <p className="error" key={index}>
-                              {err.msg}
-                            </p>
-                          ))}
-
-                      {/* {errorsCPerson.cMobileNo && (
-                        <p className="error">{errorsCPerson.cMobileNo}</p>
-                      )}
-
-                      {subErros.cMobileNo && (
-                        <p className="error">{subErros.cMobileNo}</p>
-                      )} */}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <label htmlFor="">Email</label>
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        className=" px-2 py-1 border border-black/40 rounded-md w-full mt-2"
-                        name="cEmail"
-                        value={Formik.values.cEmail}
-                        // onChange={Formik.handleChange}
-                        onBlur={Formik.handleBlur}
-                        onChange={(e) => {
-                          handleContactPerson(e), Formik.handleChange(e);
-                        }}
-                        placeholder="Enter email"
-                      />
-                      {Formik.touched.cEmail && Formik.errors.cEmail && (
-                        <div className="text-red-600">
-                          {Formik.errors.cEmail}
-                        </div>
-                      )}
-                      {Array.isArray(serverSideErrors) &&
-                        serverSideErrors
-                          .filter(
-                            (err) => err.path === "contactPersonDetails.cEmail"
-                          )
-                          .map((err, index) => (
-                            <p className="error" key={index}>
-                              {err.msg}
-                            </p>
-                          ))}
-
-                      {/* {errorsCPerson.cEmail && (
-                        <p className="error">{errorsCPerson.cEmail}</p>
-                      )}
-                      {subErros.cEmail && (
-                        <p className="error">{subErros.cEmail}</p>
-                      )} */}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="w-11/12 rounded-md shadow-lg px-2 py-4 border-2 border-black/20 vsub-div mt-2 md:mt-0">
-            <div className="text-lg mb-4 text-blue-900 tracking-wider backdrop:blur-2xl">
-              Visiting Date & Time
-            </div>
-            <div className="grid grid-cols-1 grid-rows-3 px-4">
-              <div className="flex justify-between">
-                <label className="">
-                  Date From<span className="text-red-600">*</span>{" "}
-                </label>
-                <div className="">
-                  <input
-                    type="date"
-                    name="dateFrom"
-                    value={Formik.values.dateFrom}
-                    // onChange={Formik.handleChange}
-                    onBlur={Formik.handleBlur}
-                    onChange={(e) => {
-                      handleDate(e), Formik.handleChange(e);
-                    }}
-                    className="mb-1 px-2 py-1 rounded-md border w-52 border-black/50"
-                  />
-                  {Formik.touched.dateFrom && Formik.errors.dateFrom && (
-                    <div className="text-red-600">{Formik.errors.dateFrom}</div>
-                  )}
-                  {/* displaying errors */}
-                  {Array.isArray(serverSideErrors) &&
-                    serverSideErrors
-                      .filter((err) => err.path === "dateTimeDetails.dateFrom")
-                      .map((err, index) => (
-                        <p className="error" key={index}>
-                          {err.msg}
-                        </p>
-                      ))}
-                </div>
-              </div>
-
-              <div className="flex justify-between">
-                <label className="">
-                  Time <span className="text-red-600">*</span>
-                </label>
-                <div className="flex gap-4 items-center">
-                  <div className="">
-                    <input
-                      type="time"
-                      name="fTimeFrom"
-                      className="px-2 py-1 rounded-md w-20"
-                      onChange={handleDate}
-                    />
-                    {Array.isArray(serverSideErrors) &&
-                      serverSideErrors
-                        .filter(
-                          (err) => err.path === "dateTimeDetails.fTimeFrom"
-                        )
-                        .map((err, index) => (
-                          <p className="error text-left" key={index}>
-                            {err.msg}
-                          </p>
-                        ))}
-                  </div>
-                  <span>To</span>
-                  <div className="">
-                    <input
-                      type="time"
-                      name="fTimeTo"
-                      className="px-2 py-1 rounded-md w-20"
-                      onChange={handleDate}
-                    />
-
-                    {Array.isArray(serverSideErrors) &&
-                      serverSideErrors
-                        .filter((err) => err.path === "dateTimeDetails.fTimeTo")
-                        .map((err, index) => (
-                          <p className="error text-left" key={index}>
-                            {err.msg}
-                          </p>
-                        ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-between mt-2">
-                <label className="">
-                  Date To <span className="text-red-600">*</span>
-                </label>
-                <div className="">
-                  <input
-                    type="date"
-                    name="dateTo"
-                    value={Formik.values.dateTo}
-                    // onChange={Formik.handleChange}
-                    onBlur={Formik.handleBlur}
-                    onChange={(e) => {
-                      handleDate(e), Formik.handleChange(e);
-                    }}
-                    className="mb-1 px-2 py-1 rounded-md border w-52 border-black/50"
-                  />
-                  {Formik.touched.dateTo && Formik.errors.dateTo && (
-                    <div className="text-red-600">{Formik.errors.dateTo}</div>
-                  )}
-                  {Array.isArray(serverSideErrors) &&
-                    serverSideErrors
-                      .filter((err) => err.path === "dateTimeDetails.dateTo")
-                      .map((err, index) => (
-                        <p className="error" key={index}>
-                          {err.msg}
-                        </p>
-                      ))}
-                </div>
-              </div>
-            </div>
-            <div className="bottom"></div>
-          </div>
-        </div>
-
-        <div className="contactDateTimeDiv flex md:gap-6 md:mt-6">
-          <div className="w-11/12 rounded-md shadow-lg px-2 py-4 border-2 border-black/20 vsub-div mt-4 md:mt-0">
-            <div className="text-lg mb-4 text-blue-900 tracking-wider">
-              Vehicle Details
-            </div>
-            <div className="bottom">
-              <table className="tblVehicles">
-                <thead>
-                  <tr>
-                    <th>Vehicle Type</th>
-                    <th>Vehicle No</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {vehicles.map((vehicle, index) => (
-                    <tr key={index} className="trVehicle">
-                      <td className="tdVehicle">
-                        <input
-                          type="text"
-                          className="vTblInput"
-                          placeholder="Vehicle Type"
-                          name="VehicleType"
-                          value={vehicle.VehicleType} // Change defaultValue to value for controlled input
-                          onChange={(e) => handleVehicleChanges(index, e)} // Pass index here to handle changes
-                        />
-
-                        {index === vehicles.length - 1 &&
-                          vehicleErrors.VehicleType && ( // Fix condition to show error for last vehicle
-                            <p className="error">{vehicleErrors.VehicleType}</p>
-                          )}
-                      </td>
-                      <td className="tdVehicle">
-                        <input
-                          type="text"
-                          className="vTblInput"
-                          placeholder="Vehicle Number"
-                          name="VehicleNo"
-                          value={vehicle.VehicleNo} // Ensure this is controlled too
-                          onChange={(e) => handleVehicleChanges(index, e)} // Pass index here to handle changes
-                        />
-                        {index === vehicles.length - 1 &&
-                          vehicleErrors.VehicleNo && ( // Fix condition to show error for last vehicle
-                            <p className="error">{vehicleErrors.VehicleNo}</p>
-                          )}
-                      </td>
-
-                      <td style={{ border: "0" }} className="">
-                        <FaPlusCircle
-                          className="vf-icon hover:text-green-600"
-                          onClick={handleVehiclePlus} // Your existing logic for adding a vehicle
-                        />
-                        <MdDelete
-                          onClick={(e) => removeVehicle(e, index)} // Correctly pass index for removal
-                          className="vf-icon hover:text-red-600"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="w-11/12 rounded-md shadow-lg px-2 py-4 border-2 border-black/20 vsub-div mt-4 md:mt-0">
-            <div className="text-lg mb-4 text-blue-900 tracking-wider">
-              Visitor Details
-            </div>
-            <div className="bottom">
-              <table className="tblVehicles w-full">
-                <thead>
-                  <tr>
-                    <th>Visitor Name</th>
-                    <th>NIC</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {visitors.map((visitor, index) => (
-                    <tr key={visitor.visitorId} className="trVehicle">
-                      {" "}
-                      {/* Use unique visitorId as the key */}
-                      <td className="tdVehicle">
-                        <input
-                          type="text"
-                          className="vTblInput"
-                          name="visitorName"
-                          value={visitor.visitorName} // Controlled input
-                          onChange={(e) => handleVisitorChanges(index, e)} // Handle change for the visitor
-                          placeholder="Visitor Name"
-                        />
-                        {index === visitors.length - 1 &&
-                          visitorErrors.visitorName && (
-                            <p className="error">{visitorErrors.visitorName}</p>
-                          )}
-                      </td>
-                      <td>
-                        <input
-                          type="text"
-                          className="vTblInput"
-                          name="visitorNIC"
-                          value={visitor.visitorNIC} // Controlled input
-                          onChange={(e) => handleVisitorChanges(index, e)} // Handle change for the NIC
-                          placeholder="Visitor NIC"
-                        />
-                        {index === visitors.length - 1 &&
-                          visitorErrors.visitorNIC && (
-                            <p className="error">{visitorErrors.visitorNIC}</p>
-                          )}
-                      </td>
-                      <td style={{ border: "0", width: "1%" }}>
-                        <FaPlusCircle
-                          className="vf-icon hover:text-green-600"
-                          onClick={handleVisitorsPlus}
-                        />
-                        <MdDelete
-                          onClick={(e) => removeVisitor(e, index)} // Pass visitorId instead of index
-                          className="vf-icon hover:text-red-600"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {/* {Array.isArray(serverSideErrors) &&
-                serverSideErrors
-                  .filter((err) => err.path === "visitorDetails[0].visitorNIC")
-                  .map((err, index) => (
-                    <p className="error" key={index}>
-                      {err.msg}
-                    </p>
-                  ))} */}
-
-              {Array.isArray(serverSideErrors) &&
-                // Step 1: Filter only visitorNIC-related errors
-                [
-                  ...new Set(
-                    serverSideErrors
-                      .filter((err) =>
-                        /^visitorDetails\[\d+\]\.visitorNIC$/.test(err.path)
-                      )
-                      .map((err) => {
-                        const match = err.path.match(
-                          /^visitorDetails\[(\d+)\]\.visitorNIC$/
-                        );
-                        return match ? Number(match[1]) : null;
-                      })
-                      .filter((i) => i !== null)
-                  ),
-                ].map((index) => {
-                  const errorMessages = serverSideErrors
-                    .filter(
-                      (err) =>
-                        err.path === `visitorDetails[${index}].visitorNIC`
-                    )
-                    .map((err) => err.msg)
-                    .join(" / ");
-
-                  return (
-                    <p key={index} className="error">
-                      Visitor {index + 1} NIC: {errorMessages}
-                    </p>
-                  );
-                })}
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-12 text-center guidLine">
-          <input
-            type="checkbox"
-            name=""
-            id="guidelines"
-            onChange={() => setDisableSubmitButton(!disableSubmitButton)}
-          />{" "}
-          <span>
-            <label htmlFor="guidelines">
-              I do hereby agree to all the guidelines provided by the company
+        {/* Factory and Department Selection */}
+        <div className="space-y-6 mb-8">
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Factory <span className="text-red-500">*</span>
             </label>
-          </span>
+            <select
+              name="factory"
+              className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              value={Formik.values.factory}
+              onBlur={Formik.handleBlur}
+              onChange={(e) => {
+                Formik.handleChange(e);
+                handleDeparmentChanges(e);
+                fetchDepartments(e);
+              }}
+            >
+              <option value="">Select Factory</option>
+              {Array.isArray(factories) &&
+                factories.map((factory) => (
+                  <option key={factory.Factory_Id} value={factory.Factory_Id}>
+                    {factory.Factory_Name}
+                  </option>
+                ))}
+            </select>
+            {Formik.touched.factory && Formik.errors.factory && (
+              <p className="mt-1 text-sm text-red-600">{Formik.errors.factory}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Department <span className="text-red-500">*</span>
+            </label>
+            <select
+              name="department"
+              className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              value={Formik.values.department}
+              onBlur={Formik.handleBlur}
+              onChange={(e) => {
+                handleDeparmentChanges(e), Formik.handleChange(e);
+              }}
+            >
+              <option value="">Select Department</option>
+              {Array.isArray(departments) &&
+                departments.map((department) => (
+                  <option key={department.Department_Id} value={department.Department_Id}>
+                    {department.Department_Name}
+                  </option>
+                ))}
+            </select>
+            {Formik.touched.department && Formik.errors.department && (
+              <p className="mt-1 text-sm text-red-600">{Formik.errors.department}</p>
+            )}
+          </div>
         </div>
 
-        {/* <div className="success text-center">
-          <p>
-            .
-            {successMessage.operation === "success" &&
-              "New visit creation success"}
-          </p>
-          <p>.{successMessage.mail === true && "Email sent success"}</p>
-        </div> */}
+        {/* Contact Person Details */}
+        <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Contact Person Details</h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Contact Person <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                name="cName"
+                value={Formik.values.cName}
+                onBlur={Formik.handleBlur}
+                onChange={(e) => {
+                  handleContactPerson(e), Formik.handleChange(e);
+                }}
+                placeholder="Enter Name"
+              />
+              {Formik.touched.cName && Formik.errors.cName && (
+                <p className="mt-1 text-sm text-red-600">{Formik.errors.cName}</p>
+              )}
+            </div>
 
-        {/* <div className="" id="errorMessage">
-          {errorMessages && (
-            <p className="errorCenter mt-1">*{errorMessages}</p>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                NIC Number <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                name="cNIC"
+                value={Formik.values.cNIC}
+                onBlur={Formik.handleBlur}
+                onChange={(e) => {
+                  handleContactPerson(e), Formik.handleChange(e);
+                }}
+                placeholder="Enter NIC number"
+              />
+              {Formik.touched.cNIC && Formik.errors.cNIC && (
+                <p className="mt-1 text-sm text-red-600">{Formik.errors.cNIC}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Mobile No <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                name="cMobileNo"
+                value={Formik.values.cMobileNo}
+                onBlur={Formik.handleBlur}
+                onChange={(e) => {
+                  handleContactPerson(e), Formik.handleChange(e);
+                }}
+                placeholder="Enter mobile number"
+              />
+              {Formik.touched.cMobileNo && Formik.errors.cMobileNo && (
+                <p className="mt-1 text-sm text-red-600">{Formik.errors.cMobileNo}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <input
+                type="text"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                name="cEmail"
+                value={Formik.values.cEmail}
+                onBlur={Formik.handleBlur}
+                onChange={(e) => {
+                  handleContactPerson(e), Formik.handleChange(e);
+                }}
+                placeholder="Enter email"
+              />
+              {Formik.touched.cEmail && Formik.errors.cEmail && (
+                <p className="mt-1 text-sm text-red-600">{Formik.errors.cEmail}</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Visiting Date & Time */}
+        <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Visiting Date & Time</h2>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Date From<span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  name="dateFrom"
+                  value={Formik.values.dateFrom}
+                  onBlur={Formik.handleBlur}
+                  onChange={(e) => {
+                    handleDate(e), Formik.handleChange(e);
+                  }}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+                {Formik.touched.dateFrom && Formik.errors.dateFrom && (
+                  <p className="mt-1 text-sm text-red-600">{Formik.errors.dateFrom}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Date To <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  name="dateTo"
+                  value={Formik.values.dateTo}
+                  onBlur={Formik.handleBlur}
+                  onChange={(e) => {
+                    handleDate(e), Formik.handleChange(e);
+                  }}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+                {Formik.touched.dateTo && Formik.errors.dateTo && (
+                  <p className="mt-1 text-sm text-red-600">{Formik.errors.dateTo}</p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Time <span className="text-red-500">*</span>
+              </label>
+              <div className="flex items-center space-x-4 mt-1">
+                <div className="flex-1">
+                  <input
+                    type="time"
+                    name="fTimeFrom"
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    onChange={handleDate}
+                  />
+                </div>
+                <span className="text-gray-500">to</span>
+                <div className="flex-1">
+                  <input
+                    type="time"
+                    name="fTimeTo"
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    onChange={handleDate}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Vehicle Details */}
+        <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-gray-800">Vehicle Details</h2>
+            <button
+              type="button"
+              onClick={handleVehiclePlus}
+              className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Add Vehicle
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Vehicle Type
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Vehicle No
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {vehicles.map((vehicle, index) => (
+                  <tr key={index}>
+                    <td className="md:px-4 md:py-2 whitespace-nowrap">
+                      <input
+                        type="text"
+                        className="block w-full px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Vehicle Type"
+                        name="VehicleType"
+                        value={vehicle.VehicleType}
+                        onChange={(e) => handleVehicleChanges(index, e)}
+                      />
+                      {index === vehicles.length - 1 && vehicleErrors.VehicleType && (
+                        <p className="mt-1 text-xs text-red-600">{vehicleErrors.VehicleType}</p>
+                      )}
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      <input
+                        type="text"
+                        className="block w-full px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Vehicle Number"
+                        name="VehicleNo"
+                        value={vehicle.VehicleNo}
+                        onChange={(e) => handleVehicleChanges(index, e)}
+                      />
+                      {index === vehicles.length - 1 && vehicleErrors.VehicleNo && (
+                        <p className="mt-1 text-xs text-red-600">{vehicleErrors.VehicleNo}</p>
+                      )}
+                    </td>
+                    <td className="px-4 py-2 max-w-10 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex space-x-2">
+                        {vehicles.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={(e) => removeVehicle(e, index)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            <MdDelete className="h-5 w-5" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Visitor Details */}
+        <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-gray-800">Visitor Details</h2>
+            <button
+              type="button"
+              onClick={handleVisitorsPlus}
+              className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Add Visitor
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Visitor Name
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    NIC
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {visitors.map((visitor, index) => (
+                  <tr key={index}>
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      <input
+                        type="text"
+                        className="block w-full px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        name="visitorName"
+                        value={visitor.visitorName}
+                        onChange={(e) => handleVisitorChanges(index, e)}
+                        placeholder="Visitor Name"
+                      />
+                      {index === visitors.length - 1 && visitorErrors.visitorName && (
+                        <p className="mt-1 text-xs text-red-600">{visitorErrors.visitorName}</p>
+                      )}
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      <input
+                        type="text"
+                        className="block w-full px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        name="visitorNIC"
+                        value={visitor.visitorNIC}
+                        onChange={(e) => handleVisitorChanges(index, e)}
+                        placeholder="Visitor NIC"
+                      />
+                      {index === visitors.length - 1 && visitorErrors.visitorNIC && (
+                        <p className="mt-1 text-xs text-red-600">{visitorErrors.visitorNIC}</p>
+                      )}
+                    </td>
+                    <td className="px-4 py-2 max-w-10 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex space-x-2">
+                        {visitors.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={(e) => removeVisitor(e, index)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            <MdDelete className="h-5 w-5" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Terms and Conditions */}
+        <div className="mb-6">
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="guidelines"
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              onChange={() => setDisableSubmitButton(!disableSubmitButton)}
+            />
+            <label htmlFor="guidelines" className="ml-2 block text-sm text-gray-700">
+              I agree to all the guidelines provided by the company
+            </label>
+          </div>
+          {disableSubmitButton && (
+            <p className="mt-1 text-sm text-center text-red-600">
+              You must accept our terms & conditions to proceed
+            </p>
           )}
-        </div> */}
-
-        <div className="">
-          <p className="error text-center" style={{ textAlign: "center" }}>
-            {disableSubmitButton === true &&
-              "You must accept our terms & conditions by checking this checkbox"}
-          </p>
         </div>
 
-        <div className="text-right">
+        {/* Submit Button */}
+        <div className="flex justify-end">
           <button
             type="submit"
             disabled={disableSubmitButton}
-            className="mr-5 mt-4 vBtn"
+            className={`px-6 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white ${disableSubmitButton
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
+              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
           >
             Submit
           </button>
