@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import swal from "sweetalert2";
-// import "./SuddenVisit.css";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import {
   FaBicycle,
   FaCheck,
@@ -13,11 +14,128 @@ import { MdDelete } from "react-icons/md";
 import axios from "axios";
 
 const SuddenVisit = (userFactoryId) => {
+  // Validation Schema
+  const yearsterDay = new Date();
+  yearsterDay.setDate(yearsterDay.getDate() - 1);
+  const validationSchema = Yup.object().shape({
+    entryRequest: Yup.object().shape({
+      reqDept: Yup.string().required("Please select a department"),
+      reqDate: Yup.date()
+        .required("Please select a date")
+        .min(yearsterDay, "You cannot select past dates"),
+      reqOfficer: Yup.string()
+        .required("Officer name required")
+        .matches(/^[A-Za-z\s]{3,255}$/, "Invalid name format"),
+      visitorCategory: Yup.string().required(
+        "Please select a visitor category"
+      ),
+    }),
+    entryPermit: Yup.object().shape({
+      purpose: Yup.string().required("Please select visit purpose"),
+      dateFrom: Yup.date()
+        .required("Date required")
+        .min(yearsterDay, "Past dates for 'from' date"),
+      dateTo: Yup.date()
+        .required("Please select a to date")
+        .min(Yup.ref("dateFrom"), "Date cannot be before 'from' date"),
+      timeFrom: Yup.string().required(
+        "Time required"
+      ),
+      timeTo: Yup.string().when("timeFrom", (timeFrom, schema) => {
+        return timeFrom
+          ? schema.test("is-after", "Time cannot be in past", function (value) {
+              return !value || value > timeFrom;
+            })
+          : schema;
+      }),
+    }),
+    // visitors: Yup.array()
+    //   .of(
+    //     Yup.object().shape({
+    //       visitorName: Yup.string()
+    //         .required("Visitor name required")
+    //         .matches(/^[A-Za-z\s]{3,255}$/, "Name should only have letters"),
+    //       visitorNIC: Yup.string()
+    //         .required("Visitor NIC required")
+    //         .matches(/^[0-9]{0,9}[vV]$|^[0-9]{12}/, "Invalid NIC format"),
+    //     })
+    //   )
+    //   .min(1, "At least one visitor is required"),
+  });
+
+  // Formik initialization
+  const formik = useFormik({
+    initialValues: {
+      entryRequest: {
+        reqDept: "",
+        reqDate: "",
+        reqOfficer: "",
+        visitorCategory: "",
+      },
+      entryPermit: {
+        purpose: "",
+        dateFrom: "",
+        dateTo: "",
+        timeFrom: "",
+        timeTo: "",
+      },
+      mealplan: {
+        breakfast: "",
+        lunch: "",
+        tea: "",
+        aditionalNote: "",
+      },
+      visitors: [],
+    },
+    validationSchema,
+    onSubmit: async (values) => {
+      try {
+        const response = await axios.post(
+          `${apiUrl}/visitor/createSuddenvisit`,
+          {
+            userFactoryId: userFactoryId,
+            entryRequest: values.entryRequest,
+            entryPermit: values.entryPermit,
+            visitorsData: values.visitors,
+            mealplan: values.mealplan,
+          },
+          {
+            headers: { "x-CSRF-Token": csrfToken },
+            withCredentials: true,
+          }
+        );
+
+        console.log(response.data);
+        setValidationErrorsS({ success: "visit creation success" });
+        swal.fire({
+          title: "Suddent visit create success...!",
+          text: "",
+          icon: "success",
+          showCancelButton: false,
+          confirmButtonText: "Ok",
+          cancelButtonText: "No, cancel!",
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+        });
+      } catch (error) {
+        if (error.response) {
+          setValidationErrorsS(error.response.data.errors);
+          console.log(error.response.data.errors);
+        } else {
+          setErrorMessage(
+            "An error occurred while submitting the form. Please try again later."
+          );
+        }
+      }
+    },
+  });
+
   //to store csrf
   const [csrfToken, setCsrfToken] = useState("");
   const [departments, setDepartments] = useState({});
   const [validationErrorsS, setValidationErrorsS] = useState({});
   const apiUrl = import.meta.env.VITE_API_URL;
+ 
 
   useEffect(() => {
     const factoryId = userFactoryId.userFactoryId;
@@ -27,7 +145,6 @@ const SuddenVisit = (userFactoryId) => {
           withCredentials: true,
         });
         if (response) {
-          // alert(response.data.csrfToken);
           const csrf = await response.data.csrfToken;
           console.log(csrf);
           setCsrfToken(csrf);
@@ -39,15 +156,11 @@ const SuddenVisit = (userFactoryId) => {
     getCsrf();
 
     const fetchDepartments = async () => {
-      // alert("getting departments");
       try {
-        // alert("getting departments");
         const response = await axios.get(
           `${apiUrl}/department/getDep/${factoryId}`
         );
         if (response) {
-          // console.log("got departments");
-          // console.log(response);
           setDepartments(response.data);
         }
       } catch (error) {
@@ -63,15 +176,49 @@ const SuddenVisit = (userFactoryId) => {
     visitorNIC: "",
   });
 
-  const [visitorsData, setVisitorsData] = useState([]);
-
   const handleVisitorData = (e) => {
     const { name, value } = e.target;
-
     setVisitorData({
       ...visitorData,
       [name]: value,
     });
+  };
+
+  const handleVisitorPlusButton = () => {
+    try {
+      const visitorSchema = Yup.object().shape({
+        visitorName: Yup.string()
+          .required("Visitor name required")
+          .matches(/^[A-Za-z\s]{3,255}$/, "Name should only have letters"),
+        visitorNIC: Yup.string()
+          .required("Visitor NIC required")
+          .matches(/^[0-9]{0,9}[vV]$|^[0-9]{12}/, "Invalid NIC format"),
+      });
+
+      visitorSchema.validateSync(visitorData, { abortEarly: false });
+
+      formik.setFieldValue("visitors", [
+        ...formik.values.visitors,
+        visitorData,
+      ]);
+
+      setVisitorData({
+        visitorName: "",
+        visitorNIC: "",
+      });
+    } catch (errors) {
+      const visitorErrors = {};
+      errors.inner.forEach((error) => {
+        visitorErrors[error.path] = error.message;
+      });
+      setVisitorErrors(visitorErrors);
+    }
+  };
+
+  const removeItem = (index) => {
+    const newVisitors = [...formik.values.visitors];
+    newVisitors.splice(index, 1);
+    formik.setFieldValue("visitors", newVisitors);
   };
 
   const [visitorErrors, setVisitorErrors] = useState({
@@ -79,281 +226,27 @@ const SuddenVisit = (userFactoryId) => {
     visitorNIC: "",
   });
 
-  const handleVisitorPlusButton = () => {
-    const { visitorName, visitorNIC } = visitorData;
-    let errors = { ...visitorErrors };
-
-    if (visitorName === "") {
-      errors.visitorName = "Visitor name required";
-    } else {
-      if (!/^[A-Za-z\s]{3,255}$/.test(visitorName)) {
-        errors.visitorName = "Name should only have letters";
-      } else {
-        delete errors.visitorName;
-      }
-    }
-
-    if (visitorNIC === "") {
-      errors.visitorNIC = "Visitor NIC required";
-    } else {
-      if (!/^[0-9]{0,9}[vV]$|^[0-9]{12}/) {
-        errors.visitorNIC = "Invalid NIC format";
-      } else {
-        delete errors.visitorNIC;
-      }
-    }
-    console.log(errors);
-    // alert(Object.keys(errors).length);
-    if (Object.keys(errors).length === 0) {
-      setVisitorsData(() => [...visitorsData, { visitorName, visitorNIC }]);
-
-      //clear the input box
-      setVisitorData({
-        visitorName: "",
-        visitorNIC: "",
-      });
-
-      setVisitorErrors({
-        visitorName: "",
-        visitorNIC: "",
-      });
-    } else {
-      setVisitorErrors(errors); // Directly set `errors` as the state value
-    }
-  };
-
-  // Function to remove a specific visitor from the list
-  const removeItem = (index) => {
-    setVisitorsData((prevVisitors) =>
-      prevVisitors.filter((visitor, i) => i !== index)
-    );
-  };
-
-  //state to store entry permit request details
-  const [entryRequest, setEntryRequest] = useState({
-    reqDept: "",
-    reqDate: "",
-    reqOfficer: "",
-    visitorCategory: "",
-  });
-
-  // to handle changes of entry permit request
-  const handleEntryRequest = (e) => {
-    const { name, value } = e.target;
-    validateData(name, value);
-    setEntryRequest({
-      ...entryRequest,
-      [name]: value,
-    });
-  };
-
-  // to store entry permit details
-  const [entryPermit, setEntryPermit] = useState({
-    purpose: "",
-    dateFrom: "",
-    dateTo: "",
-    timeFrom: "",
-    timeTo: "",
-  });
-
-  //to handle changes of entry permit
-  const handleEntryPermit = (e) => {
-    const { name, value } = e.target;
-    if (name === "timeFrom") {
-      //disable time to if time from is empty
-      setDisableTimeTo(false);
-    }
-    validateData(name, value);
-    setEntryPermit({
-      ...entryPermit,
-      [name]: value,
-    });
-  };
-
-  //to store meal plan details
-  const [mealplan, setMealplan] = useState({
-    breakfast: "",
-    lunch: "",
-    tea: "",
-    aditionalNote: "",
-  });
-
-  // to handle meal plan details
-  const handleMealplan = (e) => {
-    const { name, value } = e.target;
-    validateData(name, value);
-    setMealplan({
-      ...mealplan,
-      [name]: value,
-    });
-  };
-
-  //to disable date to
   const [disableTimeTo, setDisableTimeTo] = useState(true);
 
-  //to client side validations
-  const [validationErrors, setValidationErrors] = useState({});
-  const today = new Date().toISOString().split("T")[0];
-  // alert(today);
-  const validateData = (name, value) => {
-    let errors = { ...validationErrors };
-    switch (name) {
-      case "reqDept":
-        // requested department validation
-        if (value.trim() === "") {
-          errors.reqDept = "Please select a department";
-        } else {
-          delete errors.reqDept;
-        }
-        break;
-
-      case "reqDate":
-        if (value.trim() === "") {
-          errors.reqDate = "Please select a date";
-        } else if (value < today) {
-          errors.reqDate = "You cannot select past dates";
-        } else {
-          delete errors.reqDate;
-        }
-        break;
-
-      case "reqOfficer":
-        if (value.trim() === "") {
-          errors.reqOfficer = "Officer name required";
-        } else if (!/^[A-Za-z\s]{3,255}$/.test(value)) {
-          errors.reqOfficer = "Invalid name format";
-        } else {
-          delete errors.reqOfficer;
-        }
-        break;
-
-      case "visitorCategory":
-        if (value.trim() === "") {
-          errors.visitorCategory = "Please select a visitor category";
-        } else {
-          delete errors.visitorCategory;
-        }
-        break;
-
-      case "purpose":
-        if (value.trim() === "") {
-          errors.purpose = "Please select visit purpose";
-        } else {
-          delete errors.purpose;
-        }
-        break;
-
-      case "dateFrom":
-        if (value.trim() === "") {
-          errors.dateFrom = "Please select a from date";
-        } else if (value < today) {
-          errors.dateFrom = "Past dates for 'from' date";
-        } else {
-          delete errors.dateFrom;
-        }
-        break;
-
-      case "dateTo":
-        if (value.trim() === "") {
-          errors.dateTo = "Please select a to date";
-        } else if (value < (entryPermit.dateFrom || today)) {
-          errors.dateTo = "Past dates for 'to' date";
-        } else {
-          delete errors.dateTo;
-        }
-        break;
-
-      case "timeFrom":
-        if (value.trim() === "") {
-          errors.timeFrom = "Please select time when the visit started";
-        } else {
-          delete errors.timeFrom;
-        }
-        break;
-
-      case "timeTo":
-        if (value.trim() !== "") {
-          if (value <= entryPermit.timeFrom) {
-            errors.timeTo = "Time cannot be in past";
-          } else {
-            delete errors.timeTo;
-          }
-        } else {
-          delete errors.timeTo;
-        }
-        break;
-
-      default:
-        break;
+  useEffect(() => {
+    if (formik.values.entryPermit.timeFrom) {
+      setDisableTimeTo(false);
     }
-
-    // Update validation errors state
-    setValidationErrors(errors);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // alert("submitting")
-    let formData = {
-      userFactoryId: userFactoryId,
-      entryRequest: entryRequest,
-      entryPermit: entryPermit,
-      visitorsData: visitorsData,
-      mealplan: mealplan,
-    };
-
-    try {
-      const response = await axios.post(
-        `${apiUrl}/visitor/createSuddenvisit`,
-        formData,
-        {
-          headers: { "x-CSRF-Token": csrfToken },
-          withCredentials: true,
-        }
-      );
-
-      // If the response is successful, you can reset errors or do other things
-      console.log(response.data); // Process the successful response
-      setValidationErrorsS({ success: "visit creation success" });
-      swal.fire({
-        title: "Suddent visit create success...!",
-        text: "",
-        icon: "success", // You can use 'question', 'warning', 'info', etc.
-        showCancelButton: false,
-        confirmButtonText: "Ok",
-        cancelButtonText: "No, cancel!",
-        confirmButtonColor: "#d33", // Custom confirm button color (red in this case)
-        cancelButtonColor: "#3085d6", // Custom cancel button color (blue)
-      });
-    } catch (error) {
-      // alert("errors found");
-      if (error.response) {
-        // If validation errors are present, they will be inside error.response.data.errors
-        setValidationErrorsS(error.response.data.errors);
-        console.log(error.response.data.errors);
-        // alert("errors found1");
-      } else {
-        // For other errors (network error, etc.)
-        setErrorMessage(
-          "An error occurred while submitting the form. Please try again later."
-        );
-      }
-    }
-  };
+  }, [formik.values.entryPermit.timeFrom]);
 
   return (
     <div
       className="w-full overflow-hidden"
       style={{ backgroundColor: "white" }}
     >
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={formik.handleSubmit}>
         <div className="">
           <h1 className="text-md mt-2 mb-2 text-center text-xl font-extrabold">
             Sudden Visit application for BOI entry permits (Internal)
           </h1>
         </div>
 
-        <div className=" mt-7 text-right">
+        <div className="text-right">
           <button
             type="submit"
             className="mr-5 bg-green-600 text-white py-1.5 px-6 mr-2 text-lg rounded-md hover:bg-green-700 mb-1"
@@ -369,7 +262,6 @@ const SuddenVisit = (userFactoryId) => {
               <h1 className="text-lg text-blue-950 mb-2">
                 Entry permit request details
               </h1>
-              {/* table goes here */}
               <table className="w-full text-sm mb-2">
                 <tbody>
                   <tr className="">
@@ -382,12 +274,17 @@ const SuddenVisit = (userFactoryId) => {
                       </label>
                     </td>
                     <td>
-                      <p>
-                        {validationErrors.reqDept && validationErrors.reqDept}
-                      </p>
+                      {formik.touched.entryRequest?.reqDept &&
+                        formik.errors.entryRequest?.reqDept && (
+                          <p className="error">
+                            {formik.errors.entryRequest.reqDept}
+                          </p>
+                        )}
                       <select
-                        name="reqDept"
-                        onChange={handleEntryRequest}
+                        name="entryRequest.reqDept"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.entryRequest.reqDept}
                         id="req-dept"
                         className="text-font-esm ml-0 p-1 bg-white w-3/4 sm:text-sm rounded border border-black"
                       >
@@ -417,13 +314,18 @@ const SuddenVisit = (userFactoryId) => {
                       </label>
                     </td>
                     <td>
-                      <p>
-                        {validationErrors.reqDate && validationErrors.reqDate}
-                      </p>
+                      {formik.touched.entryRequest?.reqDate &&
+                        formik.errors.entryRequest?.reqDate && (
+                          <p className="error">
+                            {formik.errors.entryRequest.reqDate}
+                          </p>
+                        )}
                       <input
                         type="Date"
-                        name="reqDate"
-                        onChange={handleEntryRequest}
+                        name="entryRequest.reqDate"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.entryRequest.reqDate}
                         className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 w-3/4 sm:text-sm"
                       />
                     </td>
@@ -439,14 +341,18 @@ const SuddenVisit = (userFactoryId) => {
                       </label>
                     </td>
                     <td>
-                      <p>
-                        {validationErrors.reqOfficer &&
-                          validationErrors.reqOfficer}
-                      </p>
+                      {formik.touched.entryRequest?.reqOfficer &&
+                        formik.errors.entryRequest?.reqOfficer && (
+                          <p className="error">
+                            {formik.errors.entryRequest.reqOfficer}
+                          </p>
+                        )}
                       <input
                         type="text"
-                        name="reqOfficer"
-                        onChange={handleEntryRequest}
+                        name="entryRequest.reqOfficer"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.entryRequest.reqOfficer}
                         className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 w-3/4 sm:text-sm"
                       />
                     </td>
@@ -462,13 +368,17 @@ const SuddenVisit = (userFactoryId) => {
                       </label>
                     </td>
                     <td>
-                      <p>
-                        {validationErrors.visitorCategory &&
-                          validationErrors.visitorCategory}
-                      </p>
+                      {formik.touched.entryRequest?.visitorCategory &&
+                        formik.errors.entryRequest?.visitorCategory && (
+                          <p className="error">
+                            {formik.errors.entryRequest.visitorCategory}
+                          </p>
+                        )}
                       <select
-                        name="visitorCategory"
-                        onChange={handleEntryRequest}
+                        name="entryRequest.visitorCategory"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.entryRequest.visitorCategory}
                         id=""
                         className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 w-3/4 sm:text-sm"
                       >
@@ -479,8 +389,6 @@ const SuddenVisit = (userFactoryId) => {
                   </tr>
                 </tbody>
               </table>
-
-              {/* <p>{validationErrors}</p> */}
             </div>
 
             {/* top right */}
@@ -499,12 +407,17 @@ const SuddenVisit = (userFactoryId) => {
                     </label>
                   </td>
                   <td>
-                    <p className="error">
-                      {validationErrors.purpose && validationErrors.purpose}
-                    </p>
+                    {formik.touched.entryPermit?.purpose &&
+                      formik.errors.entryPermit?.purpose && (
+                        <p className="error">
+                          {formik.errors.entryPermit.purpose}
+                        </p>
+                      )}
                     <select
-                      name="purpose"
-                      onChange={handleEntryPermit}
+                      name="entryPermit.purpose"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.entryPermit.purpose}
                       className="text-font-esm ml-0 p-1 bg-white sm:text-sm"
                       id=""
                     >
@@ -528,27 +441,36 @@ const SuddenVisit = (userFactoryId) => {
                 <tr>
                   <td className="text-font-esm sm:text-sm w-5">Date:</td>
                   <td className="">
-                    <p className="error">
-                      &nbsp;
-                      {validationErrors.dateFrom && validationErrors.dateFrom}
-                    </p>
+                    {formik.touched.entryPermit?.dateFrom &&
+                      formik.errors.entryPermit?.dateFrom && (
+                        <p className="error">
+                          {formik.errors.entryPermit.dateFrom}
+                        </p>
+                      )}
                     <input
                       type="date"
                       className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 sm:text-sm w-full"
-                      name="dateFrom"
-                      onChange={handleEntryPermit}
+                      name="entryPermit.dateFrom"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.entryPermit.dateFrom}
                       id=""
                     />
                   </td>
                   <td className="">
-                    <p className="error">
-                      &nbsp;{validationErrors.dateTo && validationErrors.dateTo}
-                    </p>
+                    {formik.touched.entryPermit?.dateTo &&
+                      formik.errors.entryPermit?.dateTo && (
+                        <p className="error">
+                          {formik.errors.entryPermit.dateTo}
+                        </p>
+                      )}
                     <input
                       type="date"
                       className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 sm:text-sm"
-                      name="dateTo"
-                      onChange={handleEntryPermit}
+                      name="entryPermit.dateTo"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.entryPermit.dateTo}
                       id=""
                     />
                   </td>
@@ -557,28 +479,37 @@ const SuddenVisit = (userFactoryId) => {
                 <tr>
                   <td className="text-font-esm sm:text-sm">Time:</td>
                   <td>
-                    <p className="error">
-                      &nbsp;
-                      {validationErrors.timeFrom && validationErrors.timeFrom}
-                    </p>
+                    {formik.touched.entryPermit?.timeFrom &&
+                      formik.errors.entryPermit?.timeFrom && (
+                        <p className="error">
+                          {formik.errors.entryPermit.timeFrom}
+                        </p>
+                      )}
                     <input
                       type="time"
                       className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 sm:text-sm"
-                      name="timeFrom"
-                      onChange={handleEntryPermit}
+                      name="entryPermit.timeFrom"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.entryPermit.timeFrom}
                       id=""
                     />
                   </td>
                   <td className="w-full">
-                    <p className="error">
-                      &nbsp;{validationErrors.timeTo && validationErrors.timeTo}
-                    </p>
+                    {formik.touched.entryPermit?.timeTo &&
+                      formik.errors.entryPermit?.timeTo && (
+                        <p className="error">
+                          {formik.errors.entryPermit.timeTo}
+                        </p>
+                      )}
                     <input
                       type="time"
                       className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 sm:text-sm"
-                      name="timeTo"
+                      name="entryPermit.timeTo"
                       disabled={disableTimeTo}
-                      onChange={handleEntryPermit}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.entryPermit.timeTo}
                       id=""
                     />
                   </td>
@@ -669,9 +600,8 @@ const SuddenVisit = (userFactoryId) => {
                 </thead>
 
                 <tbody>
-                  {Array.isArray(visitorsData) &&
-                    visitorsData.length > 0 &&
-                    visitorsData.map((visitor, index) => (
+                  {formik.values.visitors.length > 0 &&
+                    formik.values.visitors.map((visitor, index) => (
                       <tr key={index}>
                         <td
                           className="border border-black text-font-esm p-0 pl-1 sm:text-sm sm:p-2"
@@ -695,6 +625,9 @@ const SuddenVisit = (userFactoryId) => {
                     ))}
                 </tbody>
               </table>
+              {formik.touched.visitors && formik.errors.visitors && (
+                <p className="error">{formik.errors.visitors}</p>
+              )}
             </div>
 
             {/* right div */}
@@ -704,8 +637,9 @@ const SuddenVisit = (userFactoryId) => {
               <div className="">
                 <input
                   type="checkbox"
-                  name="breakfast"
-                  onChange={handleMealplan}
+                  name="mealplan.breakfast"
+                  onChange={formik.handleChange}
+                  checked={formik.values.mealplan.breakfast}
                   className="ml-1"
                   id="Breakfast"
                 />{" "}
@@ -718,8 +652,9 @@ const SuddenVisit = (userFactoryId) => {
                 <input
                   type="checkbox"
                   className="sv-checkboxes"
-                  onChange={handleMealplan}
-                  name="lunch"
+                  onChange={formik.handleChange}
+                  name="mealplan.lunch"
+                  checked={formik.values.mealplan.lunch}
                   id="Lunch"
                 />{" "}
                 <label
@@ -730,9 +665,10 @@ const SuddenVisit = (userFactoryId) => {
                 </label>
                 <input
                   type="checkbox"
-                  onChange={handleMealplan}
+                  onChange={formik.handleChange}
                   className="sv-checkboxes ml-2"
-                  name="tea"
+                  name="mealplan.tea"
+                  checked={formik.values.mealplan.tea}
                   id="tea"
                 />{" "}
                 <label
@@ -747,8 +683,9 @@ const SuddenVisit = (userFactoryId) => {
                 <textarea
                   cols={window.screen.width > 728 ? 60 : 40}
                   rows={window.screen.width > 728 ? 5 : 4}
-                  name="additionalNote"
-                  onChange={handleMealplan}
+                  name="mealplan.aditionalNote"
+                  onChange={formik.handleChange}
+                  value={formik.values.mealplan.aditionalNote}
                   id=""
                   className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0"
                 ></textarea>
@@ -771,14 +708,6 @@ const SuddenVisit = (userFactoryId) => {
             </span>
           ))}
         </div>
-        {/* <div className="sv-buttons mt-7 text-right">
-          <button
-            type="submit"
-            className="mr-2 bg-green-700 text-white py-1.5 px-6 mr-2 rounded-md hover:bg-green-800 mb-5"
-          >
-            Save
-          </button>
-        </div> */}
       </form>
     </div>
   );

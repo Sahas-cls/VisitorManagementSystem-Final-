@@ -5,18 +5,19 @@ import { FaPersonCircleExclamation } from "react-icons/fa6";
 import { LuMessageSquareText } from "react-icons/lu";
 import { FaWhatsapp } from "react-icons/fa6";
 import { MdOutlineMail } from "react-icons/md";
-// import CSidebar from "./CSidebar";
-// import "./RDisplayVisitor.css";
 import axios from "axios";
 import { IoIosSave, IoIosSend } from "react-icons/io";
 import { FaPlusCircle } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import swal from "sweetalert2";
 import "./RContainer.css";
+import { useFormik } from "formik";
+import * as yup from "yup";
 
 const RDisplayVisitor = () => {
   const location = useLocation();
   const visitor = location.state?.visitor; // Access the passed visitor data
+  const approvalStatus = true;
 
   console.log(
     "All details: ======================================================"
@@ -26,26 +27,20 @@ const RDisplayVisitor = () => {
   console.log("state", location.state);
   console.log("visitor ======", visitor);
 
-  // const visitorEmail = visitor.ContactPerson_Email || null;
-  //destructuring data
   const contactPersonEmail = visitor.ContactPerson_Email || "";
   const contactPersonMNo = visitor.ContactPerson_ContactNo;
-  // console.log("contact person email: " + contactPersonEmail);
 
-  const Visitor = location.state?.visitor; //this is the details of contact person
+  const Visitor = location.state?.visitor;
   const [visitorGroup, setVisitorGroup] = useState(
     location.state?.visitor.Visitors
-  ); // the visitors group coming with contact person
-  const UserData = location.state?.userData; //this is the details about current logged in user
-  const [Vehicles, setVehicles] = useState(location.state?.visitor.Vehicles); //this is the details about vehicels
-  const Visits = location.state?.visitor.Visits[0]; //this is the variable that store visit details
+  );
+  const UserData = location.state?.userData;
+  const [Vehicles, setVehicles] = useState(location.state?.visitor.Vehicles);
+  const Visits = location.state?.visitor.Visits[0];
   const [isLoading, setIsLoading] = useState(false);
 
   console.log("visits", Visits.Requested_Officer);
-
   console.log("user data from display data: ", UserData);
-  // alert(Visits);
-
   console.log("visitors", visitor);
   console.log("visitor group", visitorGroup);
   console.log("vehicle group", Vehicles);
@@ -61,9 +56,7 @@ const RDisplayVisitor = () => {
   const [visitorPurposes, setvisitorPurposes] = useState({});
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  // to get all visitor categories from backend
   const getVCategories = async () => {
-    // alert("getting v categories");
     try {
       const result = await axios.get(
         `${apiUrl}/visitor/getVisitor-categories`,
@@ -83,7 +76,6 @@ const RDisplayVisitor = () => {
   };
 
   const getVisitingPurpose = async (category_id) => {
-    // alert("getting visiting purpose");
     try {
       const result = await axios.get(
         `${apiUrl}/visitor/getVisiting_purpose/${category_id}`,
@@ -95,7 +87,6 @@ const RDisplayVisitor = () => {
       console.log("result134 ======= ", result);
 
       if (result.status === 200) {
-        // alert("got the purpose list");
         console.log("visiting data list:- ", result.data.data);
         setvisitorPurposes(result.data.data);
       }
@@ -108,40 +99,27 @@ const RDisplayVisitor = () => {
   const navigate = useNavigate();
 
   const navigateTo = () => {
-    // alert("clicked");
-    // Navigate to /editVisitor and pass the clicked visitor's data as state
     navigate("/edit-visit-recept", {
       state: { visitor: visitor },
     });
   };
 
-  // const naviateTo = ()=>{
-  //   navigate(-1)
-  // }
-
-  // const [vehicles, setVehicles] = useState({});
-
   const VisitId = Visitor.Visits[0]?.Visit_Id;
-  //to handle entry permit details
 
   const handleEntryPermit = (e) => {
     const { name, value } = e.target;
-    // alert(`${name}: ${value}`);
     setEntryPermit({
       ...entryPermit,
       [name]: value === "" || value === null ? defaultValue : value,
     });
-    // alert(`${name}: ${value}`);
   };
 
-  //to handle person details
   const handlePerson = (e) => {
     const { name, value, checked, type } = e.target;
     setPerson({
       ...person,
       [name]: type === "checkbox" ? checked : value,
     });
-    // alert(`${name}: ${value}`);
   };
 
   const reqDate = new Date(Visitor.Visits[0]?.Date_From)
@@ -177,38 +155,27 @@ const RDisplayVisitor = () => {
     const fMobileNo = formatMNo(ufMobileNo);
     const phoneNumber = fMobileNo;
 
-    // const message = `${Visitor.ContactPerson_Name}, this is your reference number for BOI entry pass *${entryPermitReference.refNumber}*`;
     const message =
       `Dear ${Visitor.ContactPerson_Name},\n\n` +
       `Thank you for your upcoming visit. Please find your *BOI reference number* below,\n` +
       `which you will need to present upon entry.\n\n` +
-      `*BOI Reference Number:* *${entryPermitReference.refNumber}*\n\n` +
+      `*BOI Reference Number:* *${formik.values.refNumber}*\n\n` +
       `Thanks,\n` +
       `Receptionist\n` +
       `Concord Group`;
 
-    // Copy message to clipboard
     navigator.clipboard
       .writeText(message)
-      .then(() => {
-        // alert(
-        //   "Message copied to clipboard. If it doesn't appear in WhatsApp, just paste it manually."
-        // );
-      })
+      .then(() => {})
       .catch((err) => {
         console.error("Clipboard copy failed:", err);
-        // alert("Failed to copy the message. Please paste it manually.");
       });
 
-    // Open WhatsApp
     const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
       message
     )}`;
     window.open(url, "_blank");
   };
-
-  // alert(timeFrom);
-  // alert(timeFrom);
 
   useEffect(() => {
     const getCsrf = async () => {
@@ -217,10 +184,8 @@ const RDisplayVisitor = () => {
           withCredentials: true,
         });
         if (response) {
-          // alert(response.data.csrfToken);
           const csrf = await response.data.csrfToken;
           console.log(csrf);
-          // alert(csrf)
           setCsrfToken(csrf);
         }
       } catch (error) {
@@ -229,7 +194,6 @@ const RDisplayVisitor = () => {
     };
     getCsrf();
 
-    //to get all departments
     const getDepartments = async () => {
       try {
         const visitorList = await axios.get(
@@ -249,11 +213,9 @@ const RDisplayVisitor = () => {
     };
     getDepartments();
     getVCategories();
-    // alert(Visits.Visitor_Category);
     getVisitingPurpose(Visits.Visitor_Category);
   }, []);
 
-  // (departmentList && console.log(departmentList))
   const errorObj = {};
   let successOrError = { type: "", msg: "" };
 
@@ -270,137 +232,113 @@ const RDisplayVisitor = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // alert("sending request");
+  const handleSubmit = async (values) => {
     let formData = {
       userId: userId,
       Visit_Id: VisitId,
-      Reference_Details: entryPermitReference,
+      Reference_Details: {
+        refNumber: values.refNumber,
+        issuedDate: values.issuedDate,
+      },
     };
 
-    if (Object.keys(errorObj).length === 0) {
-      try {
-        // alert("sending request");
-        const response = await axios.post(
-          `${apiUrl}/visitor/updateVisitors-reception`,
-          formData,
-          {
-            headers: { "X-CSRF-Token": csrfToken },
-            withCredentials: true,
-          }
-        );
-        console.log("response ", response);
-        setisSaved(true);
-        if (response) {
-          if (response.status === 200) {
-            // alert("Update success");
-            setIsLoading(false);
-            swal.fire({
-              title: "Visit update success",
-              text: "",
-              icon: "success",
-              confirmButtonText: "OK",
-              showConfirmButton: true,
-            });
-            successOrError = {
-              type: "success",
-              msg: "Visitor Updated Successfully",
-            };
-          } else if (response.status === 500) {
-            successOrError = {
-              type: "error",
-              msg: "Visitor update failed with error code 500",
-            };
-          } else {
-            successOrError = {
-              type: "error",
-              msg: "Unknown error occurred",
-            };
-          }
+    try {
+      const response = await axios.post(
+        `${apiUrl}/visitor/updateVisitors-reception`,
+        formData,
+        {
+          headers: { "X-CSRF-Token": csrfToken },
+          withCredentials: true,
         }
-      } catch (error) {
-        // Setting-up errors
-        alert("error");
-        if (error.isAxiosError) {
-          let errorMessage = "An error occurred.";
-
-          if (error.response) {
-            // Server responded with an error status code
-            switch (error.response.status) {
-              case 400:
-                // If validation errors are present in the response, extract and show them
-                if (
-                  error.response.data.errors &&
-                  error.response.data.errors.length > 0
-                ) {
-                  const validationErrors = error.response.data.errors
-                    .map((err) => err.msg)
-                    .join(", ");
-                  setErrorMessages(validationErrors); // Set validation errors as the state
-                  errorMessage = validationErrors; // Show the validation errors as a single string
-                } else {
-                  setErrorMessages("Bad request. Please check your input.");
-                  errorMessage =
-                    error.response.data.message ||
-                    "Bad request. Please check your input. error code 400";
-                }
-                break;
-
-              case 404:
-                setErrorMessages("Resource page not found. error code 404");
-                errorMessage = "Resource not found.";
-                break;
-
-              case 500:
-                setErrorMessages(
-                  "Internal server error. Please try again later. error code 500"
-                );
-                errorMessage = "Internal server error. Please try again later.";
-                break;
-
-              default:
-                setErrorMessages("An unexpected error occurred.");
-                errorMessage =
-                  error.response.data.message ||
-                  "An unexpected error occurred.";
-            }
-          } else if (error.request) {
-            // No response received (network issue)
-            setErrorMessages(
-              "Network error. Please check your internet connection."
-            );
-            errorMessage =
-              "Network error. Please check your internet connection.";
-          }
-
-          alert(errorMessage); // Show the error message to the user
+      );
+      console.log("response ", response);
+      setisSaved(true);
+      if (response) {
+        if (response.status === 200) {
+          setIsLoading(false);
+          swal.fire({
+            title: "Visit update success",
+            text: "",
+            icon: "success",
+            confirmButtonText: "OK",
+            showConfirmButton: true,
+          });
+          successOrError = {
+            type: "success",
+            msg: "Visitor Updated Successfully",
+          };
+        } else if (response.status === 500) {
+          successOrError = {
+            type: "error",
+            msg: "Visitor update failed with error code 500",
+          };
         } else {
-          // Non-Axios error (e.g., programming errors)
-          setErrorMessages("An unexpected error occurred.");
-          alert("An unexpected error occurred.");
-          console.error("Error:", error);
+          successOrError = {
+            type: "error",
+            msg: "Unknown error occurred",
+          };
         }
       }
-    } else {
-      alert("Please fill all the required(*) fields before submit");
+    } catch (error) {
+      if (error.isAxiosError) {
+        let errorMessage = "An error occurred.";
+
+        if (error.response) {
+          switch (error.response.status) {
+            case 400:
+              if (
+                error.response.data.errors &&
+                error.response.data.errors.length > 0
+              ) {
+                const validationErrors = error.response.data.errors
+                  .map((err) => err.msg)
+                  .join(", ");
+                setErrorMessages(validationErrors);
+                errorMessage = validationErrors;
+              } else {
+                setErrorMessages("Bad request. Please check your input.");
+                errorMessage =
+                  error.response.data.message ||
+                  "Bad request. Please check your input. error code 400";
+              }
+              break;
+
+            case 404:
+              setErrorMessages("Resource page not found. error code 404");
+              errorMessage = "Resource not found.";
+              break;
+
+            case 500:
+              setErrorMessages(
+                "Internal server error. Please try again later. error code 500"
+              );
+              errorMessage = "Internal server error. Please try again later.";
+              break;
+
+            default:
+              setErrorMessages("An unexpected error occurred.");
+              errorMessage =
+                error.response.data.message ||
+                "An unexpected error occurred.";
+          }
+        } else if (error.request) {
+          setErrorMessages(
+            "Network error. Please check your internet connection."
+          );
+          errorMessage =
+            "Network error. Please check your internet connection.";
+        }
+
+        alert(errorMessage);
+      } else {
+        setErrorMessages("An unexpected error occurred.");
+        alert("An unexpected error occurred.");
+        console.error("Error:", error);
+      }
     }
     console.log("error or success", successOrError);
-    // console.log(formData);
   };
 
-  //disabling input boxes
-  // const inputBoxes = document.querySelectorAll(".cdInput");
-  // inputBoxes.forEach((input) => {
-  //   input.readOnly = true;
-  // });
-
-  // const selectBoxes = document.querySelectorAll(".c-select");
-  // selectBoxes.forEach((selectBox) => {
-  //   selectBox.disabled = true;
-  // });
-
-  //to disable save button until click on send msg button
   const [disableSave, setDisableSave] = useState(true);
   const disableSaveButton = (e) => {
     e.preventDefault();
@@ -424,11 +362,13 @@ const RDisplayVisitor = () => {
     let formData = {
       userId: userId,
       Visit_Id: VisitId,
-      Reference_Details: entryPermitReference,
+      Reference_Details: {
+        refNumber: formik.values.refNumber,
+        issuedDate: formik.values.issuedDate,
+      },
     };
     e.preventDefault();
     console.log(contactPersonEmail);
-    // alert(contactPersonEmail);
     if (contactPersonEmail !== "" && contactPersonEmail !== null) {
       try {
         const response = await axios.post(
@@ -442,30 +382,25 @@ const RDisplayVisitor = () => {
 
         if (response.status === 200) {
           alert("Email sent successfully");
-          setRecMessages(""); // Reset any other messages
-          setServerSideErrors(""); // Clear any previous errors
+          setRecMessages("");
+          setServerSideErrors("");
           setEmailSuccessMsg("Email sent successfully");
         }
       } catch (error) {
         console.log(error);
 
         if (error.response) {
-          // Check if the response has validation errors
           if (error.response.data && error.response.data.errors) {
             const errorMessages = error.response.data.errors
               .map((err) => err.msg)
               .join("* ");
-
-            // Set server-side validation errors in the state
             setServerSideErrors(errorMessages);
           } else {
-            // Handle other errors (like network issues, server down, etc.)
             setServerSideErrors(
               "Mail sending failed. Please send the reference number to the user via mobile."
             );
           }
         } else {
-          // If no response (network error, etc.), handle it here
           setServerSideErrors("An unknown error occurred.");
         }
 
@@ -482,7 +417,6 @@ const RDisplayVisitor = () => {
   const vehicleError = useState();
   const handleVehiclePlus = () => {
     const { VehicleNo, VehicleType } = Vehicles[Vehicles.length - 1];
-    // alert(VehicleNo);
 
     if (!VehicleNo) {
       vehicleError.VehicleNo = "Vehicle no required*";
@@ -496,16 +430,11 @@ const RDisplayVisitor = () => {
       delete vehicleError.VehicleType;
     }
 
-    // alert("v Errors " + Object.keys(vehicleError));
     setVehicleErrors(vehicleError);
-
-    // alert(Object.keys(vehicleError).length);
-    alert("plus vehicle");
     const newVehicle = [...Vehicles, { VehicleNo: "", VehicleType: "" }];
     setVehicles(newVehicle);
     if (Object.keys(vehicleError).length === 0) {
     }
-    // alert("adding vehicle");
   };
 
   const removeVisitor = (e, index) => {
@@ -517,22 +446,32 @@ const RDisplayVisitor = () => {
 
   const removeVehicle = (e, index) => {
     e.preventDefault();
-
-    // console.log("Removing vehicle at index:", index); // Debugging line
-
-    // Create a new array of vehicles excluding the vehicle at the given index
     const updatedVehicles = vehicles.filter((_, i) => i !== index);
-
-    // console.log("Updated vehicles:", updatedVehicles); // Debugging line
-    // console.log(updatedVehicles);
-    // Update the state with the new list of vehicles
     setVehicles(updatedVehicles);
-
-    // Optional: Remove the vehicle's error from the errors state (if needed)
     const updatedErrors = { ...vehicleErrors };
     delete updatedErrors[index];
     setVehicleErrors(updatedErrors);
   };
+
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const validationSchema = yup.object({
+    refNumber: yup.string().required("Reference number required"),
+    issuedDate: yup
+      .date()
+      .required("Issued date required")
+      .min(yesterday, "Date cannot be in past"),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      refNumber: "",
+      issuedDate: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: handleSubmit,
+  });
 
   return (
     <div className="w-full flex flex-col mb-4 bg-white">
@@ -550,10 +489,6 @@ const RDisplayVisitor = () => {
           )}
 
           <div className="mb-0 bg-white w-full">
-            {/* <h1 className="text-left ml-2 text-md mt-2 mb-2 font-extrabold">
-              {Visitor.ContactPerson_Name}
-            </h1> */}
-
             <div className="flex items-center mb-4 md:mb-0 gap-5 my-3">
               <FaPersonCircleExclamation className="text-sky-600 text-4xl md:text-5xl lg:text-6xl mr-3" />
               <h1 className="text-2xl md:text-3xl font-bold text-sky-600">
@@ -562,9 +497,7 @@ const RDisplayVisitor = () => {
             </div>
 
             <div className="p-0">
-              {/* Top Section - Two Columns */}
               <div className="m-0 p-2 flex flex-col lg:flex-row gap-4 lg:gap-[2%]">
-                {/* Left Card */}
                 <div className="bg-gradient-to-tr from-sky-100 to-sky-200 w-full rounded-lg shadow-custom1 lg:w-[49%] p-2 h-auto min-h-[190px] pb-5">
                   <h1 className="font-bold text-lg text-blue-950 mb-2">
                     Entry Permit Request Details
@@ -577,6 +510,7 @@ const RDisplayVisitor = () => {
                       <select
                         name="Requested_Department"
                         className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+                        disabled={approvalStatus}
                       >
                         <option value="">Select a Department:</option>
                         {Array.isArray(departmentList) &&
@@ -609,6 +543,7 @@ const RDisplayVisitor = () => {
                         name="Date_From"
                         className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
                         defaultValue={`${reqDate}`}
+                        disabled={approvalStatus}
                       />
                     </div>
                     {errors.Date_From && (
@@ -625,6 +560,7 @@ const RDisplayVisitor = () => {
                         name="Requested_Officer"
                         defaultValue={Visits.Requested_Officer}
                         type="text"
+                        disabled={approvalStatus}
                       />
                     </div>
                     {errors.Requested_Officer && (
@@ -642,6 +578,7 @@ const RDisplayVisitor = () => {
                         name="Visitor_Category"
                         className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
                         value={Visits.visitor_category_id}
+                        disabled={approvalStatus}
                       >
                         <option
                           selected={Visits.Visitor_Category === ""}
@@ -671,7 +608,6 @@ const RDisplayVisitor = () => {
                   </div>
                 </div>
 
-                {/* Right Card */}
                 <div className="bg-gradient-to-tr from-sky-100 to-sky-200 p-3 w-full rounded-lg shadow-custom1 lg:w-[49%] h-auto min-h-[190px] pb-5">
                   <h1 className="font-bold text-lg text-blue-950 mb-2">
                     Entry permit Details
@@ -684,6 +620,7 @@ const RDisplayVisitor = () => {
                       <select
                         name="Purpose"
                         className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+                        disabled={approvalStatus}
                       >
                         <option
                           value=""
@@ -724,6 +661,7 @@ const RDisplayVisitor = () => {
                             type="date"
                             name="Date_From"
                             defaultValue={reqDate}
+                            disabled={approvalStatus}
                           />
                         </div>
                         <div className="flex-1">
@@ -733,6 +671,7 @@ const RDisplayVisitor = () => {
                             type="date"
                             name="Date_To"
                             defaultValue={dateTo >= today ? dateTo : null}
+                            disabled={approvalStatus}
                           />
                         </div>
                       </div>
@@ -755,6 +694,7 @@ const RDisplayVisitor = () => {
                             type="time"
                             name="Time_From"
                             defaultValue={timeFrom}
+                            disabled={approvalStatus}
                           />
                         </div>
                         <div className="flex-1">
@@ -763,6 +703,7 @@ const RDisplayVisitor = () => {
                             type="time"
                             name="Time_To"
                             defaultValue={timeTo}
+                            disabled={approvalStatus}
                           />
                         </div>
                       </div>
@@ -777,9 +718,7 @@ const RDisplayVisitor = () => {
                 </div>
               </div>
 
-              {/* Bottom Section - Two Columns */}
               <div className="m-0 p-2 flex flex-col lg:flex-row gap-4 lg:gap-[2%]">
-                {/* Left Card */}
                 <div className="bg-gradient-to-tr from-sky-100 to-sky-200  p-3 w-full rounded-lg shadow-custom1 lg:w-[49%] min-h-[330px]">
                   <h1 className="font-bold text-lg text-blue-950 mb-2">
                     Person
@@ -820,6 +759,8 @@ const RDisplayVisitor = () => {
                           defaultChecked={Visits.Breakfast === true}
                           id="Breakfast"
                           className="mr-1"
+                          defaultValue={timeTo}
+                          disabled={approvalStatus}
                         />
                         <label htmlFor="Breakfast" className="text-sm">
                           Breakfast
@@ -832,6 +773,8 @@ const RDisplayVisitor = () => {
                           id="Lunch"
                           defaultChecked={Visits.Lunch === true}
                           className="mr-1"
+                          defaultValue={timeTo}
+                          disabled={approvalStatus}
                         />
                         <label htmlFor="Lunch" className="text-sm">
                           Lunch
@@ -844,6 +787,8 @@ const RDisplayVisitor = () => {
                           defaultChecked={Visits.Tea === true}
                           id="Tea"
                           className="mr-1"
+                          defaultValue={timeTo}
+                          disabled={approvalStatus}
                         />
                         <label htmlFor="Tea" className="text-sm">
                           Tea
@@ -860,12 +805,12 @@ const RDisplayVisitor = () => {
                         className="text-sm bg-white border rounded border-slate-400 p-1 w-full"
                         defaultValue={Visits.Remark}
                         readOnly={true}
+                        disabled={approvalStatus}
                       ></textarea>
                     </div>
                   </div>
                 </div>
 
-                {/* Right Card */}
                 <div className="bg-gradient-to-tr from-sky-100 to-sky-200 p-3 w-full rounded-lg shadow-custom1 lg:w-[49%] min-h-[330px]">
                   <h1 className="font-bold text-lg text-blue-950 mb-2">
                     Vehicle
@@ -911,48 +856,62 @@ const RDisplayVisitor = () => {
         </div>
       </form>
 
-      {/* Bottom Form Section */}
       <div className="w-full px-2 w-full flex justify-center md:mt-0 mt-[-5px]">
-        {/* old background color:- bg-gradient-to-br from-blue-300 to-blue-200 */}
-        <div className="bg-gradient-to-tr from-sky-100 to-sky-200 rounded-lg shadow-custom1 p-4 w-full lg:w-6/6   ">
+        <div className="bg-gradient-to-tr from-sky-100 to-sky-200 rounded-lg shadow-custom1 p-4 w-full lg:w-6/6">
           <div className="text-center">
             <h1 className="font-bold text-lg text-blue-950 mb-4">
               Entry permit Reference & Issue
             </h1>
           </div>
-          <form className="w-full max-w-md mx-auto" onSubmit={handleSubmit}>
+          <form className="w-full max-w-md mx-auto" onSubmit={formik.handleSubmit}>
             <div className="grid grid-cols-1 gap-4 mb-4">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <label className="text-sm sm:w-1/3">Reference Number:</label>
-                <input
-                  type="text"
-                  name="refNumber"
-                  className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
-                  onChange={handleRefChanges}
-                />
+                <div className="">
+                  <input
+                    type="text"
+                    name="refNumber"
+                    value={formik.values.refNumber}
+                    className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+
+                  {formik.touched.refNumber && formik.errors.refNumber && (
+                    <div className="text-red-600 text-sm">
+                      {formik.errors.refNumber}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <label className="text-sm sm:w-1/3">Issued Date:</label>
-                <input
-                  type="Date"
-                  name="issuedDate"
-                  onChange={handleRefChanges}
-                  className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
-                />
+                <div className="">
+                  <input
+                    type="date"
+                    name="issuedDate"
+                    value={formik.values.issuedDate}
+                    onBlur={formik.handleBlur}
+                    onChange={formik.handleChange}
+                    className="text-sm bg-white border rounded border-slate-400 p-1 flex-1"
+                  />
+                  {formik.touched.issuedDate && formik.errors.issuedDate && (
+                    <div className="text-red-600 text-sm">
+                      {formik.errors.issuedDate}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
             <div className="flex justify-center gap-4 mb-4 pt-3">
-              {/* Save Button */}
               <button
                 type="submit"
                 className="flex items-center text-sm px-4 py-1 border-2 border-black/50 shadow-custom1 bg-gray-300 rounded hover:bg-blue-200 disabled:opacity-50 hover:scale-105"
               >
                 <IoIosSave className="mr-1 text-3xl" />
               </button>
-
-              {/* Send Button — Only enabled when isSaved is true */}
 
               {isSaved && (
                 <button
@@ -961,12 +920,10 @@ const RDisplayVisitor = () => {
                   className="flex items-center justify-center text-sm px-4 py-1 border-black/50 shadow-custom1 border-2 bg-gray-300 rounded hover:bg-blue-300 hover:scale-105 disabled:opacity-50"
                   onClick={disableSaveButton}
                 >
-                  {/* <IoIosSend className="mr-1 text-3xl text-blue-700" /> */}
                   <MdOutlineMail className="mr-1 text-3xl text-[#1A73E8]" />
                 </button>
               )}
 
-              {/* WhatsApp Button — Only rendered when isSaved is true */}
               {isSaved && (
                 <button
                   type="button"

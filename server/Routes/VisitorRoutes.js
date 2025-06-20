@@ -56,9 +56,9 @@ visiterRoutes.get("/getVisitor-categories", async (req, res) => {
       Date_To: Date_To,
       Time_From: Time_From,
       Time_To: Time_To,
-      Breakfast: Breakfast || false,
-      Lunch: Lunch || false,
-      Tea: Tea || false,
+      Breakfast: Breakfast || null,
+      Lunch: Lunch || null,
+      Tea: Tea || null,
       Num_of_Days: Num_of_Days,
       Remark: Remark,
       Last_Modified_By: userId,
@@ -554,6 +554,7 @@ visiterRoutes.get(
 visiterRoutes.post(
   "/registration",
   [
+    //     // Contact Person Details Validation
     body("contactPersonDetails.cEmail")
       .optional({ checkFalsy: true }) // Skip validation if value is not provided or is an empty string
       .isEmail()
@@ -575,6 +576,7 @@ visiterRoutes.post(
       .isString()
       .withMessage("Name must be a string."),
 
+    //     // Date and Time Validation
     body("dateTimeDetails.dateFrom")
       .isISO8601()
       .withMessage("Invalid date format for dateFrom.")
@@ -593,6 +595,8 @@ visiterRoutes.post(
       .isISO8601()
       .withMessage("Invalid date format for dateTo.")
       .toDate(),
+
+    //     // Department Details Validation
     body("departmentDetails.department")
       .isNumeric()
       .withMessage("Please select a department."),
@@ -604,6 +608,7 @@ visiterRoutes.post(
       .notEmpty()
       .withMessage("Please select a factory."),
 
+    //     // Vehicle Details Validation (Array of vehicles)
     body("vehicleDetails.*.VehicleNo")
       .optional({ checkFalsy: true })
       .isString()
@@ -613,6 +618,7 @@ visiterRoutes.post(
       .optional({ checkFalsy: true })
       .isString()
       .withMessage("Vehicle type must be a string."),
+
     //     // Visitor Details Validation (Array of visitors)
     body("visitorDetails.*.visitorName")
       .optional({ checkFalsy: true })
@@ -625,6 +631,18 @@ visiterRoutes.post(
       .optional({ checkFalsy: true })
       .matches(/^\d{9}[vV]$|^\d{12}$/)
       .withMessage("Invalid visitor NIC number format."),
+
+    //     // body("visitorDetails.*.Visitor_NIC")
+    //     //   // .optional({ checkFalsy: true })
+    //     //   .custom((value) => {
+    //     //     const valid = /^\d{9}[vV]$|^\d{12}$/.test(value);
+    //     //     if (!valid) {
+    //     //       throw new Error(
+    //     //         `Invalid NIC: "${value}". Must be 9 digits + v/V or 12 digits.`
+    //     //       );
+    //     //     }
+    //     //     return true;
+    //     //   }),
   ],
   csrfProtection,
   [
@@ -1727,11 +1745,11 @@ visiterRoutes.post(
         Time_To: entryPermit.timeTo,
         Num_of_Days: noOfDays,
         Factory_Id: userFactoryId.userFactoryId,
-        Breakfast: breakfast || false,
-        Lunch: lunch || false,
+        Breakfast: breakfast || null,
+        Lunch: lunch || null,
         Purpose: entryPermit.purpose,
         Visitor_Category: entryRequest.visitorCategory,
-        Tea: tea || false,
+        Tea: tea || null,
         Remark: mealplan.additionalNote,
       };
 
@@ -1849,24 +1867,23 @@ visiterRoutes.get(
                 { Reference_No: { [Op.ne]: null } },
                 { Reference_No: { [Op.ne]: "" } },
               ],
-              // [Op.and]: [
-              //   // Ensure the current date falls within the given Date_From and Date_To
-              //   sequelize.where(
-              //     sequelize.fn("DATE", sequelize.col("Visits.Date_From")),
-              //     {
-              //       [Op.lte]: sequelize.fn("CURDATE"),
-              //     }
-              //   ),
-              //   sequelize.where(
-              //     sequelize.fn("DATE", sequelize.col("Visits.Date_To")),
-              //     {
-              //       [Op.gte]: sequelize.fn("CURDATE"),
-              //     }
-              //   ),
-              //   // You can add further constraints based on the factory and department IDs if needed
-              //   { Factory_Id: facId },
-              //   { Department_Id: depId },
-              // ],
+               [Op.and]: [
+                 // Ensure the current date falls within the given Date_From and Date_To
+                 sequelize.where(
+                   sequelize.fn("DATE", sequelize.col("Visits.Date_From")),
+                   {
+                     [Op.lte]: sequelize.fn("CURDATE"),
+                   }
+                 ),
+                 sequelize.where(
+                   sequelize.fn("DATE", sequelize.col("Visits.Date_To")),
+                   {
+                     [Op.gte]: sequelize.fn("CURDATE"),
+                   }
+                 ),
+                 // You can add further constraints based on the factory and department IDs if needed
+                 { Factory_Id: facId },
+               ],
             },
             required: true,
           },

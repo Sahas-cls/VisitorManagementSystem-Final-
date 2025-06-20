@@ -7,7 +7,7 @@ import { MdDelete } from "react-icons/md";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ClipLoader } from "react-spinners";
-import swal from "sweetalert2"
+import swal from "sweetalert2";
 
 const VisitorF = () => {
   const [csrfToken, setCsrfToken] = useState("");
@@ -470,11 +470,10 @@ const VisitorF = () => {
   const showInstructions = () => {
     if (disableSubmitButton === true) {
       swal.fire({
-        title: "visitor instructions"
-        
-      })
+        title: "visitor instructions",
+      });
     }
-  }
+  };
 
   const validationSchema = Yup.object({
     factory: Yup.number().required("Select a factory"),
@@ -522,20 +521,59 @@ const VisitorF = () => {
     validateOnMount: true,
   });
 
+  const handleInstruction = () => {
+    if (disableSubmitButton) {
+      swal.fire({
+        title: "Visitor Instructions",
+        icon: "info",
+        html: `
+    <ul style="text-align: left; font-size: 14px; padding-left: 20px; line-height:2;">
+      <li><strong>1.</strong> Refrain from entering unauthorized. Do not visit factory alone. Always ask for assistance. Stay with your host.</li>
+      <li><strong>2.</strong> No unauthorized photos and videos.</li>
+      <li><strong>3.</strong> Refrain from smoking.</li>
+      <li><strong>4.</strong> Remove all types of metal items before entering.</li>
+      <li><strong>5.</strong> Use the facility complaint management system for any complaints & your valuable feedbacks are always welcome.</li>
+      <li><strong>6.</strong> Safety First, pay attention to all the safety signs and instructions always.</li>
+      <li><strong>7.</strong> In case of emergency, if the fire alarm sounds, evacuate the building from the nearest emergency exit to the assembly point and help the head counter to verify that you are safe.</li>
+      <li><strong>8.</strong> Do not touch machine parts or try to operate without permission of an authorized person.</li>
+      <li><strong>9.</strong> Report all accidents immediately to the company medical center or the host.</li>
+      <li><strong>10.</strong> Do not spit in open environment.</li>
+      <li><strong>11.</strong> Make sure your vehicle is free from oil leakage to the environment. If you notice any environmentally adverse incident, please inform the management or the main security office.</li>
+      <li><strong>12.</strong> Dispose waste only into labeled bins.</li>
+      <li><strong>13.</strong> Scan the QR for the facility evacuation map.</li>
+    </ul>
+  `,
+        confirmButtonText: "Understood",
+        width: 650,
+        customClass: {
+          popup: "visitor-instructions-popup",
+        },
+        allowOutsideClick: false,
+      });
+    }
+  };
+
   return (
-    <div className="visitor-container min-h-screen bg-gray-50 md:py-8 md:px-4 sm:px-0 lg:px-8">
+    <div className="visitor-container min-h-screen bg-gray-200 md:py-8 md:px-4 sm:px-0 lg:px-8">
       {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
             <ClipLoader size={50} color="#3b82f6" />
-            <p className="mt-4 text-lg font-medium text-gray-700">Processing your request...</p>
+            <p className="mt-4 text-lg font-medium text-gray-700">
+              Processing your request...
+            </p>
           </div>
         </div>
       )}
 
-      <form onSubmit={Formik.handleSubmit} className="max-w-7xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
+      <form
+        onSubmit={Formik.handleSubmit}
+        className="w-[100%] md:w-[70%] lg:max-w-full mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6"
+      >
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Visitor Registration</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Visitor Registration
+          </h1>
           <p className="text-blue-600 font-medium">Concord Group</p>
         </div>
 
@@ -565,7 +603,9 @@ const VisitorF = () => {
                 ))}
             </select>
             {Formik.touched.factory && Formik.errors.factory && (
-              <p className="mt-1 text-sm text-red-600">{Formik.errors.factory}</p>
+              <p className="mt-1 text-sm text-red-600">
+                {Formik.errors.factory}
+              </p>
             )}
           </div>
 
@@ -585,20 +625,27 @@ const VisitorF = () => {
               <option value="">Select Department</option>
               {Array.isArray(departments) &&
                 departments.map((department) => (
-                  <option key={department.Department_Id} value={department.Department_Id}>
+                  <option
+                    key={department.Department_Id}
+                    value={department.Department_Id}
+                  >
                     {department.Department_Name}
                   </option>
                 ))}
             </select>
             {Formik.touched.department && Formik.errors.department && (
-              <p className="mt-1 text-sm text-red-600">{Formik.errors.department}</p>
+              <p className="mt-1 text-sm text-red-600">
+                {Formik.errors.department}
+              </p>
             )}
           </div>
         </div>
 
         {/* Contact Person Details */}
         <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Contact Person Details</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            Contact Person Details
+          </h2>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -616,7 +663,9 @@ const VisitorF = () => {
                 placeholder="Enter Name"
               />
               {Formik.touched.cName && Formik.errors.cName && (
-                <p className="mt-1 text-sm text-red-600">{Formik.errors.cName}</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {Formik.errors.cName}
+                </p>
               )}
             </div>
 
@@ -636,7 +685,9 @@ const VisitorF = () => {
                 placeholder="Enter NIC number"
               />
               {Formik.touched.cNIC && Formik.errors.cNIC && (
-                <p className="mt-1 text-sm text-red-600">{Formik.errors.cNIC}</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {Formik.errors.cNIC}
+                </p>
               )}
             </div>
 
@@ -656,7 +707,9 @@ const VisitorF = () => {
                 placeholder="Enter mobile number"
               />
               {Formik.touched.cMobileNo && Formik.errors.cMobileNo && (
-                <p className="mt-1 text-sm text-red-600">{Formik.errors.cMobileNo}</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {Formik.errors.cMobileNo}
+                </p>
               )}
             </div>
 
@@ -676,7 +729,9 @@ const VisitorF = () => {
                 placeholder="Enter email"
               />
               {Formik.touched.cEmail && Formik.errors.cEmail && (
-                <p className="mt-1 text-sm text-red-600">{Formik.errors.cEmail}</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {Formik.errors.cEmail}
+                </p>
               )}
             </div>
           </div>
@@ -684,7 +739,9 @@ const VisitorF = () => {
 
         {/* Visiting Date & Time */}
         <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Visiting Date & Time</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            Visiting Date & Time
+          </h2>
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -702,7 +759,9 @@ const VisitorF = () => {
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
                 {Formik.touched.dateFrom && Formik.errors.dateFrom && (
-                  <p className="mt-1 text-sm text-red-600">{Formik.errors.dateFrom}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {Formik.errors.dateFrom}
+                  </p>
                 )}
               </div>
 
@@ -721,7 +780,9 @@ const VisitorF = () => {
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
                 {Formik.touched.dateTo && Formik.errors.dateTo && (
-                  <p className="mt-1 text-sm text-red-600">{Formik.errors.dateTo}</p>
+                  <p className="mt-1 text-sm text-red-600">
+                    {Formik.errors.dateTo}
+                  </p>
                 )}
               </div>
             </div>
@@ -756,11 +817,13 @@ const VisitorF = () => {
         {/* Vehicle Details */}
         <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-800">Vehicle Details</h2>
+            <h2 className="text-lg font-semibold text-gray-800">
+              Vehicle Details
+            </h2>
             <button
               type="button"
               onClick={handleVehiclePlus}
-              className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="ml-2 inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Add Vehicle
             </button>
@@ -770,45 +833,60 @@ const VisitorF = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-100">
                 <tr>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
                     Vehicle Type
                   </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
                     Vehicle No
                   </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {/* <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
                     Action
-                  </th>
+                  </th> */}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {vehicles.map((vehicle, index) => (
                   <tr key={index}>
-                    <td className="md:px-4 md:py-2 whitespace-nowrap">
+                    <td className="md:px-4 md:py-2 whitespace-nowrap border-black border">
                       <input
                         type="text"
-                        className="block w-full px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="block w-full px-3 py-1 border-0 h-full border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Vehicle Type"
                         name="VehicleType"
                         value={vehicle.VehicleType}
                         onChange={(e) => handleVehicleChanges(index, e)}
                       />
-                      {index === vehicles.length - 1 && vehicleErrors.VehicleType && (
-                        <p className="mt-1 text-xs text-red-600">{vehicleErrors.VehicleType}</p>
-                      )}
+                      {index === vehicles.length - 1 &&
+                        vehicleErrors.VehicleType && (
+                          <p className="mt-1 text-xs text-red-600">
+                            {vehicleErrors.VehicleType}
+                          </p>
+                        )}
                     </td>
-                    <td className="px-4 py-2 whitespace-nowrap">
+                    <td className="px-4 py-2 whitespace-nowrap border-black border">
                       <input
                         type="text"
-                        className="block w-full px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="block w-full px-3 py-1 border-0 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Vehicle Number"
                         name="VehicleNo"
                         value={vehicle.VehicleNo}
                         onChange={(e) => handleVehicleChanges(index, e)}
                       />
-                      {index === vehicles.length - 1 && vehicleErrors.VehicleNo && (
-                        <p className="mt-1 text-xs text-red-600">{vehicleErrors.VehicleNo}</p>
-                      )}
+                      {index === vehicles.length - 1 &&
+                        vehicleErrors.VehicleNo && (
+                          <p className="mt-1 text-xs text-red-600">
+                            {vehicleErrors.VehicleNo}
+                          </p>
+                        )}
                     </td>
                     <td className="px-4 py-2 max-w-10 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex space-x-2">
@@ -833,11 +911,13 @@ const VisitorF = () => {
         {/* Visitor Details */}
         <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-800">Visitor Details</h2>
+            <h2 className="text-lg font-semibold text-gray-800">
+              Visitor Details
+            </h2>
             <button
               type="button"
               onClick={handleVisitorsPlus}
-              className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="ml-2 inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Add Visitor
             </button>
@@ -847,45 +927,60 @@ const VisitorF = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-100">
                 <tr>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
                     Visitor Name
                   </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
                     NIC
                   </th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {/* <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
                     Action
-                  </th>
+                  </th> */}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {visitors.map((visitor, index) => (
                   <tr key={index}>
-                    <td className="px-4 py-2 whitespace-nowrap">
+                    <td className="px-4 py-2 border border-black whitespace-nowrap">
                       <input
                         type="text"
-                        className="block w-full px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="block w-full px-3 py-1 border-0 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         name="visitorName"
                         value={visitor.visitorName}
                         onChange={(e) => handleVisitorChanges(index, e)}
                         placeholder="Visitor Name"
                       />
-                      {index === visitors.length - 1 && visitorErrors.visitorName && (
-                        <p className="mt-1 text-xs text-red-600">{visitorErrors.visitorName}</p>
-                      )}
+                      {index === visitors.length - 1 &&
+                        visitorErrors.visitorName && (
+                          <p className="mt-1 text-xs text-red-600">
+                            {visitorErrors.visitorName}
+                          </p>
+                        )}
                     </td>
-                    <td className="px-4 py-2 whitespace-nowrap">
+                    <td className="px-4 border border-black py-2 whitespace-nowrap">
                       <input
                         type="text"
-                        className="block w-full px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="block w-full px-3 py-1 border-0 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         name="visitorNIC"
                         value={visitor.visitorNIC}
                         onChange={(e) => handleVisitorChanges(index, e)}
                         placeholder="Visitor NIC"
                       />
-                      {index === visitors.length - 1 && visitorErrors.visitorNIC && (
-                        <p className="mt-1 text-xs text-red-600">{visitorErrors.visitorNIC}</p>
-                      )}
+                      {index === visitors.length - 1 &&
+                        visitorErrors.visitorNIC && (
+                          <p className="mt-1 text-xs text-red-600">
+                            {visitorErrors.visitorNIC}
+                          </p>
+                        )}
                     </td>
                     <td className="px-4 py-2 max-w-10 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex space-x-2">
@@ -914,9 +1009,15 @@ const VisitorF = () => {
               type="checkbox"
               id="guidelines"
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              onChange={() => setDisableSubmitButton(!disableSubmitButton)}
+              onChange={() => {
+                setDisableSubmitButton(!disableSubmitButton),
+                  handleInstruction();
+              }}
             />
-            <label htmlFor="guidelines" className="ml-2 block text-sm text-gray-700">
+            <label
+              htmlFor="guidelines"
+              className="ml-2 block text-sm text-gray-700"
+            >
               I agree to all the guidelines provided by the company
             </label>
           </div>
@@ -932,10 +1033,11 @@ const VisitorF = () => {
           <button
             type="submit"
             disabled={disableSubmitButton}
-            className={`px-6 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white ${disableSubmitButton
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
-              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+            className={`px-6 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white ${
+              disableSubmitButton
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
           >
             Submit
           </button>
