@@ -318,8 +318,7 @@ const RDisplayVisitor = () => {
             default:
               setErrorMessages("An unexpected error occurred.");
               errorMessage =
-                error.response.data.message ||
-                "An unexpected error occurred.";
+                error.response.data.message || "An unexpected error occurred.";
           }
         } else if (error.request) {
           setErrorMessages(
@@ -358,7 +357,9 @@ const RDisplayVisitor = () => {
   const [emailSuccessMsg, setEmailSuccessMsg] = useState();
   const [serverSideErrors, setServerSideErrors] = useState({});
   const [recMessages, setRecMessages] = useState();
+
   const handleSendEmail = async (e) => {
+    alert("sending email");
     let formData = {
       userId: userId,
       Visit_Id: VisitId,
@@ -856,14 +857,17 @@ const RDisplayVisitor = () => {
         </div>
       </form>
 
-      <div className="w-full px-2 w-full flex justify-center md:mt-0 mt-[-5px]">
+      <div className="w-full px-2 flex justify-center md:mt-0 mt-[-5px]">
         <div className="bg-gradient-to-tr from-sky-100 to-sky-200 rounded-lg shadow-custom1 p-4 w-full lg:w-6/6">
           <div className="text-center">
             <h1 className="font-bold text-lg text-blue-950 mb-4">
               Entry permit Reference & Issue
             </h1>
           </div>
-          <form className="w-full max-w-md mx-auto" onSubmit={formik.handleSubmit}>
+          <form
+            className="w-full max-w-md mx-auto"
+            onSubmit={formik.handleSubmit}
+          >
             <div className="grid grid-cols-1 gap-4 mb-4">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <label className="text-sm sm:w-1/3">Reference Number:</label>
@@ -918,7 +922,10 @@ const RDisplayVisitor = () => {
                   type="button"
                   disabled={!isSaved}
                   className="flex items-center justify-center text-sm px-4 py-1 border-black/50 shadow-custom1 border-2 bg-gray-300 rounded hover:bg-blue-300 hover:scale-105 disabled:opacity-50"
-                  onClick={disableSaveButton}
+                  onClick={(e) => {
+                    disableSaveButton;
+                    handleSendEmail(e);
+                  }}
                 >
                   <MdOutlineMail className="mr-1 text-3xl text-[#1A73E8]" />
                 </button>
@@ -937,41 +944,52 @@ const RDisplayVisitor = () => {
           </form>
 
           <div className="text-center">
-            {emailSuccessMsg && (
-              <p className="text-green-600 font-bold text-sm">
-                {typeof emailSuccessMsg === "object"
-                  ? JSON.stringify(emailSuccessMsg)
-                  : emailSuccessMsg}
-              </p>
-            )}
-            {serverSideErrors && (
-              <p className="text-red-600 font-bold text-sm">
-                {typeof serverSideErrors === "object"
-                  ? JSON.stringify(serverSideErrors)
-                  : serverSideErrors}
-              </p>
-            )}
-            {recMessages && (
-              <p className="text-blue-600 font-bold text-sm">
-                {typeof recMessages === "object"
-                  ? JSON.stringify(recMessages)
-                  : recMessages}
-              </p>
-            )}
+            {emailSuccessMsg &&
+              (typeof emailSuccessMsg === "string"
+                ? emailSuccessMsg.trim() !== ""
+                : Object.keys(emailSuccessMsg).length > 0) && (
+                <p className="text-green-600 font-bold text-sm">
+                  {typeof emailSuccessMsg === "object"
+                    ? JSON.stringify(emailSuccessMsg)
+                    : emailSuccessMsg}
+                </p>
+              )}
+
+            {serverSideErrors &&
+              (typeof serverSideErrors === "string"
+                ? serverSideErrors.trim() !== ""
+                : Object.keys(serverSideErrors).length > 0) && (
+                <p className="text-red-600 font-bold text-sm">
+                  {typeof serverSideErrors === "object"
+                    ? JSON.stringify(serverSideErrors)
+                    : serverSideErrors}
+                </p>
+              )}
+
+            {recMessages &&
+              (typeof recMessages === "string"
+                ? recMessages.trim() !== ""
+                : Object.keys(recMessages).length > 0) && (
+                <p className="text-blue-600 font-bold text-sm">
+                  {typeof recMessages === "object"
+                    ? JSON.stringify(recMessages)
+                    : recMessages}
+                </p>
+              )}
           </div>
 
           <div className="flex justify-center gap-3 mt-6 pb-4">
-            <button
+            {/* <button
               onClick={navigateTo}
-              className="bg-green-600 py-1 w-20 px-3 rounded-md text-sm text-white hover:bg-green-800 shadow-lg"
+              className="bg-green-600 py-2 w-20 md:w-28 px-3 rounded-md text-sm text-white hover:bg-green-800 shadow-lg"
             >
               Update
-            </button>
+            </button> */}
 
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="bg-blue-600 py-1 w-20 px-3 rounded-md text-sm text-white hover:bg-blue-800 shadow-lg"
+              className="bg-blue-600 py-2 w-20 md:w-28 px-3 rounded-md text-sm text-white hover:bg-blue-800 shadow-lg"
             >
               Back
             </button>

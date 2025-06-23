@@ -113,20 +113,20 @@ const RContainer = ({
       {/* <h1>{userDepartmentId}</h1> */}
       {/* <h1>4654: {userId || 123}</h1> */}
       <form action="" onSubmit={() => alert("submitting")} className="w-full">
-        <h1 className="text-md mt-2 mb-2 font-extrabold">Visitors List</h1>
+        <h1 className="text-md mt-2 mb-2 font-extrabold text-center text-lg">Visitors List</h1>
 
         <div className="w-full overflow-x-auto">
           <table className="w-full">
             <thead className="position-sticky">
               <tr>
-                <th className="pt-1 text-left pb-1 text-left  border-0 bg-blue-500 text-white text-sm">
+                <th className="pt-1 text-left pb-1  border-0 bg-blue-500 text-white text-sm">
                   Name
                 </th>
                 <th className="border-0 bg-blue-500 text-white text-left text-sm">
                   NIC/PPNo
                 </th>
                 <th className="border-0 bg-blue-500 text-white text-left text-sm">
-                  Vehicle Type
+                  Vehicle Type  
                 </th>
                 <th className="border-0 bg-blue-500 text-white text-left text-sm">
                   Vehicle No

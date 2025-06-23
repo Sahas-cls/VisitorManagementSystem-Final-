@@ -6,6 +6,7 @@ import { FaCircleCheck, FaPersonCircleExclamation } from "react-icons/fa6";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import swal from "sweetalert2";
+import { motion, AnimatePresence } from "framer-motion";
 
 const DDisplayVisitor = () => {
   const location = useLocation();
@@ -308,6 +309,33 @@ const DDisplayVisitor = () => {
               </button>
             </div>
           </div>
+
+          {/* Status Messages */}
+          <motion.div
+            initial={{ width: "0%", opacity: 0 }}
+            animate={{ width: "100%", height: "auto", opacity: 1 }}
+            transition={{
+              delay: 2,
+              duration: 1,
+              stiffness: 200,
+            }}
+            className="mt-6 space-y-2 mb-4"
+          >
+            {errorMessages && (
+              <div className="bg-red-100 text-red-700 p-3 rounded-md text-center">
+                <p className="font-medium">{errorMessages}</p>
+              </div>
+            )}
+
+            {successMessages && (
+              <div className="bg-green-100 text-green-700 p-3 rounded-md text-center">
+                <p className="font-bold flex items-center justify-center gap-2">
+                  <FaCircleCheck className="text-lg" />
+                  {successMessages}
+                </p>
+              </div>
+            )}
+          </motion.div>
 
           {/* Top Section - Two Columns */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 w-full">
@@ -695,24 +723,6 @@ const DDisplayVisitor = () => {
                 </table>
               </div>
             </div>
-          </div>
-
-          {/* Status Messages */}
-          <div className="mt-6 space-y-2">
-            {errorMessages && (
-              <div className="bg-red-100 text-red-700 p-3 rounded-md text-center">
-                <p className="font-medium">{errorMessages}</p>
-              </div>
-            )}
-
-            {successMessages && (
-              <div className="bg-green-100 text-green-700 p-3 rounded-md text-center">
-                <p className="font-medium flex items-center justify-center gap-2">
-                  <FaCircleCheck className="text-lg" />
-                  {successMessages}
-                </p>
-              </div>
-            )}
           </div>
         </div>
       </form>

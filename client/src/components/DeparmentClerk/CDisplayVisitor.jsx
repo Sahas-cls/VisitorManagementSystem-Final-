@@ -5,8 +5,10 @@ import CSidebar from "./CSidebar";
 import axios from "axios";
 import { FaPersonCircleExclamation } from "react-icons/fa6";
 import { useFormik } from "formik";
+import { FaCircleCheck } from "react-icons/fa6";
 import * as yup from "yup";
 import swal from "sweetalert2";
+import { motion } from "framer-motion";
 
 const CDisplayVisitor = () => {
   const curDate = new Date();
@@ -42,6 +44,11 @@ const CDisplayVisitor = () => {
   // Validation schema
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
+  const toDay = new Date().toISOString().split("T")[0];
+  // alert(`date from ${dateFrom} < today ${toDay}`);
+  const isDisabled = dateFrom < toDay;
+  // alert(isDisabled);
+
   const validationSchema = yup.object({
     Requested_Department: yup.number().required("Department is required"),
     Requested_Officer: yup
@@ -361,6 +368,7 @@ const CDisplayVisitor = () => {
               <button
                 type="submit"
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                disabled={isDisabled}
               >
                 Save
               </button>
@@ -375,9 +383,18 @@ const CDisplayVisitor = () => {
           </div>
 
           {/* Status Messages */}
-          <div className="mt-6 mb-4">
+          <motion.div
+            initial={{ width: "0%", opacity: 0 }}
+            animate={{ width: "100%", height: "auto", opacity: 1 }}
+            transition={{
+              delay: 2,
+              duration: 1,
+            }}
+            className="mt-6 mb-4"
+          >
             {successMessages.msg && (
-              <div className="p-4 bg-green-100 text-green-700 rounded-lg text-center font-bold text-lg">
+              <div className="p-4 bg-green-100 text-green-700 rounded-lg text-center font-bold text-lg flex justify-center items-center">
+                <FaCircleCheck className="text-lg mr-2" />
                 {successMessages.msg}
               </div>
             )}
@@ -386,7 +403,7 @@ const CDisplayVisitor = () => {
                 {errorMessages}
               </div>
             )}
-          </div>
+          </motion.div>
 
           {/* Main Content - Two Column Layout */}
           <div className="m-0 flex flex-col lg:flex-row gap-4 lg:gap-[2%] w-full">
@@ -410,6 +427,7 @@ const CDisplayVisitor = () => {
                       }}
                       onBlur={formik.handleBlur}
                       value={formik.values.Requested_Department}
+                      disabled={isDisabled}
                       className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
                     >
                       <option value="">Select a Department:</option>
@@ -441,6 +459,7 @@ const CDisplayVisitor = () => {
                     <input
                       type="date"
                       name="Req_Date"
+                      disabled={isDisabled}
                       value={formik.values.Req_Date}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
@@ -463,6 +482,7 @@ const CDisplayVisitor = () => {
                     <input
                       name="Requested_Officer"
                       onChange={formik.handleChange}
+                      disabled={isDisabled}
                       onBlur={formik.handleBlur}
                       value={formik.values.Requested_Officer}
                       className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
@@ -485,6 +505,7 @@ const CDisplayVisitor = () => {
                     <select
                       name="Visitor_Category"
                       value={formik.values.Visitor_Category}
+                      disabled={isDisabled}
                       onChange={(e) => {
                         formik.handleChange(e);
                         getVisitingPurpose(e.target.value);
@@ -532,6 +553,7 @@ const CDisplayVisitor = () => {
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                       value={formik.values.Purpose}
+                      disabled={isDisabled}
                       className="text-sm bg-white border rounded border-slate-400 p-1 w-full"
                     >
                       <option value="">Select a Purpose</option>
@@ -568,6 +590,7 @@ const CDisplayVisitor = () => {
                         onBlur={formik.handleBlur}
                         value={formik.values.Date_From}
                         className="text-sm w-full bg-white border rounded border-slate-400 p-1"
+                        disabled={isDisabled}
                       />
                       {formik.touched.Date_From && formik.errors.Date_From && (
                         <div className="text-red-600 text-sm">
@@ -584,6 +607,7 @@ const CDisplayVisitor = () => {
                         onBlur={formik.handleBlur}
                         value={formik.values.Date_To}
                         className="text-sm w-full bg-white border rounded border-slate-400 p-1"
+                        disabled={isDisabled}
                       />
                       {formik.touched.Date_To && formik.errors.Date_To && (
                         <div className="text-red-600 text-sm">
@@ -609,6 +633,7 @@ const CDisplayVisitor = () => {
                         onBlur={formik.handleBlur}
                         value={formik.values.Time_From}
                         className="text-sm w-full bg-white border rounded border-slate-400 p-1"
+                        disabled={isDisabled}
                       />
                       {formik.touched.Time_From && formik.errors.Time_From && (
                         <div className="text-red-600 text-sm">
@@ -625,6 +650,7 @@ const CDisplayVisitor = () => {
                         onBlur={formik.handleBlur}
                         value={formik.values.Time_To}
                         className="text-sm w-full bg-white border rounded border-slate-400 p-1"
+                        disabled={isDisabled}
                       />
                       {formik.touched.Time_To && formik.errors.Time_To && (
                         <div className="text-red-600 text-sm">
@@ -678,6 +704,7 @@ const CDisplayVisitor = () => {
                       name="Breakfast"
                       onChange={formik.handleChange}
                       checked={formik.values.Breakfast}
+                      disabled={isDisabled}
                       id="Breakfast"
                       className="mr-1"
                     />
@@ -690,6 +717,7 @@ const CDisplayVisitor = () => {
                       type="checkbox"
                       name="Lunch"
                       onChange={formik.handleChange}
+                      disabled={isDisabled}
                       checked={formik.values.Lunch}
                       id="Lunch"
                       className="mr-1"
@@ -703,6 +731,7 @@ const CDisplayVisitor = () => {
                       type="checkbox"
                       name="Tea"
                       onChange={formik.handleChange}
+                      disabled={isDisabled}
                       checked={formik.values.Tea}
                       id="Tea"
                       className="mr-1"
@@ -719,6 +748,7 @@ const CDisplayVisitor = () => {
                     rows="4"
                     name="Remark"
                     onChange={formik.handleChange}
+                    disabled={isDisabled}
                     onBlur={formik.handleBlur}
                     value={formik.values.Remark}
                     className="text-sm bg-white border rounded border-slate-400 p-1 w-full"

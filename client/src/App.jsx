@@ -44,7 +44,7 @@ function App() {
           {/* <PrivateRoute /> */}
           <Route path="" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/visitor-registration" element={<VisitorF />} />
+          <Route path="/new-visitor" element={<VisitorF />} />
           <Route path="/dashboard-clerk" element={<PrivateRoute />} />
           <Route path="/dashboard-d-head" element={<PrivateRoute />} />
           <Route path="/report-clerk" element={<PrivateRoute />} />

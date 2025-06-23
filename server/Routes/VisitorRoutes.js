@@ -1592,7 +1592,14 @@ visiterRoutes.post(
     .isDate()
     .withMessage("Invalid date format")
     .custom((value) => {
-      if (new Date(value) <= new Date()) {
+      const inputDate = new Date(value);
+      const today = new Date();
+
+      // Set both dates to midnight to ignore time
+      inputDate.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+
+      if (inputDate < today) {
         throw new Error('Past dates for "from" date');
       }
       return true;
@@ -1604,8 +1611,14 @@ visiterRoutes.post(
     .isDate()
     .withMessage("Invalid date format")
     .custom((value, { req }) => {
-      if (new Date(value) <= new Date(req.body.entryPermit.dateFrom)) {
-        throw new Error('Past dates for "to" date');
+      const toDate = new Date(value);
+      const fromDate = new Date(req.body.entryPermit.dateFrom);
+
+      toDate.setHours(0, 0, 0, 0);
+      fromDate.setHours(0, 0, 0, 0);
+
+      if (toDate < fromDate) {
+        throw new Error('"To" date must be the same or after "From" date');
       }
       return true;
     }),
@@ -1745,12 +1758,14 @@ visiterRoutes.post(
         Time_To: entryPermit.timeTo,
         Num_of_Days: noOfDays,
         Factory_Id: userFactoryId.userFactoryId,
-        Breakfast: breakfast || null,
-        Lunch: lunch || null,
+        Breakfast: breakfast || false,
+        Lunch: lunch || false,
         Purpose: entryPermit.purpose,
         Visitor_Category: entryRequest.visitorCategory,
-        Tea: tea || null,
+        Tea: tea || false,
         Remark: mealplan.additionalNote,
+        Reference_No: "Sudden visit",
+        HR_Approval: true,
       };
 
       const createdVisit = await Visits.create(newVisit, { transaction });
@@ -1867,23 +1882,23 @@ visiterRoutes.get(
                 { Reference_No: { [Op.ne]: null } },
                 { Reference_No: { [Op.ne]: "" } },
               ],
-               [Op.and]: [
-                 // Ensure the current date falls within the given Date_From and Date_To
-                 sequelize.where(
-                   sequelize.fn("DATE", sequelize.col("Visits.Date_From")),
-                   {
-                     [Op.lte]: sequelize.fn("CURDATE"),
-                   }
-                 ),
-                 sequelize.where(
-                   sequelize.fn("DATE", sequelize.col("Visits.Date_To")),
-                   {
-                     [Op.gte]: sequelize.fn("CURDATE"),
-                   }
-                 ),
-                 // You can add further constraints based on the factory and department IDs if needed
-                 { Factory_Id: facId },
-               ],
+              [Op.and]: [
+                // Ensure the current date falls within the given Date_From and Date_To
+                sequelize.where(
+                  sequelize.fn("DATE", sequelize.col("Visits.Date_From")),
+                  {
+                    [Op.lte]: sequelize.fn("CURDATE"),
+                  }
+                ),
+                sequelize.where(
+                  sequelize.fn("DATE", sequelize.col("Visits.Date_To")),
+                  {
+                    [Op.gte]: sequelize.fn("CURDATE"),
+                  }
+                ),
+                // You can add further constraints based on the factory and department IDs if needed
+                { Factory_Id: facId },
+              ],
             },
             required: true,
           },
