@@ -38,9 +38,7 @@ const SuddenVisit = (userFactoryId) => {
       dateTo: Yup.date()
         .required("Please select a to date")
         .min(Yup.ref("dateFrom"), "Date cannot be before 'from' date"),
-      timeFrom: Yup.string().required(
-        "Time required"
-      ),
+      timeFrom: Yup.string().required("Time required"),
       timeTo: Yup.string().when("timeFrom", (timeFrom, schema) => {
         return timeFrom
           ? schema.test("is-after", "Time cannot be in past", function (value) {
@@ -63,30 +61,33 @@ const SuddenVisit = (userFactoryId) => {
     //   .min(1, "At least one visitor is required"),
   });
 
+  // Initial values for form reset
+  const initialFormValues = {
+    entryRequest: {
+      reqDept: "",
+      reqDate: "",
+      reqOfficer: "",
+      visitorCategory: "",
+    },
+    entryPermit: {
+      purpose: "",
+      dateFrom: "",
+      dateTo: "",
+      timeFrom: "",
+      timeTo: "",
+    },
+    mealplan: {
+      breakfast: "",
+      lunch: "",
+      tea: "",
+      aditionalNote: "",
+    },
+    visitors: [],
+  };
+
   // Formik initialization
   const formik = useFormik({
-    initialValues: {
-      entryRequest: {
-        reqDept: "",
-        reqDate: "",
-        reqOfficer: "",
-        visitorCategory: "",
-      },
-      entryPermit: {
-        purpose: "",
-        dateFrom: "",
-        dateTo: "",
-        timeFrom: "",
-        timeTo: "",
-      },
-      mealplan: {
-        breakfast: "",
-        lunch: "",
-        tea: "",
-        aditionalNote: "",
-      },
-      visitors: [],
-    },
+    initialValues: initialFormValues,
     validationSchema,
     onSubmit: async (values) => {
       try {
@@ -135,7 +136,46 @@ const SuddenVisit = (userFactoryId) => {
   const [departments, setDepartments] = useState({});
   const [validationErrorsS, setValidationErrorsS] = useState({});
   const apiUrl = import.meta.env.VITE_API_URL;
- 
+
+  const [visitorCategory, setvisitorCategory] = useState({});
+
+  const getVCategories = async () => {
+    try {
+      const result = await axios.get(
+        `${apiUrl}/visitor/getVisitor-categories`,
+        {
+          headers: { "X-CSRF-Token": csrfToken },
+          withCredentials: true,
+        }
+      );
+
+      if (result.status === 200) {
+        setvisitorCategory(result.data.data);
+      }
+    } catch (error) {
+      setvisitorCategory({});
+    }
+  };
+
+  const [visitorPurposes, setvisitorPurposes] = useState({});
+
+  const getVisitingPurpose = async (category_id) => {
+    try {
+      const result = await axios.get(
+        `${apiUrl}/visitor/getVisiting_purpose/${category_id}`,
+        {
+          headers: { "X-CSRF-Token": csrfToken },
+          withCredentials: true,
+        }
+      );
+
+      if (result.status === 200) {
+        setvisitorPurposes(result.data.data);
+      }
+    } catch (error) {
+      setvisitorPurposes({});
+    }
+  };
 
   useEffect(() => {
     const factoryId = userFactoryId.userFactoryId;
@@ -169,6 +209,7 @@ const SuddenVisit = (userFactoryId) => {
       }
     };
     fetchDepartments();
+    getVCategories();
   }, []);
 
   const [visitorData, setVisitorData] = useState({
@@ -234,6 +275,21 @@ const SuddenVisit = (userFactoryId) => {
     }
   }, [formik.values.entryPermit.timeFrom]);
 
+  // Reset form function
+  const handleReset = () => {
+    formik.resetForm();
+    setVisitorData({
+      visitorName: "",
+      visitorNIC: "",
+    });
+    setVisitorErrors({
+      visitorName: "",
+      visitorNIC: "",
+    });
+    setValidationErrorsS({});
+    setDisableTimeTo(true);
+  };
+
   return (
     <div
       className="w-full overflow-hidden"
@@ -246,13 +302,38 @@ const SuddenVisit = (userFactoryId) => {
           </h1>
         </div>
 
-        <div className="text-right">
+        <div className="text-right mr-2">
           <button
             type="submit"
-            className="mr-5 bg-green-600 text-white py-1.5 px-6 mr-2 text-lg rounded-md hover:bg-green-700 mb-1"
+            className="mr-5 bg-green-600 text-white py-1.5 px-6 text-lg rounded-md hover:bg-green-700 mb-1"
           >
             Save
           </button>
+
+          <button
+            type="button"
+            onClick={handleReset}
+            className="mr-5 bg-red-600 text-white py-1.5 px-6 text-lg rounded-md hover:bg-red-700 mb-1"
+          >
+            Reset
+          </button>
+        </div>
+
+        <div className="px-2">
+          <div className="success text-center font-bold mt-4 bg-green-300/70 py-4  rounded-md">
+            {validationErrorsS.success && (
+              <div className="text-center">{validationErrorsS.success}</div>
+            )}
+          </div>
+
+          <div className="error text-center px-8 font-bold rounded-md">
+            {Object.keys(validationErrorsS).map((field) => (
+              <span key={field}>
+                {validationErrorsS[field].msg !== "" ? " " : ""}
+                {validationErrorsS[field].msg}&nbsp;&nbsp;{" "}
+              </span>
+            ))}
+          </div>
         </div>
 
         <div className="w-full">
@@ -376,14 +457,26 @@ const SuddenVisit = (userFactoryId) => {
                         )}
                       <select
                         name="entryRequest.visitorCategory"
-                        onChange={formik.handleChange}
+                        onChange={(e) => {
+                          formik.handleChange(e),
+                            getVisitingPurpose(e.target.value);
+                        }}
                         onBlur={formik.handleBlur}
                         value={formik.values.entryRequest.visitorCategory}
                         id=""
                         className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 w-3/4 sm:text-sm"
                       >
                         <option value="">Select visitor Category</option>
-                        <option value="HR services">HR Services</option>
+                        {Array.isArray(visitorCategory) &&
+                          visitorCategory.map((vCategory) => (
+                            <option
+                              value={vCategory.visitor_category_id}
+                              key={vCategory.visitor_category_id}
+                            >
+                              {vCategory.visitor_category}
+                            </option>
+                          ))}
+                        {/* <option value="HR services">HR Services</option> */}
                       </select>
                     </td>
                   </tr>
@@ -418,14 +511,23 @@ const SuddenVisit = (userFactoryId) => {
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                       value={formik.values.entryPermit.purpose}
-                      className="text-font-esm ml-0 p-1 bg-white sm:text-sm"
+                      className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 w-3/4 sm:text-sm"
                       id=""
                     >
                       <option value="">Select a purpose</option>
-                      <option value="Hr Services">Hr Services</option>
+                      {Array.isArray(visitorPurposes) &&
+                        visitorPurposes.map((purpose) => (
+                          <option
+                            value={purpose.visiting_purpose_id}
+                            key={purpose.visiting_purpose_id}
+                          >
+                            {purpose.visiting_purpose}
+                          </option>
+                        ))}
+                      {/* <option value="Hr Services">Hr Services</option>
                       <option value="Government Services">
                         Government Services
-                      </option>
+                      </option> */}
                     </select>
                   </td>
                 </tr>
@@ -692,21 +794,6 @@ const SuddenVisit = (userFactoryId) => {
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="success text-center font-bold mt-12">
-          {validationErrorsS.success && (
-            <div className="text-center">{validationErrorsS.success}</div>
-          )}
-        </div>
-
-        <div className="error text-center px-8 font-bold">
-          {Object.keys(validationErrorsS).map((field) => (
-            <span key={field}>
-              {validationErrorsS[field].msg !== "" ? " " : ""}
-              {validationErrorsS[field].msg}&nbsp;&nbsp;{" "}
-            </span>
-          ))}
         </div>
       </form>
     </div>

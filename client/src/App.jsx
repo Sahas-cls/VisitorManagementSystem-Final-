@@ -44,13 +44,17 @@ function App() {
           {/* <PrivateRoute /> */}
           <Route path="" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/new-visitor" element={<VisitorF />} />
           <Route path="/dashboard-clerk" element={<PrivateRoute />} />
           <Route path="/dashboard-d-head" element={<PrivateRoute />} />
           <Route path="/report-clerk" element={<PrivateRoute />} />
           <Route path="/dashboard-hr" element={<PrivateRoute />} />
           <Route path="/dashboard-recept" element={<PrivateRoute />} />
           <Route path="/dashboard-administrator" element={<PrivateRoute />} />
-          <Route path="/dashboard-security-officer" element={<PrivateRoute />} />
+          <Route
+            path="/dashboard-security-officer"
+            element={<PrivateRoute />}
+          />
           <Route path="/edit-users" element={<EditUser />} />
           <Route path="/editVisitor" element={<CDisplayVisitor />} />
           <Route path="/approve-dhead" element={<DDisplayVisitor />} />

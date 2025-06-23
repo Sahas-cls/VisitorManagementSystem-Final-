@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "./Register.css";
+import { useNavigate } from "react-router-dom";
 import { FaRegUserCircle } from "react-icons/fa";
 import swal from "sweetalert2";
 // import Departments from '../../../../server/models/Departments';
 
 const Register = () => {
   const msg = useRef("");
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     userName: "",
@@ -565,7 +567,7 @@ const Register = () => {
                     className="bg-blue-600 w-3/4 rounded-md text-white hover:bg-blue-500 py-2"
                     onClick={(e) => {
                       e.preventDefault();
-                      window.location.href = `${import.meta.env.VITE_FRONTEND_URL}/`;
+                      navigate(-1);
                     }}
                   >
                     Go to Login

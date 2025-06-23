@@ -112,7 +112,7 @@ const HApprovedVisitors = ({
     <div className="hContainer" style={{ backgroundColor: "white" }}>
       {/* <h1>user factory: {userFactoryId || 123}</h1> */}
       <form action="" onSubmit={() => alert("submitting")} className="w-full">
-        <h1 className="text-md mt-2 mb-2 text-center text-xl font-extrabold">Approved Visitors</h1>
+        <h1 className="text-md mt-2 mb-2 font-extrabold text-center text-lg">Approved Visitors</h1>
 
         <div className="w-full overflow-x-auto">
           <table className="w-full">

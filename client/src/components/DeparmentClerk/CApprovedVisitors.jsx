@@ -125,7 +125,7 @@ const CApprovedVisitors = ({
       {/* <p>{userFactoryId !== undefined ? userFactoryId : "User Name"}</p> */}
       {/* <p>{userDepartmentId !== undefined ? userDepartmentId : "User Name"}</p> */}
       <form action="" onSubmit={() => alert("submitting")} className="w-full">
-        <h1 className="text-md mt-2 mb-2 font-extrabold">Allowed Visitors.</h1>
+        <h1 className="text-md text-center text-lg mt-2 mb-2 font-extrabold">Allowed Visitors.</h1>
 
         <div className="w-full overflow-x-auto md:overflow-hidden">
           <table className="w-full ml-1">
