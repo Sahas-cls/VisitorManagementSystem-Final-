@@ -8,6 +8,18 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ClipLoader } from "react-spinners";
 import swal from "sweetalert2";
+import backgroundImage from "../../assets/VisitorRegistration/Background 1.jpg";
+import rule1 from "../../assets/VisitorRegistration/rule1.png";
+import rule2 from "../../assets/VisitorRegistration/rule2.jpg";
+import rule3 from "../../assets/VisitorRegistration/rule3.png";
+import rule4 from "../../assets/VisitorRegistration/rule4.jpg";
+import rule5 from "../../assets/VisitorRegistration/rule5.jpg";
+import rule6 from "../../assets/VisitorRegistration/rule6.png";
+import rule7 from "../../assets/VisitorRegistration/rule7.png";
+import rule8 from "../../assets/VisitorRegistration/rule8.png";
+// import rule2 from "";
+// import rule3 from "";
+// import rule4 from "";
 
 const VisitorF = () => {
   const [csrfToken, setCsrfToken] = useState("");
@@ -524,26 +536,113 @@ const VisitorF = () => {
   const handleInstruction = () => {
     if (disableSubmitButton) {
       swal.fire({
-        title: "Visitor Instructions",
+        title: "VISITOR INSTRUCTIONS",
         icon: "info",
         html: `
-    <ul style="text-align: left; font-size: 14px; padding-left: 20px; line-height:2;">
-      <li><strong>1.</strong> Refrain from entering unauthorized. Do not visit factory alone. Always ask for assistance. Stay with your host.</li>
-      <li><strong>2.</strong> No unauthorized photos and videos.</li>
-      <li><strong>3.</strong> Refrain from smoking.</li>
-      <li><strong>4.</strong> Remove all types of metal items before entering.</li>
-      <li><strong>5.</strong> Use the facility complaint management system for any complaints & your valuable feedbacks are always welcome.</li>
-      <li><strong>6.</strong> Safety First, pay attention to all the safety signs and instructions always.</li>
-      <li><strong>7.</strong> In case of emergency, if the fire alarm sounds, evacuate the building from the nearest emergency exit to the assembly point and help the head counter to verify that you are safe.</li>
-      <li><strong>8.</strong> Do not touch machine parts or try to operate without permission of an authorized person.</li>
-      <li><strong>9.</strong> Report all accidents immediately to the company medical center or the host.</li>
-      <li><strong>10.</strong> Do not spit in open environment.</li>
-      <li><strong>11.</strong> Make sure your vehicle is free from oil leakage to the environment. If you notice any environmentally adverse incident, please inform the management or the main security office.</li>
-      <li><strong>12.</strong> Dispose waste only into labeled bins.</li>
-      <li><strong>13.</strong> Scan the QR for the facility evacuation map.</li>
-    </ul>
+          <ul style="font-size: 14px; padding-left: 20px; list-style: none;">
+  <li style="margin-top:15px; display:flex; align-items:flex-start;">
+    <div style="min-width: 30px;"><strong>1.</strong></div>
+    <div style="text-align: justify;">Refrain from entering unauthorized. Do not visit factory alone. Always ask for assistance. Stay with your host.</div>
+  </li>
+  <li style="margin-top:15px; display:flex; align-items:flex-start;">
+    <div style="min-width: 30px;"><strong>2.</strong></div>
+    <div style="text-align: justify;">No unauthorized photos and videos.</div>
+  </li>
+  <li style="margin-top:15px; display:flex; align-items:flex-start;">
+    <div style="min-width: 30px;"><strong>3.</strong></div>
+    <div style="text-align: justify;">Refrain from smoking.</div>
+  </li>
+  <li style="margin-top:15px; display:flex; align-items:flex-start;">
+    <div style="min-width: 30px;"><strong>4.</strong></div>
+    <div style="text-align: justify;">Remove all types of metal items before entering.</div>
+  </li>
+  <li style="margin-top:15px; display:flex; align-items:flex-start;">
+    <div style="min-width: 30px;"><strong>5.</strong></div>
+    <div style="text-align: justify;">Use the facility complaint management system for any complaints & your valuable feedbacks are always welcome.</div>
+  </li>
+  <li style="margin-top:15px; display:flex; align-items:flex-start;">
+    <div style="min-width: 30px;"><strong>6.</strong></div>
+    <div style="text-align: justify;">Safety First, pay attention to all the safety signs and instructions always.</div>
+  </li>
+  <li style="margin-top:15px; display:flex; align-items:flex-start;">
+    <div style="min-width: 30px;"><strong>7.</strong></div>
+    <div style="text-align: justify;">In case of emergency, if the fire alarm sounds, evacuate the building from the nearest emergency exit to the assembly point and help the head counter to verify that you are safe.</div>
+  </li>
+  <li style="margin-top:15px; display:flex; align-items:flex-start;">
+    <div style="min-width: 30px;"><strong>8.</strong></div>
+    <div style="text-align: justify;">Do not touch machine parts or try to operate without permission of an authorized person.</div>
+  </li>
+  <li style="margin-top:15px; display:flex; align-items:flex-start;">
+    <div style="min-width: 30px;"><strong>9.</strong></div>
+    <div style="text-align: justify;">Report all accidents immediately to the company medic or the host.</div>
+  </li>
+  <li style="margin-top:15px; display:flex; align-items:flex-start;">
+    <div style="min-width: 30px;"><strong>10.</strong></div>
+    <div style="text-align: justify;">Do not spit in open environment.</div>
+  </li>
+  <li style="margin-top:15px; display:flex; align-items:flex-start;">
+    <div style="min-width: 30px;"><strong>11.</strong></div>
+    <div style="text-align: justify;">Make sure your vehicle is free from oil leakage to the environment. If you notice any environmentally adverse incident, please inform the management or the main security office.</div>
+  </li>
+  <li style="margin-top:15px; display:flex; align-items:flex-start;">
+    <div style="min-width: 30px;"><strong>12.</strong></div>
+    <div style="text-align: justify;">Dispose waste only into labeled bins.</div>
+  </li>
+  <li style="margin-top:15px; display:flex; align-items:flex-start;">
+    <div style="min-width: 30px;"><strong>13.</strong></div>
+    <div style="text-align: justify;">Scan the QR for the facility evacuation map.</div>
+  </li>
+</ul>
+
+<style>
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+  }
+
+  /* Responsive: reduce columns on smaller screens */
+  @media (max-width: 1024px) {
+    .image-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .image-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .image-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .image-grid img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+</style>
+
+<div class="image-grid" style="margin-top:20px">
+  <div><img src="${rule1}" alt="picture" /></div>
+  <div><img src="${rule2}" alt="picture" /></div>
+  <div><img src="${rule3}" alt="picture" /></div>
+  <div><img src="${rule4}" alt="picture" /></div>
+  <div><img src="${rule5}" alt="picture" /></div>
+  <div><img src="${rule6}" alt="picture" /></div>
+  <div></div>
+  <div></div>
+  <div><img src="${rule7}" alt="picture" /></div>
+  <div><img src="${rule8}" alt="picture" /></div>
+</div>
+
   `,
-        confirmButtonText: "Understood",
+        confirmButtonText: "I Agree",
+        confirmButtonColor: "#E4080A",
         width: 650,
         customClass: {
           popup: "visitor-instructions-popup",
@@ -554,7 +653,13 @@ const VisitorF = () => {
   };
 
   return (
-    <div className="visitor-container min-h-screen bg-gray-200 md:py-8 md:px-4 sm:px-0 lg:px-8">
+    <div
+      className="visitor-container min-h-screen bg-gray-100/60 md:py-8 md:px-4 sm:px-0 lg:px-8"
+      style={{
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+      }}
+    >
       {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
@@ -568,13 +673,13 @@ const VisitorF = () => {
 
       <form
         onSubmit={Formik.handleSubmit}
-        className="w-[100%] md:w-[70%] lg:max-w-full mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6"
+        className="w-[100%] md:w-[70%] opacity-100 lg:max-w-full mx-auto bg-white rounded-xl shadow-md shadow-black/40 overflow-hidden p-6"
       >
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Visitor Registration
           </h1>
-          <p className="text-blue-600 font-medium">Concord Group</p>
+          <p className="text-blue-600 text-lg font-medium">Concord Group</p>
         </div>
 
         {/* Factory and Department Selection */}
@@ -856,7 +961,7 @@ const VisitorF = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {vehicles.map((vehicle, index) => (
                   <tr key={index}>
-                    <td className="md:px-4 md:py-2 whitespace-nowrap border-black border">
+                    <td className="md:px-4 md:py-2 whitespace-nowrap border-black/40 border">
                       <input
                         type="text"
                         className="block w-full px-3 py-1 border-0 h-full border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -872,7 +977,7 @@ const VisitorF = () => {
                           </p>
                         )}
                     </td>
-                    <td className="px-4 py-2 whitespace-nowrap border-black border">
+                    <td className="px-4 py-2 whitespace-nowrap border-black/40 border">
                       <input
                         type="text"
                         className="block w-full px-3 py-1 border-0 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -950,7 +1055,7 @@ const VisitorF = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {visitors.map((visitor, index) => (
                   <tr key={index}>
-                    <td className="px-4 py-2 border border-black whitespace-nowrap">
+                    <td className="px-4 py-2 border border-black/40 whitespace-nowrap">
                       <input
                         type="text"
                         className="block w-full px-3 py-1 border-0 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -966,7 +1071,7 @@ const VisitorF = () => {
                           </p>
                         )}
                     </td>
-                    <td className="px-4 border border-black py-2 whitespace-nowrap">
+                    <td className="px-4 border border-black/40 py-2 whitespace-nowrap">
                       <input
                         type="text"
                         className="block w-full px-3 py-1 border-0 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
