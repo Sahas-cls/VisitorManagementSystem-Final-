@@ -539,7 +539,53 @@ const VisitorF = () => {
         title: "VISITOR INSTRUCTIONS",
         icon: "info",
         html: `
-          <ul style="font-size: 14px; padding-left: 20px; list-style: none;">
+    <style>
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  /* Container for each image to center its child */
+  .image-grid > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px; /* Optional: sets a consistent height per cell */
+    background-color: #f9f9f9; /* Optional: for better layout feel */
+    padding: 5px;
+  }
+
+  .image-grid img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* Responsive breakpoints */
+  @media (max-width: 1024px) {
+    .image-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .image-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .image-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+    <ul style="font-size: 14px; padding-left: 20px; list-style: none;">
   <li style="margin-top:15px; display:flex; align-items:flex-start;">
     <div style="min-width: 30px;"><strong>1.</strong></div>
     <div style="text-align: justify;">Refrain from entering unauthorized. Do not visit factory alone. Always ask for assistance. Stay with your host.</div>
@@ -570,11 +616,11 @@ const VisitorF = () => {
   </li>
   <li style="margin-top:15px; display:flex; align-items:flex-start;">
     <div style="min-width: 30px;"><strong>8.</strong></div>
-    <div style="text-align: justify;">Do not touch machine parts or try to operate without permission of an authorized person.</div>
+    <div style="text-align: justify;">Do not touch machine parts or  do not try to operate without permission of an authorized person.</div>
   </li>
   <li style="margin-top:15px; display:flex; align-items:flex-start;">
     <div style="min-width: 30px;"><strong>9.</strong></div>
-    <div style="text-align: justify;">Report all accidents immediately to the company medic or the host.</div>
+    <div style="text-align: justify;">Report all accidents immediately to the company  First Aid room or to the host.</div>
   </li>
   <li style="margin-top:15px; display:flex; align-items:flex-start;">
     <div style="min-width: 30px;"><strong>10.</strong></div>
@@ -594,52 +640,18 @@ const VisitorF = () => {
   </li>
 </ul>
 
-<style>
-  .image-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 10px;
-  }
-
-  /* Responsive: reduce columns on smaller screens */
-  @media (max-width: 1024px) {
-    .image-grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
-
-  @media (max-width: 768px) {
-    .image-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (max-width: 480px) {
-    .image-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .image-grid img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-</style>
-
-<div class="image-grid" style="margin-top:20px">
-  <div><img src="${rule1}" alt="picture" /></div>
-  <div><img src="${rule2}" alt="picture" /></div>
-  <div><img src="${rule3}" alt="picture" /></div>
-  <div><img src="${rule4}" alt="picture" /></div>
-  <div><img src="${rule5}" alt="picture" /></div>
-  <div><img src="${rule6}" alt="picture" /></div>
-  <div></div>
-  <div></div>
-  <div><img src="${rule7}" alt="picture" /></div>
-  <div><img src="${rule8}" alt="picture" /></div>
-</div>
-
+    <div class="image-grid" style="margin-top:20px;">
+      <div><img src="${rule1}" alt="picture" /></div>
+      <div><img src="${rule2}" alt="picture" /></div>
+      <div><img src="${rule3}" alt="picture" /></div>
+      <div><img src="${rule4}" alt="picture" /></div>
+      <div><img src="${rule5}" alt="picture" /></div>
+      <div><img src="${rule6}" alt="picture" /></div>
+      <div style="background-color:white;"></div>
+      <div style="background:white;"></div>
+      <div><img src="${rule7}" alt="picture" /></div>
+      <div><img src="${rule8}" alt="picture" /></div>
+    </div>
   `,
         confirmButtonText: "I Agree",
         confirmButtonColor: "#E4080A",
@@ -993,8 +1005,8 @@ const VisitorF = () => {
                           </p>
                         )}
                     </td>
-                    <td className="px-4 py-2 max-w-10 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex space-x-2">
+                    <td className="px-4 py-2 max-w-10 border-0 whitespace-nowrap text-right text-sm font-medium bg-gray-50/80">
+                      <div className="flex space-x-2 bg-transparent">
                         {vehicles.length > 1 && (
                           <button
                             type="button"
@@ -1134,7 +1146,7 @@ const VisitorF = () => {
         </div>
 
         {/* Submit Button */}
-        <div className="flex justify-end">
+        <div className="flex justify-center">
           <button
             type="submit"
             disabled={disableSubmitButton}

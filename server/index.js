@@ -12,10 +12,12 @@ const server = express();
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: false }));
 server.use(cookieParser());
+const frontendUrl = process.env.FRONTEND_URL;
+console.log("frontend url = ", frontendUrl);
 
 // CORS configuration
 const corsOptions = {
-  origin: [process.env.FRONTEND_URL],
+  origin: frontendUrl,
   credentials: true,
 };
 server.use(cors(corsOptions));
@@ -50,3 +52,5 @@ db.sequelize.sync().then(() => {
     console.log(`Server is running on ${port}`);
   });
 });
+
+// research, digital businesscard, VMS, production process, helpdesk, fix assets, location chart
