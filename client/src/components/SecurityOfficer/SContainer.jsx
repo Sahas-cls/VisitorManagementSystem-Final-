@@ -78,18 +78,18 @@ const SConteiner = ({
         setVisitorList(response.data.data);
         console.log("data from backend", response.data.data);
         // Initialize checkedVisitors state with existing check-in/out times
-       
+
         const initialChecked = {};
         if (Array.isArray(response?.data?.data)) {
-        response.data.data.forEach((visitor) => {
-          const visit = visitor.Visits[0];
-          if (visit.Check_In || visit.Check_Out) {
-            initialChecked[visit.Visit_Id] = {
-              checkedIn: visit.Check_In,
-              checkedOut: visit.Check_Out,
-            };
-           }
-         });
+          response.data.data.forEach((visitor) => {
+            const visit = visitor.Visits[0];
+            if (visit.Check_In || visit.Check_Out) {
+              initialChecked[visit.Visit_Id] = {
+                checkedIn: visit.Check_In,
+                checkedOut: visit.Check_Out,
+              };
+            }
+          });
         }
         setCheckedVisitors(initialChecked);
       }
@@ -115,7 +115,7 @@ const SConteiner = ({
             "Network error. Please check your internet connection."
           );
         }
-        alert(errorMessage);
+        // alert(errorMessage);
       } else {
         setErrorMessages("An unexpected error occurred1.");
       }
@@ -135,36 +135,19 @@ const SConteiner = ({
         alert(`Error while fetching csrf token:- ${error}`);
       }
     };
+
     getCsrf();
     getVisitorData();
+
+    // Set interval to run every 50 seconds
+    const interval = setInterval(() => {
+      console.log("data refreshing");
+      getVisitorData();
+    }, 50000);
+
+    // Clean up the interval when the component unmounts
+    return () => clearInterval(interval);
   }, []);
-
-  // const handleCheckIn = async (e, visit) => {
-  //   e.preventDefault();
-  //   const now = new Date();
-  //   const nowDT = now.toISOString(); // Store as ISO string
-
-  //   try {
-  //     let formData = { currentDate: nowDT, visit: visit };
-  //     const response = await axios.post(
-  //       "http://localhost:3000/visitor/updateChackIn",
-  //       formData,
-  //       { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true }
-  //     );
-
-  //     if (response.status === 200) {
-  //       setCheckedVisitors((prev) => ({
-  //         ...prev,
-  //         [visit.Visit_Id]: {
-  //           ...prev[visit.Visit_Id],
-  //           checkedIn: nowDT,
-  //         },
-  //       }));
-  //     }
-  //   } catch (error) {
-  //     alert("Error updating check-in");
-  //   }
-  // };
 
   const handleCheckIn = async (e, visit) => {
     e.preventDefault();
@@ -232,33 +215,6 @@ const SConteiner = ({
       swal.fire("Error", "Error updating check-in", "error");
     }
   };
-
-  // const handleCheckOut = async (e, visit) => {
-  //   e.preventDefault();
-  //   const now = new Date();
-  //   const nowDT = now.toISOString(); // Store as ISO string
-
-  //   try {
-  //     let formData = { currentDate: nowDT, visit: visit };
-  //     const response = await axios.post(
-  //       "http://localhost:3000/visitor/updateChackOut",
-  //       formData,
-  //       { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true }
-  //     );
-
-  //     if (response.status === 200) {
-  //       setCheckedVisitors((prev) => ({
-  //         ...prev,
-  //         [visit.Visit_Id]: {
-  //           ...prev[visit.Visit_Id],
-  //           checkedOut: nowDT,
-  //         },
-  //       }));
-  //     }
-  //   } catch (error) {
-  //     alert("Error updating check-out");
-  //   }
-  // };
 
   const handleCheckOut = async (e, visit) => {
     e.preventDefault();
@@ -436,28 +392,37 @@ const SConteiner = ({
       className="bg-white w-screen px-2"
       style={{ backgroundColor: "white" }}
     >
-      <form action="" onSubmit={() => alert("submitting")} className="w-full">
-        <h1 className="cTitle">Incoming Visitors List.</h1>
-        <div className="flex justify-end mb-2 pr-2">
-          <span onClick={() => handleRefresh()}>
-            <LuRefreshCcw className="text-3xl text-blue-400 cursor-pointer" />
-          </span>
-        </div>
-        <div className="flex justify-end mb-3">
-          <div className="w-[25%] flex items-center border rounded-md px-2 py-1 border-black">
-            <input
-              type="text"
-              className="w-full outline-none px-2 py-1"
-              placeholder="Search by visitor's name"
-              onChange={(e) => handleSearchChanges(e)}
-            />
-            <span>
-              <IoMdSearch
-                className="text-4xl hover:text-green-600 text-blue-400 cursor-pointer"
-                onClick={() => handleSearchByName()}
+      <form action="" className="w-full">
+        {/* <h1 className="cTitle">Incoming Visitors List.</h1> */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4 p-2">
+          {/* Search Input - Takes full width on mobile, 60% on larger screens */}
+          <div className="w-full">
+            <div className="relative flex items-center justify-end">
+              <input
+                type="text"
+                className="w-2/4 px-4 py-2 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Search by visitor's name"
+                onChange={(e) => handleSearchChanges(e)}
+                onKeyPress={(e) => e.key === "Enter" && handleSearchByName()}
               />
-            </span>
+              <button
+                onClick={() => handleSearchByName()}
+                className="absolute right-3 text-blue-500 hover:text-blue-700 transition-colors"
+                aria-label="Search"
+              >
+                <IoMdSearch className="text-2xl" />
+              </button>
+            </div>
           </div>
+
+          {/* Refresh Button - Aligned properly on all screens */}
+          <button
+            onClick={() => handleRefresh()}
+            className="flex items-center justify-center p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+            aria-label="Refresh"
+          >
+            <LuRefreshCcw className="text-2xl" />
+          </button>
         </div>
 
         <div className="w-full overflow-x-auto">
@@ -572,7 +537,7 @@ const SConteiner = ({
                               <div className="flex items-center">
                                 <div className="">
                                   <button
-                                    className="bg-blue-300 px-2 py-1 rounded-md hover:bg-blue-500 hover:text-white"
+                                    className="bg-blue-300 px-2 py-1 rounded-md hover:bg-blue-500 hover:text-white whitespace-nowrap"
                                     onClick={(e) =>
                                       handleCheckIn(e, visitor.Visits[0])
                                     }
@@ -604,7 +569,7 @@ const SConteiner = ({
                               </p>
                             ) : (
                               <button
-                                className="bg-blue-300 px-2 py-1 rounded-md hover:bg-blue-500 hover:text-white"
+                                className="bg-blue-300 px-2 py-1 rounded-md hover:bg-blue-500 hover:text-white whitespace-nowrap"
                                 onClick={(e) =>
                                   handleCheckOut(e, visitor.Visits[0])
                                 }

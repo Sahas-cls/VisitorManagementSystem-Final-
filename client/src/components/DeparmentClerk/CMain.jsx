@@ -54,51 +54,57 @@ const CMain = ({
       <div className={`mainContainer flex`} style={{ backgroundColor: "" }}>
         {toggleSidebar && <CSidebar onSidebarClick={handleSidebarClick} />}
 
-        <AnimatePresence mode="wait">
-          {view === "visitor" && (
-            <motion.div key="visitor" {...animationProps}>
-              <CConteiner
-                userId={userId}
-                userName={userName}
-                userCategory={userCategory}
-                userDepartment={userDepartment}
-                userDepartmentId={userDepartmentId}
-                userFactoryId={userFactoryId}
-              />
-            </motion.div>
-          )}
+        <div className="flex-1 overflow-auto">
+          <AnimatePresence mode="wait">
+            {view === "visitor" && (
+              <motion.div
+                key="visitor"
+                className=" w-full overflow-x-hidden"
+                {...animationProps}
+              >
+                <CConteiner
+                  userId={userId}
+                  userName={userName}
+                  userCategory={userCategory}
+                  userDepartment={userDepartment}
+                  userDepartmentId={userDepartmentId}
+                  userFactoryId={userFactoryId}
+                />
+              </motion.div>
+            )}
 
-          {view === "report" && (
-            <motion.div key="report" {...animationProps}>
-              <CReport />
-            </motion.div>
-          )}
+            {view === "report" && (
+              <motion.div key="report" {...animationProps}>
+                <CReport />
+              </motion.div>
+            )}
 
-          {view === "ApprovedVisitors" && (
-            <motion.div key="ApprovedVisitors" {...animationProps}>
-              <CApprovedVisitors
-                userId={userId}
-                userName={userName}
-                userCategory={userCategory}
-                userDepartment={userDepartment}
-                userDepartmentId={userDepartmentId}
-                userFactoryId={userFactoryId}
-              />
-            </motion.div>
-          )}
+            {view === "ApprovedVisitors" && (
+              <motion.div key="ApprovedVisitors" {...animationProps}>
+                <CApprovedVisitors
+                  userId={userId}
+                  userName={userName}
+                  userCategory={userCategory}
+                  userDepartment={userDepartment}
+                  userDepartmentId={userDepartmentId}
+                  userFactoryId={userFactoryId}
+                />
+              </motion.div>
+            )}
 
-          {view === "getReports" && (
-            <motion.div key="getReports" {...animationProps}>
-              <RDashboard
-                userFactoryId={userFactoryId}
-                userName={userName}
-                userCategory={userCategory}
-                userDepartment={userDepartment}
-                toggleSidebar={toggleSidebar}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+            {view === "getReports" && (
+              <motion.div key="getReports" {...animationProps}>
+                <RDashboard
+                  userFactoryId={userFactoryId}
+                  userName={userName}
+                  userCategory={userCategory}
+                  userDepartment={userDepartment}
+                  toggleSidebar={toggleSidebar}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

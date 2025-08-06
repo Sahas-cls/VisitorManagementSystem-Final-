@@ -345,7 +345,7 @@ const Register = () => {
         </div>
 
         {/* Right Div - Form */}
-        <div className="w-full h-full md:w-4/5 lg:w-3/4 p-6 md:p-8 bg-white md:bg-gradient-to-b from-blue-300 via-gray-400/50 to-blue-300 flex items-center">
+        <div className="w-full h-full md:w-4/5 lg:w-3/4 p-6 md:p-8 bg-white md:bg-blue-900/20 flex items-center">
           <form onSubmit={handleSubmit} className="w-full">
             <div className="registration">
               <div className="flex justify-center mb-4">

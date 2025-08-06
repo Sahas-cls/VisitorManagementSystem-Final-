@@ -39,26 +39,29 @@ const SuddenVisit = (userFactoryId) => {
         .required("Please select a to date")
         .min(Yup.ref("dateFrom"), "Date cannot be before 'from' date"),
       timeFrom: Yup.string().required("Time required"),
-      timeTo: Yup.string().when("timeFrom", (timeFrom, schema) => {
-        return timeFrom
-          ? schema.test("is-after", "Time cannot be in past", function (value) {
-              return !value || value > timeFrom;
-            })
-          : schema;
-      }),
+      timeTo: Yup.string()
+        .required("Time required")
+        .test(
+          "is-after",
+          "Time cannot be before 'from' time",
+          function (value) {
+            if (!this.parent.timeFrom || !value) return true;
+            return value > this.parent.timeFrom;
+          }
+        ),
     }),
-    // visitors: Yup.array()
-    //   .of(
-    //     Yup.object().shape({
-    //       visitorName: Yup.string()
-    //         .required("Visitor name required")
-    //         .matches(/^[A-Za-z\s]{3,255}$/, "Name should only have letters"),
-    //       visitorNIC: Yup.string()
-    //         .required("Visitor NIC required")
-    //         .matches(/^[0-9]{0,9}[vV]$|^[0-9]{12}/, "Invalid NIC format"),
-    //     })
-    //   )
-    //   .min(1, "At least one visitor is required"),
+    visitors: Yup.array()
+      .of(
+        Yup.object().shape({
+          visitorName: Yup.string()
+            .required("Visitor name required")
+            .matches(/^[A-Za-z\s]{3,255}$/, "Name should only have letters"),
+          visitorNIC: Yup.string()
+            .required("Visitor NIC required")
+            .matches(/^[0-9]{0,9}[vV]$|^[0-9]{12}/, "Invalid NIC format"),
+        })
+      )
+      .min(1, "At least one visitor is required"),
   });
 
   // Initial values for form reset
@@ -77,9 +80,9 @@ const SuddenVisit = (userFactoryId) => {
       timeTo: "",
     },
     mealplan: {
-      breakfast: "",
-      lunch: "",
-      tea: "",
+      breakfast: false,
+      lunch: false,
+      tea: false,
       aditionalNote: "",
     },
     visitors: [],
@@ -89,7 +92,9 @@ const SuddenVisit = (userFactoryId) => {
   const formik = useFormik({
     initialValues: initialFormValues,
     validationSchema,
-    onSubmit: async (values) => {
+    validateOnBlur: true,
+    validateOnChange: true,
+    onSubmit: async (values, { setSubmitting, resetForm }) => {
       try {
         const response = await axios.post(
           `${apiUrl}/visitor/createSuddenvisit`,
@@ -106,38 +111,39 @@ const SuddenVisit = (userFactoryId) => {
           }
         );
 
-        console.log(response.data);
-        setValidationErrorsS({ success: "visit creation success" });
+        setValidationErrorsS({ success: "Visit creation successful" });
         swal.fire({
-          title: "Suddent visit create success...!",
+          title: "Sudden visit created successfully!",
           text: "",
           icon: "success",
-          showCancelButton: false,
-          confirmButtonText: "Ok",
-          cancelButtonText: "No, cancel!",
-          confirmButtonColor: "#d33",
-          cancelButtonColor: "#3085d6",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#3085d6",
         });
+        resetForm();
+        setVisitorData({ visitorName: "", visitorNIC: "" });
       } catch (error) {
-        if (error.response) {
+        if (error.response?.data?.errors) {
           setValidationErrorsS(error.response.data.errors);
-          console.log(error.response.data.errors);
         } else {
-          setErrorMessage(
-            "An error occurred while submitting the form. Please try again later."
-          );
+          setValidationErrorsS({
+            general:
+              "An error occurred while submitting the form. Please try again later.",
+          });
         }
+      } finally {
+        setSubmitting(false);
       }
     },
   });
 
   //to store csrf
   const [csrfToken, setCsrfToken] = useState("");
-  const [departments, setDepartments] = useState({});
+  const [departments, setDepartments] = useState([]);
   const [validationErrorsS, setValidationErrorsS] = useState({});
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  const [visitorCategory, setvisitorCategory] = useState({});
+  const [visitorCategory, setvisitorCategory] = useState([]);
+  const [visitorPurposes, setvisitorPurposes] = useState([]);
 
   const getVCategories = async () => {
     try {
@@ -153,11 +159,10 @@ const SuddenVisit = (userFactoryId) => {
         setvisitorCategory(result.data.data);
       }
     } catch (error) {
-      setvisitorCategory({});
+      console.error("Error fetching visitor categories:", error);
+      setvisitorCategory([]);
     }
   };
-
-  const [visitorPurposes, setvisitorPurposes] = useState({});
 
   const getVisitingPurpose = async (category_id) => {
     try {
@@ -173,7 +178,8 @@ const SuddenVisit = (userFactoryId) => {
         setvisitorPurposes(result.data.data);
       }
     } catch (error) {
-      setvisitorPurposes({});
+      console.error("Error fetching visiting purposes:", error);
+      setvisitorPurposes([]);
     }
   };
 
@@ -186,11 +192,10 @@ const SuddenVisit = (userFactoryId) => {
         });
         if (response) {
           const csrf = await response.data.csrfToken;
-          console.log(csrf);
           setCsrfToken(csrf);
         }
       } catch (error) {
-        alert(`Error while fetching csrf token:- ${error}`);
+        console.error(`Error while fetching csrf token: ${error}`);
       }
     };
     getCsrf();
@@ -204,8 +209,8 @@ const SuddenVisit = (userFactoryId) => {
           setDepartments(response.data);
         }
       } catch (error) {
-        alert(error);
-        console.error(`error while sending request to back-end: ${error}`);
+        console.error(`Error while fetching departments: ${error}`);
+        setDepartments([]);
       }
     };
     fetchDepartments();
@@ -223,7 +228,19 @@ const SuddenVisit = (userFactoryId) => {
       ...visitorData,
       [name]: value,
     });
+    // Clear error when user types
+    if (visitorErrors[name]) {
+      setVisitorErrors({
+        ...visitorErrors,
+        [name]: "",
+      });
+    }
   };
+
+  const [visitorErrors, setVisitorErrors] = useState({
+    visitorName: "",
+    visitorNIC: "",
+  });
 
   const handleVisitorPlusButton = () => {
     try {
@@ -247,12 +264,16 @@ const SuddenVisit = (userFactoryId) => {
         visitorName: "",
         visitorNIC: "",
       });
-    } catch (errors) {
-      const visitorErrors = {};
-      errors.inner.forEach((error) => {
-        visitorErrors[error.path] = error.message;
+      setVisitorErrors({
+        visitorName: "",
+        visitorNIC: "",
       });
-      setVisitorErrors(visitorErrors);
+    } catch (errors) {
+      const newErrors = {};
+      errors.inner.forEach((error) => {
+        newErrors[error.path] = error.message;
+      });
+      setVisitorErrors(newErrors);
     }
   };
 
@@ -262,16 +283,14 @@ const SuddenVisit = (userFactoryId) => {
     formik.setFieldValue("visitors", newVisitors);
   };
 
-  const [visitorErrors, setVisitorErrors] = useState({
-    visitorName: "",
-    visitorNIC: "",
-  });
-
   const [disableTimeTo, setDisableTimeTo] = useState(true);
 
   useEffect(() => {
     if (formik.values.entryPermit.timeFrom) {
       setDisableTimeTo(false);
+    } else {
+      setDisableTimeTo(true);
+      formik.setFieldValue("entryPermit.timeTo", "");
     }
   }, [formik.values.entryPermit.timeFrom]);
 
@@ -290,6 +309,48 @@ const SuddenVisit = (userFactoryId) => {
     setDisableTimeTo(true);
   };
 
+  // Helper function to display field errors
+  const displayError = (touched, error) => {
+    return touched && error ? (
+      <div className="text-red-600 text-xs mt-1 flex items-center">
+        <FaExclamationCircle className="mr-1" />
+        {error}
+      </div>
+    ) : null;
+  };
+
+  // Helper function to display server errors
+  const displayServerErrors = () => {
+    if (!validationErrorsS || Object.keys(validationErrorsS).length === 0) {
+      return null;
+    }
+
+    if (validationErrorsS.success) {
+      return (
+        <div className="success text-center font-bold mt-4 bg-green-300/70 py-4 rounded-md">
+          <div className="text-center flex justify-center items-center">
+            <FaCheckCircle className="mr-2" />
+            {validationErrorsS.success}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="error text-center px-8 font-bold rounded-md bg-red-100 py-2 my-2">
+        {Object.entries(validationErrorsS).map(([field, error]) => (
+          <div
+            key={field}
+            className="text-red-600 flex items-center justify-center"
+          >
+            <FaExclamationCircle className="mr-2" />
+            {error.msg || error}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div
       className="w-full overflow-hidden"
@@ -305,9 +366,10 @@ const SuddenVisit = (userFactoryId) => {
         <div className="text-right mr-2">
           <button
             type="submit"
-            className="mr-5 bg-green-600 text-white py-1.5 px-6 text-lg rounded-md hover:bg-green-700 mb-1"
+            disabled={formik.isSubmitting}
+            className="mr-5 bg-green-600 text-white py-1.5 px-6 text-lg rounded-md hover:bg-green-700 mb-1 disabled:opacity-50"
           >
-            Save
+            {formik.isSubmitting ? "Saving..." : "Save"}
           </button>
 
           <button
@@ -319,22 +381,7 @@ const SuddenVisit = (userFactoryId) => {
           </button>
         </div>
 
-        <div className="px-2">
-          <div className="success text-center font-bold mt-4 bg-green-300/70 py-4  rounded-md">
-            {validationErrorsS.success && (
-              <div className="text-center">{validationErrorsS.success}</div>
-            )}
-          </div>
-
-          <div className="error text-center px-8 font-bold rounded-md">
-            {Object.keys(validationErrorsS).map((field) => (
-              <span key={field}>
-                {validationErrorsS[field].msg !== "" ? " " : ""}
-                {validationErrorsS[field].msg}&nbsp;&nbsp;{" "}
-              </span>
-            ))}
-          </div>
-        </div>
+        <div className="px-2">{displayServerErrors()}</div>
 
         <div className="w-full">
           <div className="w-full p-2 lg:flex gap-[1%]">
@@ -355,12 +402,6 @@ const SuddenVisit = (userFactoryId) => {
                       </label>
                     </td>
                     <td>
-                      {formik.touched.entryRequest?.reqDept &&
-                        formik.errors.entryRequest?.reqDept && (
-                          <p className="error">
-                            {formik.errors.entryRequest.reqDept}
-                          </p>
-                        )}
                       <select
                         name="entryRequest.reqDept"
                         onChange={formik.handleChange}
@@ -382,6 +423,10 @@ const SuddenVisit = (userFactoryId) => {
                             );
                           })}
                       </select>
+                      {displayError(
+                        formik.touched.entryRequest?.reqDept,
+                        formik.errors.entryRequest?.reqDept
+                      )}
                     </td>
                   </tr>
 
@@ -395,12 +440,6 @@ const SuddenVisit = (userFactoryId) => {
                       </label>
                     </td>
                     <td>
-                      {formik.touched.entryRequest?.reqDate &&
-                        formik.errors.entryRequest?.reqDate && (
-                          <p className="error">
-                            {formik.errors.entryRequest.reqDate}
-                          </p>
-                        )}
                       <input
                         type="Date"
                         name="entryRequest.reqDate"
@@ -409,6 +448,10 @@ const SuddenVisit = (userFactoryId) => {
                         value={formik.values.entryRequest.reqDate}
                         className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 w-3/4 sm:text-sm"
                       />
+                      {displayError(
+                        formik.touched.entryRequest?.reqDate,
+                        formik.errors.entryRequest?.reqDate
+                      )}
                     </td>
                   </tr>
 
@@ -422,12 +465,6 @@ const SuddenVisit = (userFactoryId) => {
                       </label>
                     </td>
                     <td>
-                      {formik.touched.entryRequest?.reqOfficer &&
-                        formik.errors.entryRequest?.reqOfficer && (
-                          <p className="error">
-                            {formik.errors.entryRequest.reqOfficer}
-                          </p>
-                        )}
                       <input
                         type="text"
                         name="entryRequest.reqOfficer"
@@ -436,6 +473,10 @@ const SuddenVisit = (userFactoryId) => {
                         value={formik.values.entryRequest.reqOfficer}
                         className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 w-3/4 sm:text-sm"
                       />
+                      {displayError(
+                        formik.touched.entryRequest?.reqOfficer,
+                        formik.errors.entryRequest?.reqOfficer
+                      )}
                     </td>
                   </tr>
 
@@ -449,17 +490,11 @@ const SuddenVisit = (userFactoryId) => {
                       </label>
                     </td>
                     <td>
-                      {formik.touched.entryRequest?.visitorCategory &&
-                        formik.errors.entryRequest?.visitorCategory && (
-                          <p className="error">
-                            {formik.errors.entryRequest.visitorCategory}
-                          </p>
-                        )}
                       <select
                         name="entryRequest.visitorCategory"
                         onChange={(e) => {
-                          formik.handleChange(e),
-                            getVisitingPurpose(e.target.value);
+                          formik.handleChange(e);
+                          getVisitingPurpose(e.target.value);
                         }}
                         onBlur={formik.handleBlur}
                         value={formik.values.entryRequest.visitorCategory}
@@ -476,8 +511,11 @@ const SuddenVisit = (userFactoryId) => {
                               {vCategory.visitor_category}
                             </option>
                           ))}
-                        {/* <option value="HR services">HR Services</option> */}
                       </select>
+                      {displayError(
+                        formik.touched.entryRequest?.visitorCategory,
+                        formik.errors.entryRequest?.visitorCategory
+                      )}
                     </td>
                   </tr>
                 </tbody>
@@ -500,12 +538,6 @@ const SuddenVisit = (userFactoryId) => {
                     </label>
                   </td>
                   <td>
-                    {formik.touched.entryPermit?.purpose &&
-                      formik.errors.entryPermit?.purpose && (
-                        <p className="error">
-                          {formik.errors.entryPermit.purpose}
-                        </p>
-                      )}
                     <select
                       name="entryPermit.purpose"
                       onChange={formik.handleChange}
@@ -524,11 +556,11 @@ const SuddenVisit = (userFactoryId) => {
                             {purpose.visiting_purpose}
                           </option>
                         ))}
-                      {/* <option value="Hr Services">Hr Services</option>
-                      <option value="Government Services">
-                        Government Services
-                      </option> */}
                     </select>
+                    {displayError(
+                      formik.touched.entryPermit?.purpose,
+                      formik.errors.entryPermit?.purpose
+                    )}
                   </td>
                 </tr>
               </table>
@@ -543,12 +575,6 @@ const SuddenVisit = (userFactoryId) => {
                 <tr>
                   <td className="text-font-esm sm:text-sm w-5">Date:</td>
                   <td className="">
-                    {formik.touched.entryPermit?.dateFrom &&
-                      formik.errors.entryPermit?.dateFrom && (
-                        <p className="error">
-                          {formik.errors.entryPermit.dateFrom}
-                        </p>
-                      )}
                     <input
                       type="date"
                       className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 sm:text-sm w-full"
@@ -558,14 +584,12 @@ const SuddenVisit = (userFactoryId) => {
                       value={formik.values.entryPermit.dateFrom}
                       id=""
                     />
+                    {displayError(
+                      formik.touched.entryPermit?.dateFrom,
+                      formik.errors.entryPermit?.dateFrom
+                    )}
                   </td>
                   <td className="">
-                    {formik.touched.entryPermit?.dateTo &&
-                      formik.errors.entryPermit?.dateTo && (
-                        <p className="error">
-                          {formik.errors.entryPermit.dateTo}
-                        </p>
-                      )}
                     <input
                       type="date"
                       className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 sm:text-sm"
@@ -575,18 +599,16 @@ const SuddenVisit = (userFactoryId) => {
                       value={formik.values.entryPermit.dateTo}
                       id=""
                     />
+                    {displayError(
+                      formik.touched.entryPermit?.dateTo,
+                      formik.errors.entryPermit?.dateTo
+                    )}
                   </td>
                 </tr>
 
                 <tr>
                   <td className="text-font-esm sm:text-sm">Time:</td>
                   <td>
-                    {formik.touched.entryPermit?.timeFrom &&
-                      formik.errors.entryPermit?.timeFrom && (
-                        <p className="error">
-                          {formik.errors.entryPermit.timeFrom}
-                        </p>
-                      )}
                     <input
                       type="time"
                       className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 sm:text-sm"
@@ -596,14 +618,12 @@ const SuddenVisit = (userFactoryId) => {
                       value={formik.values.entryPermit.timeFrom}
                       id=""
                     />
+                    {displayError(
+                      formik.touched.entryPermit?.timeFrom,
+                      formik.errors.entryPermit?.timeFrom
+                    )}
                   </td>
                   <td className="w-full">
-                    {formik.touched.entryPermit?.timeTo &&
-                      formik.errors.entryPermit?.timeTo && (
-                        <p className="error">
-                          {formik.errors.entryPermit.timeTo}
-                        </p>
-                      )}
                     <input
                       type="time"
                       className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 sm:text-sm"
@@ -614,6 +634,10 @@ const SuddenVisit = (userFactoryId) => {
                       value={formik.values.entryPermit.timeTo}
                       id=""
                     />
+                    {displayError(
+                      formik.touched.entryPermit?.timeTo,
+                      formik.errors.entryPermit?.timeTo
+                    )}
                   </td>
                 </tr>
               </table>
@@ -636,11 +660,6 @@ const SuddenVisit = (userFactoryId) => {
                         >
                           Name:{" "}
                         </label>
-                        <p className="error">
-                          &nbsp;{" "}
-                          {visitorErrors.visitorName &&
-                            visitorErrors.visitorName}
-                        </p>
                         <input
                           name="visitorName"
                           value={visitorData.visitorName}
@@ -648,6 +667,12 @@ const SuddenVisit = (userFactoryId) => {
                           className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 sm:text-sm"
                           type="text"
                         />
+                        {visitorErrors.visitorName && (
+                          <div className="text-red-600 text-xs mt-1 flex items-center">
+                            <FaExclamationCircle className="mr-1" />
+                            {visitorErrors.visitorName}
+                          </div>
+                        )}
                       </div>
                     </td>
 
@@ -659,10 +684,6 @@ const SuddenVisit = (userFactoryId) => {
                         >
                           NIC:{" "}
                         </label>
-                        <p className="error">
-                          &nbsp;{" "}
-                          {visitorErrors.visitorNIC && visitorErrors.visitorNIC}
-                        </p>
                         <input
                           name="visitorNIC"
                           value={visitorData.visitorNIC}
@@ -670,6 +691,12 @@ const SuddenVisit = (userFactoryId) => {
                           className="bg-white border border-slate-500 p-1 rounded text-font-esm ml-0 sm:text-sm"
                           type="text"
                         />
+                        {visitorErrors.visitorNIC && (
+                          <div className="text-red-600 text-xs mt-1 flex items-center">
+                            <FaExclamationCircle className="mr-1" />
+                            {visitorErrors.visitorNIC}
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td
@@ -702,7 +729,7 @@ const SuddenVisit = (userFactoryId) => {
                 </thead>
 
                 <tbody>
-                  {formik.values.visitors.length > 0 &&
+                  {formik.values.visitors.length > 0 ? (
                     formik.values.visitors.map((visitor, index) => (
                       <tr key={index}>
                         <td
@@ -724,11 +751,21 @@ const SuddenVisit = (userFactoryId) => {
                           />
                         </td>
                       </tr>
-                    ))}
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="3" className="text-center py-2 text-sm">
+                        No visitors added yet
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
               {formik.touched.visitors && formik.errors.visitors && (
-                <p className="error">{formik.errors.visitors}</p>
+                <div className="text-red-600 text-xs mt-1 flex items-center">
+                  <FaExclamationCircle className="mr-1" />
+                  {formik.errors.visitors}
+                </div>
               )}
             </div>
 

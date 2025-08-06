@@ -17,7 +17,7 @@ console.log("frontend url = ", frontendUrl);
 
 // CORS configuration
 const corsOptions = {
-  origin: frontendUrl,
+  origin: "http://localhost:5173",
   credentials: true,
 };
 server.use(cors(corsOptions));

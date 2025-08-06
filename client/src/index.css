@@ -17,3 +17,10 @@
 .hover-sidebar {
   @apply bg-[#5151A5] text-gray-200;
 }
+
+/* to prevent background color of input fields getting blue color after filling it */
+input:-webkit-autofill {
+  box-shadow: 0 0 0px 1000px white inset !important;
+  -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+  -webkit-text-fill-color: #000 !important;
+}
