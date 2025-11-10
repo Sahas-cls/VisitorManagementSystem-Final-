@@ -92,6 +92,7 @@ visiterRoutes.get(
 
 //get visitor details according to department id
 visiterRoutes.get("/getVisitors/:departmentId", async (req, res) => {
+  // console.log("getting visitors ----- -r11234123--- ")
   const departmentId = req.params.departmentId;
   console.log("Route called");
   console.log("Received Parameters:", req.params);
@@ -113,7 +114,7 @@ visiterRoutes.get("/getVisitors/:departmentId", async (req, res) => {
             "Visitor_Name",
             "Visitor_NIC",
             "Contact_No",
-          ], // No need to fetch extra attributes from the Visitors model here
+          ],
         },
       ],
       where: {
@@ -136,6 +137,7 @@ visiterRoutes.get("/getVisitors/:departmentId", async (req, res) => {
 //getting data for department head form getVisitors-dhead
 visiterRoutes.get("/getVisitors-dhead", async (req, res) => {
   console.log("get all called");
+  console.log("getting visitors");
   //taking sended parameters to const
   const depId = req.query.userDepartmentId;
   const facId = req.query.userFactoryId;
@@ -984,7 +986,7 @@ visiterRoutes.post(
       Tea: Tea || false,
       Num_of_Days: Num_of_Days,
       Remark: Remark,
-      Last_Modified_By: userId,
+      D_User: userId,
     };
 
     try {
@@ -1930,6 +1932,95 @@ visiterRoutes.get(
   }
 );
 
+visiterRoutes.get("/filterVisitorsByDate", async (req, res) => {
+  try {
+    console.log("Filtering visitors by date...");
+
+    // Extract parameters from query string
+    const { from, to, userDepartmentId, userFactoryId, userId, apMe } =
+      req.query;
+
+    console.log("Filter Params:", {
+      from,
+      to,
+      userDepartmentId,
+      userFactoryId,
+      userId,
+      apMe,
+    });
+
+    // Validate inputs
+    if (!from || !to) {
+      return res
+        .status(400)
+        .json({ msg: "Please provide both 'from' and 'to' dates." });
+    }
+
+    // Convert to proper date format and include the full 'to' day
+    const fromDate = new Date(from);
+    const toDate = new Date(to);
+    toDate.setHours(23, 59, 59, 999); // include entire end day
+
+    // 🧠 Build dynamic conditions for Visits
+    const visitConditions = [
+      { Factory_Id: userFactoryId },
+      { Department_Id: userDepartmentId },
+      {
+        updatedAt: {
+          [Op.between]: [fromDate, toDate],
+        },
+      },
+      {
+        Requested_Officer: {
+          [Op.or]: [{ [Op.ne]: null }, { [Op.ne]: "" }],
+        },
+      },
+    ];
+
+    // Only add this condition if `apMe` is true
+    if (apMe === "true" || apMe === true) {
+      visitConditions.push({ D_User: userId });
+    }
+
+    // Fetch filtered data
+    const result = await ContactPersons.findAll({
+      include: [
+        {
+          model: Visits,
+          as: "Visits",
+          where: { [Op.and]: visitConditions },
+          required: true,
+        },
+        {
+          model: Vehicles,
+          as: "Vehicles",
+          required: false,
+        },
+        {
+          model: Visitors,
+          as: "Visitors",
+          required: false,
+        },
+      ],
+    });
+
+    if (!result || result.length === 0) {
+      return res
+        .status(404)
+        .json({ msg: "No visitors found for the given date range." });
+    }
+
+    // ✅ Return filtered results
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    console.error("❌ Error filtering visitors:", error);
+    return res.status(500).json({
+      msg: "Failed to filter visitors",
+      error: error.message,
+    });
+  }
+});
+
 visiterRoutes.get(
   "/getDepartmentVisitors-securityVisitor/:findByName",
   async (req, res) => {
@@ -2188,12 +2279,6 @@ visiterRoutes.get("/selectEditedVisitors-CUser", async (req, res) => {
 
   // console.log(`${depId} === ${facId}`);
   // return;
-  const oneWeekAgo = sequelize.fn(
-    "DATE_SUB",
-    sequelize.fn("CURDATE"),
-    sequelize.literal("INTERVAL 7 DAY")
-  );
-
   const result = await ContactPersons.findAll({
     include: [
       {
@@ -2201,7 +2286,7 @@ visiterRoutes.get("/selectEditedVisitors-CUser", async (req, res) => {
         as: "Visits", // Ensure this alias matches your model association
         where: {
           [Op.and]: [{ Factory_Id: facId }, { Department_Id: depId }],
-          Last_Modified_By: userId,
+          D_User: userId,
           // updatedAt: {
           //   [Op.between]: [oneWeekAgo, sequelize.fn("CURDATE")], // Filter for records from the last week
           // },
@@ -2222,6 +2307,8 @@ visiterRoutes.get("/selectEditedVisitors-CUser", async (req, res) => {
         required: false, // Ensures an INNER JOIN
       },
     ],
+    order: [["updatedAt", "DESC"]], // 👈 sort by latest updated
+    limit: 15, // 👈 only get top 15 records
   });
 
   if (result) {
@@ -2259,10 +2346,7 @@ visiterRoutes.get("/selectApprovedVisitors-DHead", async (req, res) => {
         as: "Visits", // Ensure this alias matches your model association
         where: {
           [Op.and]: [{ Factory_Id: facId }, { Department_Id: depId }],
-          Last_Modified_By: userId,
-          // updatedAt: {
-          //   [Op.between]: [oneWeekAgo, sequelize.fn("CURDATE")], // Filter for records from the last week
-          // },
+          D_Approved_By: userId,
           Requested_Officer: {
             [Op.or]: [{ [Op.ne]: null }, { [Op.ne]: "" }],
           },
@@ -2280,6 +2364,8 @@ visiterRoutes.get("/selectApprovedVisitors-DHead", async (req, res) => {
         required: false, // Ensures an INNER JOIN
       },
     ],
+    order: [["updatedAt", "DESC"]], // 👈 sort by latest updated
+    limit: 15, // 👈 only get top 15 records
   });
 
   if (result) {
@@ -2288,6 +2374,95 @@ visiterRoutes.get("/selectApprovedVisitors-DHead", async (req, res) => {
   } else {
     console.log("Invalid query");
     return res.status(500).json({ msg: "Failed to fetch data" });
+  }
+});
+
+visiterRoutes.get("/filterApprovedVisitorsByDate-dHead", async (req, res) => {
+  try {
+    console.log("Filtering approved visitors by date...");
+
+    const { from, to, userDepartmentId, userFactoryId, userId, apMe } =
+      req.query;
+
+    console.log("Filter Params:", {
+      from,
+      to,
+      userDepartmentId,
+      userFactoryId,
+      userId,
+      apMe,
+    });
+
+    // ✅ Validate inputs
+    if (!from || !to) {
+      return res
+        .status(400)
+        .json({ msg: "Please provide both 'from' and 'to' dates." });
+    }
+
+    // ✅ Convert date range
+    const fromDate = new Date(from);
+    const toDate = new Date(to);
+    toDate.setHours(23, 59, 59, 999);
+
+    // ✅ Build conditions for Visits
+    const visitConditions = [
+      { Factory_Id: userFactoryId },
+      { Department_Id: userDepartmentId },
+      {
+        updatedAt: {
+          [Op.between]: [fromDate, toDate],
+        },
+      },
+      {
+        Requested_Officer: {
+          [Op.or]: [{ [Op.ne]: null }, { [Op.ne]: "" }],
+        },
+      },
+    ];
+
+    // 🧠 Filter by department head only if `apMe` is true
+    if (apMe === "true" || apMe === true) {
+      visitConditions.push({ D_Approved_By: userId });
+    }
+
+    // ✅ Fetch filtered results
+    const result = await ContactPersons.findAll({
+      include: [
+        {
+          model: Visits,
+          as: "Visits",
+          where: { [Op.and]: visitConditions },
+          required: true,
+        },
+        {
+          model: Vehicles,
+          as: "Vehicles",
+          required: false,
+        },
+        {
+          model: Visitors,
+          as: "Visitors",
+          required: false,
+        },
+      ],
+      order: [["updatedAt", "DESC"]],
+    });
+
+    if (!result || result.length === 0) {
+      return res
+        .status(404)
+        .json({ msg: "No approved visitors found for the given date range." });
+    }
+
+    // ✅ Return filtered results
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    console.error("❌ Error filtering approved visitors:", error);
+    return res.status(500).json({
+      msg: "Failed to filter approved visitors",
+      error: error.message,
+    });
   }
 });
 
@@ -2319,9 +2494,6 @@ visiterRoutes.get("/approvedVisitors-Hr", async (req, res) => {
           [Op.and]: [{ Factory_Id: userFactoryId }],
           HR_Approval: true,
           H_Approved_By: userId,
-          // updatedAt: {
-          //   [Op.between]: [oneWeekAgo, sequelize.fn("CURDATE")], // Filter for records from the last week
-          // },
         },
         required: true, // Ensures an INNER JOIN
       },
@@ -2336,6 +2508,8 @@ visiterRoutes.get("/approvedVisitors-Hr", async (req, res) => {
         required: false, // Ensures an INNER JOIN
       },
     ],
+    order: [["updatedAt", "DESC"]], // 👈 sort by latest updated
+    limit: 15, // 👈 only get top 15 records
   });
 
   // Log or return the result
@@ -2346,6 +2520,92 @@ visiterRoutes.get("/approvedVisitors-Hr", async (req, res) => {
   } else {
     console.log("Invalid query");
     return res.status(500).json({ msg: "Failed to fetch data" });
+  }
+});
+
+// filtered by date range h approved
+visiterRoutes.get("/filterApprovedVisitorsByDate-Hr", async (req, res) => {
+  try {
+    console.log("Filtering HR-approved visitors by date...");
+
+    const { from, to, userDepartmentId, userFactoryId, userId, apMe } =
+      req.query;
+
+    console.log("Filter Params:", {
+      from,
+      to,
+      userDepartmentId,
+      userFactoryId,
+      userId,
+      apMe,
+    });
+
+    // ✅ Validate inputs
+    if (!from || !to) {
+      return res
+        .status(400)
+        .json({ msg: "Please provide both 'from' and 'to' dates." });
+    }
+
+    // ✅ Convert date range
+    const fromDate = new Date(from);
+    const toDate = new Date(to);
+    toDate.setHours(23, 59, 59, 999);
+
+    // ✅ Build conditions for Visits
+    const visitConditions = [
+      { Factory_Id: userFactoryId },
+      { HR_Approval: true },
+      {
+        createdAt: {
+          [Op.between]: [fromDate, toDate],
+        },
+      },
+    ];
+
+    // 🧠 If `apMe` is true → only fetch records approved by this HR user
+    if (apMe === "true" || apMe === true) {
+      visitConditions.push({ H_Approved_By: userId });
+    }
+
+    // ✅ Fetch filtered results
+    const result = await ContactPersons.findAll({
+      include: [
+        {
+          model: Visits,
+          as: "Visits",
+          where: { [Op.and]: visitConditions },
+          required: true,
+        },
+        {
+          model: Vehicles,
+          as: "Vehicles",
+          required: false,
+        },
+        {
+          model: Visitors,
+          as: "Visitors",
+          required: false,
+        },
+      ],
+      order: [["updatedAt", "DESC"]],
+    });
+
+    // ✅ No results found
+    if (!result || result.length === 0) {
+      return res.status(404).json({
+        msg: "No HR-approved visitors found for the given date range.",
+      });
+    }
+
+    // ✅ Return filtered results
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    console.error("❌ Error filtering HR-approved visitors:", error);
+    return res.status(500).json({
+      msg: "Failed to filter HR-approved visitors",
+      error: error.message,
+    });
   }
 });
 

@@ -8,6 +8,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ClipLoader } from "react-spinners";
 import swal from "sweetalert2";
+import { GoDotFill } from "react-icons/go";
 import backgroundImage from "../../assets/VisitorRegistration/Background 1.jpg";
 import rule1 from "../../assets/VisitorRegistration/rule1.png";
 import rule2 from "../../assets/VisitorRegistration/rule2.jpg";
@@ -104,19 +105,67 @@ const VisitorF = () => {
         Yup.object().shape({
           visitorName: Yup.string()
             .min(3, "Name must be at least 3 characters")
-            .required("Visitor name is required"),
+            .nullable(),
           visitorNIC: Yup.string()
             .matches(/^(\d{9}[vV]|\d{12})$/, "Invalid NIC format")
-            .required("Visitor NIC is required"),
+            .nullable(),
         })
       )
-      .min(1, "At least one visitor is required"),
-    vehicleDetails: Yup.array().of(
-      Yup.object().shape({
-        VehicleNo: Yup.string().required("Vehicle number is required"),
-        VehicleType: Yup.string().required("Vehicle type is required"),
-      })
-    ),
+      .test(
+        "complete-visitor-entries",
+        "Please provide both name and NIC for additional visitors",
+        function (visitors) {
+          if (!visitors) return true;
+
+          for (let i = 0; i < visitors.length; i++) {
+            const visitor = visitors[i];
+            const nameFilled =
+              visitor.visitorName && visitor.visitorName.trim().length > 0;
+            const nicFilled =
+              visitor.visitorNIC && visitor.visitorNIC.trim().length > 0;
+
+            // If any field is filled, both must be filled
+            if (nameFilled && !nicFilled) {
+              return this.createError({
+                path: `${this.path}[${i}].visitorNIC`,
+                message: "NIC is required when name is provided",
+              });
+            }
+
+            if (nicFilled && !nameFilled) {
+              return this.createError({
+                path: `${this.path}[${i}].visitorName`,
+                message: "Name is required when NIC is provided",
+              });
+            }
+
+            // If both are filled, validate the content
+            if (nameFilled && nicFilled) {
+              if (visitor.visitorName.length < 3) {
+                return this.createError({
+                  path: `${this.path}[${i}].visitorName`,
+                  message: "Name must be at least 3 characters",
+                });
+              }
+              if (!/^(\d{9}[vV]|\d{12})$/.test(visitor.visitorNIC)) {
+                return this.createError({
+                  path: `${this.path}[${i}].visitorNIC`,
+                  message: "Invalid NIC format",
+                });
+              }
+            }
+          }
+          return true;
+        }
+      ),
+    vehicleDetails: Yup.array()
+      .of(
+        Yup.object().shape({
+          VehicleNo: Yup.string().required("Vehicle number is required"),
+          VehicleType: Yup.string().required("Vehicle type is required"),
+        })
+      )
+      .min(1, "At least one vehicle is required"),
     dateTimeDetails: Yup.object().shape({
       dateFrom: Yup.date()
         .required("Start date is required")
@@ -646,19 +695,32 @@ const VisitorF = () => {
             </button>
           </div>
 
+          <div className="py-2">
+            <p className="hidden md:flex  text-sm text-left ml-2 items-start gap-2">
+              <GoDotFill />
+              Please provide the details of the vehicle you’ll be using to visit
+              our factory. To register additional vehicles, click the “Add
+              Vehicle” button.
+            </p>
+            <p className="text-sm md:hidden text-left flex ml-2 items-start gap-2">
+              <GoDotFill />
+              Please provide vehicle details(you can add multiple vehicles).
+            </p>
+          </div>
+
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 whitespace-nowrap py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Vehicle Type
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 whitespace-nowrap py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Vehicle No
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {/* <th className="px-4 py-3 whitespace-nowrap text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Action
-                  </th>
+                  </th> */}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -733,19 +795,27 @@ const VisitorF = () => {
             </button>
           </div>
 
+          <div className="py-2">
+            <p className="flex text-sm text-left ml-2 items-start gap-2">
+              <GoDotFill />
+              Add the details of other visitors accompanying you. You can
+              include multiple visitors for a single visit.
+            </p>
+          </div>
+
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 whitespace-nowrap text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Visitor Name
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-center whitespace-nowrap text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     NIC
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {/* <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Action
-                  </th>
+                  </th> */}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -768,10 +838,10 @@ const VisitorF = () => {
                           </p>
                         )}
                     </td>
-                    <td className="px-4 border border-black/40 py-2 whitespace-nowrap">
+                    <td className="px-4 w-[200px] border border-black/40 py-2 whitespace-nowrap">
                       <input
                         type="text"
-                        className="block w-full px-3 py-1 border-0 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="block px-3 w-[14ch] py-1 border-0 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         name={`visitorDetails[${index}].visitorNIC`}
                         value={visitor.visitorNIC}
                         onChange={formik.handleChange}
@@ -819,7 +889,7 @@ const VisitorF = () => {
             />
             <label
               htmlFor="guidelines"
-              className="ml-2 block text-sm text-gray-700"
+              className="ml-2 block text-sm text-gray-700 text-center"
             >
               I agree to all the guidelines provided by the company
             </label>

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { FaArrowRight, FaRegEye } from "react-icons/fa";
+import { FaFilter, FaRegEye } from "react-icons/fa";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Make sure to import useNavigate
+import { useNavigate } from "react-router-dom";
+import { Formik, Form, Field } from "formik";
 import UseWindowWidth from "../UseWindowWidth";
 import "./CContainer.css";
 
@@ -22,23 +23,15 @@ const CApprovedVisitors = ({
     userDepartmentId,
     userFactoryId,
   };
+
   const [csrfToken, setCsrfToken] = useState("");
   const [errorMessages, setErrorMessages] = useState("");
-  const [visitorList, setVisitorList] = useState();
+  const [visitorList, setVisitorList] = useState([]);
   const apiUrl = import.meta.env.VITE_API_URL;
-
-  const navigate = useNavigate(); // Initialize useNavigate hook
-
-  // *Using the custom hook to get window width
+  const navigate = useNavigate();
   const windowWidth = UseWindowWidth();
-  // console.log(windowWidth);
-  // Function to handle navigation
-  const navigateTo = (visitorData) => {
-    navigate("/editVisitor", {
-      state: { visitor: visitorData, userData: userData },
-    });
-  };
 
+  // 🔹 Fetch CSRF Token once
   useEffect(() => {
     const getCsrf = async () => {
       try {
@@ -53,172 +46,269 @@ const CApprovedVisitors = ({
       }
     };
     getCsrf();
-
-    // Fetch visitor data
-    const getVisitorData = async () => {
-      try {
-        // alert("sending request 7 days")
-        const response = await axios.get(
-          `${apiUrl}/visitor/selectEditedVisitors-CUser`,
-          {
-            params: {
-              userDepartmentId: userDepartmentId,
-              userFactoryId: userFactoryId,
-              userId: userId,
-            },
-            headers: { "X-CSRF-Token": csrfToken },
-            withCredentials: true,
-          }
-        );
-        if (response) {
-          setVisitorList(response.data.data);
-        }
-      } catch (error) {
-        console.error(error);
-        // Handle Axios errors
-        if (error.isAxiosError) {
-          let errorMessage = "An error occurred.";
-          if (error.response) {
-            switch (error.response.status) {
-              case 400:
-                setErrorMessages("Bad request. Please check your input.");
-                break;
-              case 404:
-                setErrorMessages("Resource page not found.");
-                break;
-              case 500:
-                setErrorMessages("Internal server error.");
-                break;
-              default:
-                setErrorMessages("An unexpected error occurred.");
-            }
-          } else if (error.request) {
-            setErrorMessages(
-              "Network error. Please check your internet connection."
-            );
-          }
-          alert(errorMessage);
-        } else {
-          setErrorMessages("An unexpected error occurred1.");
-          // alert("An unexpected error occurred512.");
-        }
-      }
-    };
-
-    getVisitorData();
   }, []);
 
-  // useEffect(() => {
-  //   console.log(windowWidth);
-  //   if (windowWidth < 520) {
-  //     setToggleSidebar(false);
-  //   } else {
-  //     setToggleSidebar(true);
-  //   }
-  // }, [windowWidth]);
+  // 🔹 Function to fetch all approved visitors initially
+  const getVisitorData = async () => {
+    try {
+      const response = await axios.get(
+        `${apiUrl}/visitor/selectEditedVisitors-CUser`,
+        {
+          params: {
+            userDepartmentId,
+            userFactoryId,
+            userId,
+          },
+          headers: { "X-CSRF-Token": csrfToken },
+          withCredentials: true,
+        }
+      );
+      if (response) {
+        setVisitorList(response.data.data);
+      }
+    } catch (error) {
+      console.error(error);
+      handleAxiosError(error);
+    }
+  };
+
+  // 🔹 Run default data fetch
+  useEffect(() => {
+    getVisitorData();
+  }, [csrfToken]);
+
+  // 🔹 Handle backend errors
+  const handleAxiosError = (error) => {
+    if (error.isAxiosError) {
+      if (error.response) {
+        switch (error.response.status) {
+          case 400:
+            setErrorMessages("Bad request. Please check your input.");
+            break;
+          case 404:
+            // setErrorMessages("No visitors found for provided date range.");
+            break;
+          case 500:
+            setErrorMessages("Internal server error.");
+            break;
+          default:
+            setErrorMessages("An unexpected error occurred.");
+        }
+      } else if (error.request) {
+        setErrorMessages(
+          "Network error. Please check your internet connection."
+        );
+      }
+    } else {
+      setErrorMessages("An unexpected error occurred.");
+    }
+  };
+
+  // 🔹 Navigation to edit visitor
+  const navigateTo = (visitorData) => {
+    navigate("/editVisitor", {
+      state: { visitor: visitorData, userData },
+    });
+  };
+
+  const today = new Date().toISOString().split("T")[0];
+  console.log("today == ", today);
+
+  // 🔹 Filter function (called when Formik submits)
+  const onFilter = async (values, { setSubmitting }) => {
+    try {
+      console.log("Filter applied:", values);
+
+      // ✅ Write your filter Axios request here
+      // Example backend call with query params:
+      const response = await axios.get(
+        `${apiUrl}/visitor/filterVisitorsByDate`,
+        {
+          params: {
+            from: values.from,
+            to: values.to,
+            apMe: values.apMe,
+            userDepartmentId,
+            userFactoryId,
+            userId,
+          },
+          headers: { "X-CSRF-Token": csrfToken },
+          withCredentials: true,
+        }
+      );
+
+      // ✅ Update visitor list with filtered data
+      if (response && response.data.data) {
+        setVisitorList(response.data.data);
+        setErrorMessages("");
+      }
+    } catch (error) {
+      console.error("Filter request failed:", error);
+      handleAxiosError(error);
+      setVisitorList({});
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div
       className="w-full p-0 m-0 overflow-x-scroll sm:overflow-x-hidden"
       style={{ backgroundColor: "white" }}
     >
-      {/* <p>{userFactoryId !== undefined ? userFactoryId : "User Name"}</p> */}
-      {/* <p>{userDepartmentId !== undefined ? userDepartmentId : "User Name"}</p> */}
-      <form action="" onSubmit={() => alert("submitting")} className="w-full">
-        <h1 className="text-md text-center text-lg mt-2 mb-2 font-extrabold">Allowed Visitors.</h1>
+      {/* ---------- FILTER COMPONENT ---------- */}
+      <div className="w-full bg-white rounded-xl p-4 mb-4 shadow-sm">
+        <div className="w-full bg-white shadow-sm rounded-lg px-4 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          {/* Title */}
+          <h1 className="text-base font-semibold text-gray-700 text-center sm:text-left">
+            Allowed Visitors
+          </h1>
 
-        <div className="w-full overflow-x-auto md:overflow-hidden">
-          <table className="w-full ml-1">
-            <thead className="">
-              <tr className="">
-                <th className="pt-1 text-left pb-1 text-left  border-0 bg-blue-500 text-white text-[11px] text-sm">
-                  Name
-                </th>
-                <th className=" border-0 bg-blue-500 text-white text-left text-sm">
-                  NIC/PPNo
-                </th>
-                <th className=" border-0 bg-blue-500 text-white text-left text-sm">
-                  Vehicle Type
-                </th>
-                <th className=" border-0 bg-blue-500 text-white text-left text-sm">
-                  Vehicle No
-                </th>
-                <th className=" border-0 bg-blue-500 text-white text-left text-sm">
-                  Visiting Date
-                </th>
-                <th className="border-0"></th>
-              </tr>
-            </thead>
+          {/* ✅ Formik Filter Form */}
+          <Formik
+            initialValues={{ from: today, to: today, apMe: true }}
+            onSubmit={onFilter}
+          >
+            {({ isSubmitting }) => (
+              <Form className="flex flex-wrap items-center justify-center sm:justify-end gap-2">
+                <div className="flex items-center text-gray-600 text-sm font-medium">
+                  <FaFilter className="mr-1 text-blue-500" /> Filter
+                </div>
 
-            <tbody>
-              {visitorList && visitorList.length > 0 ? (
-                visitorList.map((visitor) => {
-                  const vehicleNumbers = visitor.Vehicles.map(
-                    (vehicle) => vehicle.Vehicle_No
-                  ).join("/n");
+                <div className="flex items-center gap-1">
+                  <label htmlFor="from" className="text-xs text-gray-600">
+                    From
+                  </label>
+                  <Field
+                    id="from"
+                    name="from"
+                    type="date"
+                    className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400"
+                  />
+                </div>
 
-                  const vehicleType = visitor.Vehicles.map(
-                    (vehicle) => vehicle.Vehicle_Type
-                  ).join("/n");
+                <div className="flex items-center gap-1">
+                  <label htmlFor="to" className="text-xs text-gray-600">
+                    To
+                  </label>
+                  <Field
+                    id="to"
+                    name="to"
+                    type="date"
+                    className="border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-400"
+                  />
+                </div>
 
-                  return (
-                    <tr
-                      className="odd:bg-blue-100 even:bg-blue-300"
-                      key={visitor.ContactPerson_Id}
-                    >
-                      <td className="p-2 border-r-2 text-sm border-white">
-                        {visitor.ContactPerson_Name}
-                      </td>
-                      <td className="p-2 border-r-2 text-sm border-white">
-                        {visitor.ContactPerson_NIC}
-                      </td>
-                      <td className="p-2 border-r-2 text-sm border-white">
-                        {vehicleType || "No vehicles"}
-                      </td>
-                      <td className="p-2 border-r-2 text-sm border-white">
-                        {vehicleNumbers || "No vehicles"}
-                      </td>
-                      <td className="p-2 border-r-0 border-black w-auto text-sm">
-                        <div className="h-full md:flex md:gap-1">
-                          <div className="w-1/2 text-center md:pr-1 md:h-full md:border-r border-black mb-0">
-                            {new Date(
-                              visitor.Visits[0]?.Date_From
-                            ).toLocaleDateString()}{" "}
-                          </div>
-                          <div className="w-1/2 text-center md:h-full border-black">
-                            {visitor.Visits[0]?.Date_To &&
-                              new Date(
-                                visitor.Visits[0]?.Date_To
-                              ).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </td>
-                      <td
-                        className="bg-white"
-                        style={{ width: "1%", border: "0" }}
-                      >
-                        <FaRegEye
-                          onClick={() => navigateTo(visitor)}
-                          className="hover:text-red-600 font-bolder text-lg sm:text-xl"
-                          style={{ cursor: "pointer" }}
-                        />
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td colSpan={6} className="text-center italic">
-                    No records yet
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                <div className="flex space-x-2 text-xs">
+                  <Field type="checkbox" id="aMe" name="apMe" />
+                  <label htmlFor="aMe" className="cursor-pointer text-sm">
+                    Approved by me
+                  </label>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded-md transition"
+                >
+                  {isSubmitting ? "Loading..." : "Apply"}
+                </button>
+              </Form>
+            )}
+          </Formik>
         </div>
+      </div>
 
-        {errorMessages && <p className="error text-red-600">{errorMessages}</p>}
-      </form>
+      {/* ---------- VISITOR TABLE ---------- */}
+      <div className="w-full overflow-x-auto md:overflow-hidden">
+        <table className="w-full ml-1">
+          <thead>
+            <tr>
+              <th className="pt-1 pb-1 border-0 bg-blue-500 text-white text-left text-sm">
+                Name
+              </th>
+              <th className="border-0 bg-blue-500 text-white text-left text-sm">
+                NIC/PPNo
+              </th>
+              <th className="border-0 bg-blue-500 text-white text-left text-sm">
+                Vehicle Type
+              </th>
+              <th className="border-0 bg-blue-500 text-white text-left text-sm">
+                Vehicle No
+              </th>
+              <th className="border-0 bg-blue-500 text-white text-left text-sm">
+                Visiting Date
+              </th>
+              <th className="border-0"></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {visitorList && visitorList.length > 0 ? (
+              visitorList.map((visitor) => {
+                const vehicleNumbers = visitor.Vehicles.map(
+                  (v) => v.Vehicle_No
+                ).join(", ");
+                const vehicleType = visitor.Vehicles.map(
+                  (v) => v.Vehicle_Type
+                ).join(", ");
+
+                return (
+                  <tr
+                    className="odd:bg-blue-100 even:bg-blue-300"
+                    key={visitor.ContactPerson_Id}
+                  >
+                    <td className="p-2 border-r-2 text-sm border-white">
+                      {visitor.ContactPerson_Name}
+                    </td>
+                    <td className="p-2 border-r-2 text-sm border-white">
+                      {visitor.ContactPerson_NIC}
+                    </td>
+                    <td className="p-2 border-r-2 text-sm border-white">
+                      {vehicleType || "No vehicles"}
+                    </td>
+                    <td className="p-2 border-r-2 text-sm border-white">
+                      {vehicleNumbers || "No vehicles"}
+                    </td>
+                    <td className="p-2 text-sm border-white">
+                      <div className="flex justify-center md:gap-1">
+                        <div className="w-1/2 text-center">
+                          {new Date(
+                            visitor.Visits[0]?.Date_From
+                          ).toLocaleDateString()}
+                        </div>
+                        <div className="w-1/2 text-center">
+                          {visitor.Visits[0]?.Date_To &&
+                            new Date(
+                              visitor.Visits[0]?.Date_To
+                            ).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </td>
+                    <td
+                      className="bg-white"
+                      style={{ width: "1%", border: "0" }}
+                    >
+                      <FaRegEye
+                        onClick={() => navigateTo(visitor)}
+                        className="hover:text-red-600 font-bolder text-lg sm:text-xl cursor-pointer"
+                      />
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan={6} className="text-center italic">
+                  No records yet
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {errorMessages && <p className="error text-red-600">{errorMessages}</p>}
     </div>
   );
 };

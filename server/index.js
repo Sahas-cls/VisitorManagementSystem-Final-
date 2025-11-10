@@ -47,7 +47,7 @@ server.get("/getCSRFToken", (req, res) => {
 
 // Start server
 const port = process.env.PORT || 3000;
-db.sequelize.sync().then(() => {
+db.sequelize.sync({}).then(() => {
   server.listen(port, () => {
     console.log(`Server is running on ${port}`);
   });

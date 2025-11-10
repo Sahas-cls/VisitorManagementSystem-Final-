@@ -123,6 +123,28 @@ userRoutes.post(
   }
 );
 
+// to get user name using user id
+userRoutes.get("/getUserName/:id", async (req, res) => {
+  const id = req.params.id;
+  console.log("finding id =", id);
+
+  try {
+    const user = await User.findByPk(id); // ✅ await is required!
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    console.log("selected user =", user.user_Name);
+
+    // ✅ send the user name (or full user if needed)
+    res.json({ userName: user.user_Name });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 userRoutes.post(
   "/login",
   csrfProtection,

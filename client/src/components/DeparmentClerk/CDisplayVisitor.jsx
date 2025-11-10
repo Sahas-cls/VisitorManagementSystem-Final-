@@ -9,6 +9,8 @@ import { FaCircleCheck } from "react-icons/fa6";
 import * as yup from "yup";
 import swal from "sweetalert2";
 import { motion } from "framer-motion";
+import { BsExclamationCircle } from "react-icons/bs";
+import { IoCheckmarkCircleOutline } from "react-icons/io5";
 
 const CDisplayVisitor = () => {
   const curDate = new Date();
@@ -17,6 +19,8 @@ const CDisplayVisitor = () => {
   const visitor = location.state?.visitor;
   const [isLoading, setIsLoading] = useState(false);
 
+  console.log("location ==== ", location);
+
   // Destructuring data
   const Visitor = location.state?.visitor;
   const visitorGroup = location.state?.visitor.Visitors;
@@ -24,6 +28,11 @@ const CDisplayVisitor = () => {
   const Vehicles = location.state?.visitor.Vehicles;
   const Visits = location.state?.visitor.Visits[0];
   const VisitId = Visitor.Visits[0]?.Visit_Id;
+  const [apNames, setApNames] = useState({
+    departmentUser: "",
+    departmentHead: "",
+    hrUser: "",
+  });
 
   const [serverErrors, setServerErrors] = useState({ type: "", msg: "" });
   const [successMessages, setSuccessMessages] = useState({ type: "", msg: "" });
@@ -33,6 +42,41 @@ const CDisplayVisitor = () => {
   const [visitorCategory, setvisitorCategory] = useState({});
   const [visitorPurposes, setvisitorPurposes] = useState({});
   const apiUrl = import.meta.env.VITE_API_URL;
+
+  // to get approved persons names
+  useEffect(() => {
+    const getUserName = async (uId) => {
+      if (!uId) return null;
+      try {
+        const res = await axios.get(`${apiUrl}/user/getUserName/${uId}`, {
+          headers: { "X-CSRF-Token": csrfToken },
+          withCredentials: true,
+        });
+        return res.data.userName;
+      } catch (error) {
+        console.error("Error fetching user name:", error);
+        return "Unknown";
+      }
+    };
+
+    const fetchAllNames = async () => {
+      const [deptUser, deptHead, hrUser] = await Promise.all([
+        getUserName(Visits?.D_User),
+        getUserName(Visits?.D_Approved_By),
+        getUserName(Visits?.H_Approved_By),
+      ]);
+
+      setApNames({
+        departmentUser: deptUser,
+        departmentHead: deptHead,
+        hrUser: hrUser,
+      });
+    };
+
+    if (Visits) {
+      fetchAllNames();
+    }
+  }, [Visits]);
 
   const reqDate = new Date(Visits?.Date_From).toISOString().split("T")[0];
   const dateTo = new Date(Visits?.Date_To).toISOString().split("T")[0];
@@ -194,6 +238,21 @@ const CDisplayVisitor = () => {
     validateOnBlur: true,
     validateOnChange: true,
   });
+
+  // to get user name according to user id
+  const getUserName = async (uId) => {
+    alert("getting name");
+    try {
+      const userName = await axios.get(`${apiUrl}/user/getUserName/${1}`, {
+        headers: { "X-CSRF-Token": csrfToken },
+        withCredentials: true,
+      });
+      console.log("approved name==== ", userName);
+    } catch (error) {
+      console.error(error);
+    }
+    // return userName;
+  };
 
   // API functions
   const getVCategories = async () => {
@@ -787,6 +846,101 @@ const CDisplayVisitor = () => {
                       ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+
+            {/* bottom card */}
+            <div className="bg-blue-200 p-3 w-full rounded-lg shadow-custom1 lg:w-[49%] min-h-[330px] mt-5 lg:mt-0">
+              <h1 className="font-bold text-lg text-blue-950 mb-2">
+                Approval Status
+              </h1>
+              <div className="overflow-x-auto">
+                <table>
+                  <thead className="">
+                    <th className="text-sm">Department User</th>
+                    <th className="text-sm">Department Head</th>
+                    <th className="text-sm">HR Approval</th>
+                  </thead>
+                  <tbody>
+                    <tr className="text-center">
+                      <td className="border border-black">
+                        {Visits.D_User ? (
+                          <div className="flex flex-col items-center text-green-900 p-2">
+                            <IoCheckmarkCircleOutline className="text-xl"/>
+                            <span className="text-xs font-semibold">
+                              Approved
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center text-yellow-900 p-2">
+                            <BsExclamationCircle className="text-xl"/>
+                            <span className="text-xs font-semibold">
+                              Pending
+                            </span>
+                          </div>
+                        )}
+                      </td>
+                      <td className="border border-black">
+                        {Visits.D_Head_Approval === true ? (
+                          <div className="flex flex-col items-center text-green-900 p-2">
+                            <IoCheckmarkCircleOutline className="text-xl"/>
+                            <span className="text-xs font-semibold">
+                              Approved
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center text-yellow-900 p-2">
+                            <BsExclamationCircle className="text-xl"/>
+                            <span className="text-xs font-semibold">
+                              Pending
+                            </span>
+                          </div>
+                        )}
+                      </td>
+                      <td className="border border-black">
+                        {Visits.HR_Approval === true ? (
+                          <div className="flex flex-col items-center text-green-900 p-2">
+                            <IoCheckmarkCircleOutline className="text-xl"/>
+                            <span className="text-xs font-semibold">
+                              Approved
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center text-yellow-900 p-2">
+                            <BsExclamationCircle className="text-xl"/>
+                            <span className="text-xs font-semibold">
+                              Pending
+                            </span>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <div className="mt-4">
+                  {/* approved department user */}
+                  <div className="">
+                    <h3 className="text-sm">Department User Approved By:</h3>
+                    <p className="pl-7 mt-1 mb-2 text-sm text-blue-900">
+                      {apNames.departmentUser || "N/A"}
+                    </p>
+                  </div>
+                  {/* approved department head */}
+                  <div className="">
+                    <h3 className="text-sm">Department Head:</h3>
+                    <p className="pl-7 mt-1 mb-2 text-sm text-blue-900">
+                      {apNames.departmentHead || "N/A"}
+                    </p>
+                  </div>
+                  {/* approved hr user */}
+                  <div className="">
+                    <h3 className="text-sm">HR Approved By:</h3>
+                    <p className="pl-7 mt-1 mb-2 text-sm text-blue-900">
+                      {apNames.hrUser || "N/A"}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

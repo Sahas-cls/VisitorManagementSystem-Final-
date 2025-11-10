@@ -140,7 +140,7 @@ const Header = ({
           />
         </div>
         <div
-          className={`userDropdown ${
+          className={`userDropdown z-20 ${
             userVisible === true ? "visible" : "noneVisible"
           }`}
         >

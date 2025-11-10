@@ -6,6 +6,8 @@ import axios from "axios";
 import { FaPersonCircleExclamation } from "react-icons/fa6";
 import { useFormik } from "formik";
 import * as yup from "yup";
+import { BsExclamationCircle } from "react-icons/bs";
+import { IoCheckmarkCircleOutline } from "react-icons/io5";
 
 const HDisplayVisitor = () => {
   const location = useLocation();
@@ -27,6 +29,46 @@ const HDisplayVisitor = () => {
   const [visitorCategory, setvisitorCategory] = useState([]);
   const [visitorPurposes, setvisitorPurposes] = useState([]);
   const apiUrl = import.meta.env.VITE_API_URL;
+  const [apNames, setApNames] = useState({
+    departmentUser: "",
+    departmentHead: "",
+    hrUser: "",
+  });
+
+  // to get approved persons names
+  useEffect(() => {
+    const getUserName = async (uId) => {
+      if (!uId) return null;
+      try {
+        const res = await axios.get(`${apiUrl}/user/getUserName/${uId}`, {
+          headers: { "X-CSRF-Token": csrfToken },
+          withCredentials: true,
+        });
+        return res.data.userName;
+      } catch (error) {
+        console.error("Error fetching user name:", error);
+        return "Unknown";
+      }
+    };
+
+    const fetchAllNames = async () => {
+      const [deptUser, deptHead, hrUser] = await Promise.all([
+        getUserName(Visits?.D_User),
+        getUserName(Visits?.D_Approved_By),
+        getUserName(Visits?.H_Approved_By),
+      ]);
+
+      setApNames({
+        departmentUser: deptUser,
+        departmentHead: deptHead,
+        hrUser: hrUser,
+      });
+    };
+
+    if (Visits) {
+      fetchAllNames();
+    }
+  }, [Visits]);
 
   const reqDate = new Date(Visits?.Date_From).toISOString().split("T")[0];
   const dateTo = new Date(Visits?.Date_To).toISOString().split("T")[0];
@@ -688,6 +730,103 @@ const HDisplayVisitor = () => {
                           ))}
                       </tbody>
                     </table>
+                  </div>
+                </div>
+
+                {/* bottom card */}
+                <div className="bg-blue-200 p-3 w-full rounded-lg shadow-custom1 lg:w-[49%] min-h-[330px] mt-5 lg:mt-0">
+                  <h1 className="font-bold text-lg text-blue-950 mb-2">
+                    Approval Status
+                  </h1>
+                  <div className="overflow-x-auto">
+                    <table>
+                      <thead className="">
+                        <th>Department User</th>
+                        <th>Department Head</th>
+                        <th>HR Approval</th>
+                      </thead>
+                      <tbody>
+                        <tr className="text-center">
+                          <td className="border border-black/30">
+                            {Visits.D_User ? (
+                              <div className="flex flex-col items-center text-green-900 p-2">
+                                <IoCheckmarkCircleOutline className="text-xl" />
+                                <span className="text-xs font-semibold">
+                                  Approved
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center text-yellow-900 p-2">
+                                <BsExclamationCircle className="text-xl" />
+                                <span className="text-xs font-semibold">
+                                  Pending
+                                </span>
+                              </div>
+                            )}
+                          </td>
+                          <td className="border border-black/30">
+                            {Visits.D_Head_Approval === true ? (
+                              <div className="flex flex-col items-center text-green-900 p-2">
+                                <IoCheckmarkCircleOutline className="text-xl" />
+                                <span className="text-xs font-semibold">
+                                  Approved
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center text-yellow-900 p-2">
+                                <BsExclamationCircle className="text-xl" />
+                                <span className="text-xs font-semibold">
+                                  Pending
+                                </span>
+                              </div>
+                            )}
+                          </td>
+                          <td className="border border-black/30">
+                            {Visits.HR_Approval === true ? (
+                              <div className="flex flex-col items-center text-green-900 p-2">
+                                <IoCheckmarkCircleOutline className="text-xl" />
+                                <span className="text-xs font-semibold">
+                                  Approved
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center text-yellow-900 p-2">
+                                <BsExclamationCircle className="text-xl" />
+                                <span className="text-xs font-semibold">
+                                  Pending
+                                </span>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <div className="mt-4">
+                      {/* approved department user */}
+                      <div className="">
+                        <h3 className="text-sm">
+                          Department User Approved By:
+                        </h3>
+                        <p className="pl-7 mt-1 mb-2 text-sm text-blue-900">
+                          {apNames.departmentUser || "N/A"}
+                        </p>
+                      </div>
+                      {/* approved department head */}
+                      <div className="">
+                        <h3 className="text-sm">Department Head:</h3>
+                        <p className="pl-7 mt-1 mb-2 text-sm text-blue-900">
+                          {apNames.departmentHead || "N/A"}
+                        </p>
+                      </div>
+                      {/* approved hr user */}
+                      <div className="">
+                        <h3 className="text-sm">HR Approved By:</h3>
+                        <p className="pl-7 mt-1 mb-2 text-sm text-blue-900">
+                          {apNames.hrUser || "N/A"}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
