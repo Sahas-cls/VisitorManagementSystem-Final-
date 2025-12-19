@@ -105,10 +105,23 @@ const CApprovedVisitors = ({
   };
 
   // 🔹 Navigation to edit visitor
+  // In your list component:
   const navigateTo = (visitorData) => {
-    navigate("/editVisitor", {
-      state: { visitor: visitorData, userData },
-    });
+    const visitId = visitorData.Visits[0]?.Visit_Id;
+    if (visitId) {
+      // Make sure userData has userDepartmentId and userFactoryId
+      const userDataWithIds = {
+        ...userData,
+        userDepartmentId: userData.userDepartmentId || userData.departmentId,
+        userFactoryId: userData.userFactoryId || userData.factoryId,
+      };
+      localStorage.setItem("userData", JSON.stringify(userDataWithIds));
+      navigate(`/editVisitor/${visitId}`);
+    } else {
+      navigate("/editVisitor", {
+        state: { visitor: visitorData, userData: userData },
+      });
+    }
   };
 
   const today = new Date().toISOString().split("T")[0];

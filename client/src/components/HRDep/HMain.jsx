@@ -5,6 +5,7 @@ import HSidebar from "./HSidebar";
 import HConteiner from "./HContainer";
 import HApprovedVisitors from "./HApprovedVisitors";
 import UseWindowWidth from "../UseWindowWidth";
+import Dashboard from "../Dashboard/Dashboard";
 
 const HMain = ({
   userId,
@@ -63,7 +64,7 @@ const HMain = ({
     // console.log(userData);
   }, []);
 
-  const [view, setView] = useState("visitor");
+  const [view, setView] = useState("Dashboard");
   // alert(userCategory);
   const handleSidebarClick = (value) => {
     setView(value);
@@ -100,6 +101,17 @@ const HMain = ({
           />
         ) : null}
         {/* {toggleSidebar ? <HSidebar onSidebarClick={handleSidebarClick} /> : ""} */}
+        {view === "Dashboard" && (
+          <Dashboard
+            userId={userId}
+            userName={userName}
+            userCategory={userCategory}
+            userDepartment={userDepartment}
+            userDepartmentId={userDepartmentId}
+            userFactoryId={userFactoryId}
+            setToggleSidebar={setToggleSidebar}
+          />
+        )}
         {view === "visitor" && (
           <HConteiner
             userId={userId}

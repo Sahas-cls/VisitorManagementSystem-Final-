@@ -7,6 +7,7 @@ import CApprovedVisitors from "./CApprovedVisitors";
 import UseWindowWidth from "../UseWindowWidth";
 import RDashboard from "../Recept/RDashboard";
 import { AnimatePresence, motion } from "framer-motion";
+import Dashboard from "../Dashboard/Dashboard";
 
 const CMain = ({
   userId,
@@ -16,7 +17,7 @@ const CMain = ({
   userDepartmentId,
   userFactoryId,
 }) => {
-  const [view, setView] = useState("visitor");
+  const [view, setView] = useState("Dashboard");
   const screenSize = UseWindowWidth(); // Get the screen width from the custom hook
   const [toggleSidebar, setToggleSidebar] = useState(screenSize < 768);
 
@@ -77,6 +78,17 @@ const CMain = ({
               <motion.div key="report" {...animationProps}>
                 <CReport />
               </motion.div>
+            )}
+
+            {view === "Dashboard" && (
+              <Dashboard
+                userId={userId}
+                userName={userName}
+                userCategory={userCategory}
+                userDepartment={userDepartment}
+                userDepartmentId={userDepartmentId}
+                userFactoryId={userFactoryId}
+              />
             )}
 
             {view === "ApprovedVisitors" && (

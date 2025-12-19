@@ -1,33 +1,47 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Header from "../../Header";
 import swal from "sweetalert2";
 import axios from "axios";
-import { FaPersonCircleExclamation } from "react-icons/fa6";
+import { FaPersonCircleExclamation, FaCircleCheck } from "react-icons/fa6";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { BsExclamationCircle } from "react-icons/bs";
 import { IoCheckmarkCircleOutline } from "react-icons/io5";
+import { motion } from "framer-motion";
 
 const HDisplayVisitor = () => {
-  const location = useLocation();
+  const { visitId } = useParams();
+  console.log("use params: ", visitId);
   const navigate = useNavigate();
-  const Visitor = location.state?.visitor;
-  const visitorGroup = location.state?.visitor.Visitors;
-  const UserData = location.state?.userData;
-  const Vehicles = location.state?.visitor.Vehicles;
-  const Visits = location.state?.visitor.Visits[0];
-  const VisitId = Visitor.Visits[0]?.Visit_Id;
-  const approvalStatus = Visits.HR_Approval;
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDataLoading, setIsDataLoading] = useState(true);
+  const [visitorData, setVisitorData] = useState(null);
 
-  const { userName, userCategory, userDepartment, userId, userFactoryId } =
-    UserData;
+  // Get user data from localStorage
+  const UserData = JSON.parse(localStorage.getItem("userData")) || {
+    userId: "",
+    userName: "",
+    userCategory: "",
+    userDepartment: "",
+    userFactoryId: "",
+    userDepartmentId: "",
+  };
+
+  // Destructuring data from fetched state
+  const Visitor = visitorData;
+  const visitorGroup = visitorData?.Visitors || [];
+  const Vehicles = visitorData?.Vehicles || [];
+  const Visits = visitorData?.Visits?.[0] || {};
+  const VisitId = Visits?.Visit_Id || visitId;
+
   const [departmentList, setDepartmentList] = useState([]);
   const [csrfToken, setCsrfToken] = useState("");
   const [errorMessages, setErrorMessages] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [visitorCategory, setvisitorCategory] = useState([]);
-  const [visitorPurposes, setvisitorPurposes] = useState([]);
+  const [successMessages, setSuccessMessages] = useState("");
+  const [visitorCategory, setVisitorCategory] = useState([]);
+  const [visitorPurposes, setVisitorPurposes] = useState([]);
+  const [refreshCount, setRefreshCount] = useState(0);
   const apiUrl = import.meta.env.VITE_API_URL;
   const [apNames, setApNames] = useState({
     departmentUser: "",
@@ -35,8 +49,102 @@ const HDisplayVisitor = () => {
     hrUser: "",
   });
 
-  // to get approved persons names
+  // Check if HR has already approved
+  const isAlreadyApproved = Visits?.HR_Approval === true;
+
+  // Fetch single visit data
+  const fetchVisitData = async () => {
+    // alert("visit id: ", visitId);
+    if (!visitId) {
+      navigate(-1);
+      return;
+    }
+
+    setIsDataLoading(true);
+    try {
+      // Add user department and factory IDs to query params
+      const response = await axios.get(
+        `${apiUrl}/visitor/getSingleVisit-hr/${visitId}`,
+        {
+          params: {
+            userDepartmentId: UserData.userDepartmentId,
+            userFactoryId: UserData.userFactoryId,
+          },
+          headers: { "X-CSRF-Token": csrfToken },
+          withCredentials: true,
+        }
+      );
+
+      if (response.status === 200) {
+        const fetchedData = response.data.data;
+        setVisitorData(fetchedData);
+
+        // Update form values with new data
+        const visitsData = fetchedData?.Visits?.[0];
+        const reqDate = visitsData?.Date_From
+          ? new Date(visitsData.Date_From).toISOString().split("T")[0]
+          : "";
+        const dateFrom = visitsData?.Date_From
+          ? new Date(visitsData.Date_From).toISOString().split("T")[0]
+          : "";
+        const dateTo = visitsData?.Date_To
+          ? new Date(visitsData.Date_To).toISOString().split("T")[0]
+          : "";
+
+        formik.setValues({
+          Requested_Department: visitsData?.Department_Id || "",
+          Visitor_Category: visitsData?.Visitor_Category || "",
+          Requested_Officer: visitsData?.Requested_Officer || "",
+          Purpose: visitsData?.Purpose || "",
+          Date_From: dateFrom || "",
+          Req_Date: reqDate || "",
+          Date_To: dateTo || "",
+          Time_From: visitsData?.Time_From || "",
+          Time_To: visitsData?.Time_To || "",
+          Breakfast: visitsData?.Breakfast || false,
+          Lunch: visitsData?.Lunch || false,
+          Tea: visitsData?.Tea || false,
+          Remark: visitsData?.Remark || "",
+        });
+
+        // Fetch visitor purposes if category exists
+        if (visitsData?.Visitor_Category) {
+          getVisitingPurpose(visitsData.Visitor_Category);
+        }
+
+        // Clear success message after 3 seconds
+        if (successMessages) {
+          setTimeout(() => {
+            setSuccessMessages("");
+          }, 3000);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching visit data:", error);
+      if (error.response?.status === 404) {
+        console.error("visit not found");
+        swal
+          .fire({
+            title: "Visit Not Found",
+            text: "This visit may have been deleted or you don't have permission to access it.",
+            icon: "warning",
+            confirmButtonText: "OK",
+          })
+          .then(() => {
+            // navigate(-1);
+          });
+      } else {
+        setErrorMessages("Failed to load visit data. Please try again.");
+      }
+    } finally {
+      setIsDataLoading(false);
+    }
+  };
+
+  // Fetch approved persons names
   useEffect(() => {
+    if (!Visits?.Visit_Id || !csrfToken) return;
+
     const getUserName = async (uId) => {
       if (!uId) return null;
       try {
@@ -65,14 +173,19 @@ const HDisplayVisitor = () => {
       });
     };
 
-    if (Visits) {
-      fetchAllNames();
-    }
-  }, [Visits]);
+    fetchAllNames();
+  }, [Visits, csrfToken, refreshCount]);
 
-  const reqDate = new Date(Visits?.Date_From).toISOString().split("T")[0];
-  const dateTo = new Date(Visits?.Date_To).toISOString().split("T")[0];
-  const dateFrom = new Date(Visits?.Date_From).toISOString().split("T")[0];
+  // Format dates
+  const reqDate = Visits?.Date_From
+    ? new Date(Visits.Date_From).toISOString().split("T")[0]
+    : "";
+  const dateTo = Visits?.Date_To
+    ? new Date(Visits.Date_To).toISOString().split("T")[0]
+    : "";
+  const dateFrom = Visits?.Date_From
+    ? new Date(Visits.Date_From).toISOString().split("T")[0]
+    : "";
   const today = new Date().toISOString().split("T")[0];
   const timeFrom = Visits?.Time_From;
   const timeTo = Visits?.Time_To;
@@ -121,27 +234,28 @@ const HDisplayVisitor = () => {
 
   // Formik initialization
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
-      Requested_Department: Visits?.Department_Id || "",
-      Visitor_Category: Visits?.Visitor_Category || "",
-      Requested_Officer: Visits?.Requested_Officer || "",
-      Purpose: Visits?.Purpose || "",
-      Date_From: dateFrom || "",
-      Req_Date: reqDate || "",
-      Date_To: dateTo || "",
-      Time_From: Visits?.Time_From || "",
-      Time_To: Visits?.Time_To || "",
-      Breakfast: Visits?.Breakfast || false,
-      Lunch: Visits?.Lunch || false,
-      Tea: Visits?.Tea || false,
-      Remark: Visits?.Remark || "",
+      Requested_Department: "",
+      Visitor_Category: "",
+      Requested_Officer: "",
+      Purpose: "",
+      Date_From: "",
+      Req_Date: "",
+      Date_To: "",
+      Time_From: "",
+      Time_To: "",
+      Breakfast: false,
+      Lunch: false,
+      Tea: false,
+      Remark: "",
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       setIsLoading(true);
       try {
         const formData = {
-          userId: userId,
+          userId: UserData.userId,
           UserData: UserData,
           Visit_Id: VisitId,
           Entry_Request: {
@@ -181,7 +295,14 @@ const HDisplayVisitor = () => {
             icon: "success",
             confirmButtonText: "OK",
           });
+          setSuccessMessages("Visit Approved Successfully");
           setErrorMessages("");
+
+          // Force refresh after 1 second to get updated data
+          setTimeout(() => {
+            setRefreshCount((prev) => prev + 1);
+            fetchVisitData();
+          }, 1000);
         }
       } catch (error) {
         console.error(error);
@@ -233,10 +354,10 @@ const HDisplayVisitor = () => {
         }
       );
       if (result.status === 200) {
-        setvisitorCategory(result.data.data);
+        setVisitorCategory(result.data.data);
       }
     } catch (error) {
-      setvisitorCategory([]);
+      setVisitorCategory([]);
     }
   };
 
@@ -250,17 +371,17 @@ const HDisplayVisitor = () => {
         }
       );
       if (result.status === 200) {
-        setvisitorPurposes(result.data.data);
+        setVisitorPurposes(result.data.data);
       }
     } catch (error) {
-      setvisitorPurposes([]);
+      setVisitorPurposes([]);
     }
   };
 
   const getDepartments = async () => {
     try {
       const visitorList = await axios.get(
-        `${apiUrl}/visitor/getDepartments/${userFactoryId}`,
+        `${apiUrl}/visitor/getDepartments/${UserData.userFactoryId}`,
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
@@ -287,55 +408,173 @@ const HDisplayVisitor = () => {
     }
   };
 
+  // Initialize data fetching
   useEffect(() => {
-    getCsrf();
-    getDepartments();
-    getVCategories();
-    if (Visits?.Visitor_Category) {
-      getVisitingPurpose(Visits.Visitor_Category);
-    }
+    const initialize = async () => {
+      await getCsrf();
+    };
+
+    initialize();
   }, []);
+
+  useEffect(() => {
+    if (csrfToken) {
+      getDepartments();
+      getVCategories();
+
+      if (visitId) {
+        fetchVisitData();
+      }
+    }
+  }, [csrfToken, visitId, refreshCount]);
+
+  // Add refresh button handler
+  const handleRefresh = () => {
+    setRefreshCount((prev) => prev + 1);
+  };
+
+  if (isDataLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mb-4"></div>
+        <p className="text-gray-600">Loading visit data...</p>
+      </div>
+    );
+  }
+
+  if (!visitorData && !isDataLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+        <div className="text-red-500 text-4xl mb-4">⚠️</div>
+        <h2 className="text-xl font-semibold text-gray-800 mb-2">
+          Visit Not Found
+        </h2>
+        <p className="text-gray-600 mb-4">
+          The requested visit could not be loaded.
+        </p>
+        <button
+          onClick={() => navigate(-1)}
+          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-white">
       <form onSubmit={formik.handleSubmit}>
         <Header
-          userName={userName}
-          userCategory={userCategory}
-          userDepartment={userDepartment}
+          userName={UserData.userName}
+          userCategory={UserData.userCategory}
+          userDepartment={UserData.userDepartment}
         />
+
         <div className="mx-auto px-4 py-6">
+          {/* Loading Overlay */}
           {isLoading && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
             </div>
           )}
 
+          {/* Header Section */}
           <div className="flex flex-col md:flex-col justify-between mb-6">
             <div className="flex flex-col sm:flex-row justify-center md:gap-36 items-center md:items-start sm:items-center mb-2 w-full">
               <div className="flex items-center mb-4 md:mb-0">
                 <FaPersonCircleExclamation className="text-sky-600 text-4xl md:text-5xl lg:text-6xl mr-3" />
-                <h1 className="text-2xl md:text-3xl font-bold text-sky-600">
-                  {Visitor.ContactPerson_Name}
-                </h1>
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-bold text-sky-600">
+                    {Visitor?.ContactPerson_Name || "No Name"}
+                  </h1>
+                  <p className="text-sm text-gray-600">Visit ID: {VisitId}</p>
+                  <p className="text-xs text-gray-500">
+                    Status:{" "}
+                    {Visits?.HR_Approval
+                      ? "Approved by HR"
+                      : "Pending HR Approval"}
+                  </p>
+                </div>
               </div>
-              <div className="grid grid-cols-2 space-x-4">
+
+              <div className="grid grid-cols-3 gap-2">
                 <button
-                  className="bg-gray-300 hover:bg-gray-400 text-black px-3 py-1.5 md:px-4 md:py-2 rounded-md font transition-colors w-full sm:w-auto mr-2"
+                  className="bg-gray-300 hover:bg-gray-400 text-black px-3 py-1.5 md:px-4 md:py-2 rounded-md transition-colors w-full sm:w-auto mr-2"
                   type="button"
                   onClick={() => navigate(-1)}
                 >
                   Back
                 </button>
                 <button
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md font transition-colors w-full sm:w-auto"
-                  type="submit"
-                  disabled={approvalStatus}
+                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md transition-colors w-full sm:w-auto flex items-center justify-center"
+                  type="button"
+                  onClick={handleRefresh}
                 >
-                  Approve
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    ></path>
+                  </svg>
+                  Refresh
+                </button>
+                <button
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md transition-colors w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                  type="submit"
+                  disabled={isAlreadyApproved || isLoading}
+                >
+                  {isLoading ? "Approving..." : "Approve"}
                 </button>
               </div>
             </div>
+
+            {/* Status Messages */}
+            <motion.div
+              initial={{ width: "0%", opacity: 0 }}
+              animate={{ width: "100%", height: "auto", opacity: 1 }}
+              transition={{
+                delay: 2,
+                duration: 1,
+              }}
+              className="mt-6 mb-4"
+            >
+              {successMessages && (
+                <div className="p-4 bg-green-100 text-green-700 rounded-lg text-center font-bold text-lg flex justify-center items-center">
+                  <FaCircleCheck className="text-lg mr-2" />
+                  {successMessages}
+                </div>
+              )}
+              {errorMessages && (
+                <div className="p-4 bg-red-100 text-red-700 rounded-lg text-center">
+                  {errorMessages}
+                </div>
+              )}
+            </motion.div>
+
+            {/* Debug Info (remove in production) */}
+            {/* <div className="mb-4 p-2 bg-gray-100 rounded text-xs text-gray-600">
+              <p>
+                D_User:{" "}
+                {Visits.D_User
+                  ? `Approved by user ID: ${Visits.D_User}`
+                  : "Not approved by dept user"}
+              </p>
+              <p>
+                Dept Head Approval:{" "}
+                {Visits.D_Head_Approval ? "Approved" : "Pending"}
+              </p>
+              <p>HR Approval: {Visits.HR_Approval ? "Approved" : "Pending"}</p>
+              <p>Last Updated: {new Date().toLocaleTimeString()}</p>
+            </div> */}
 
             <div className="vs-top-bottom">
               <div className="m-0 flex flex-col lg:flex-row gap-4 lg:gap-[2%] w-full">
@@ -360,7 +599,8 @@ const HDisplayVisitor = () => {
                           onBlur={formik.handleBlur}
                           value={formik.values.Requested_Department}
                           className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
-                          disabled={approvalStatus}
+                          // disabled={isAlreadyApproved}
+                          disabled={true}
                         >
                           <option value="">Select a Department:</option>
                           {Array.isArray(departmentList) &&
@@ -395,7 +635,7 @@ const HDisplayVisitor = () => {
                           onChange={formik.handleChange}
                           onBlur={formik.handleBlur}
                           className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
-                          disabled={approvalStatus}
+                          disabled={isAlreadyApproved}
                         />
                         {formik.touched.Req_Date && formik.errors.Req_Date && (
                           <div className="text-red-600 text-sm">
@@ -419,7 +659,7 @@ const HDisplayVisitor = () => {
                           onBlur={formik.handleBlur}
                           value={formik.values.Requested_Officer}
                           className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
-                          disabled={approvalStatus}
+                          disabled={isAlreadyApproved}
                         />
                         {formik.touched.Requested_Officer &&
                           formik.errors.Requested_Officer && (
@@ -446,7 +686,7 @@ const HDisplayVisitor = () => {
                           }}
                           onBlur={formik.handleBlur}
                           className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
-                          disabled={approvalStatus}
+                          disabled={isAlreadyApproved}
                         >
                           <option value="">Select a Category</option>
                           {Array.isArray(visitorCategory) &&
@@ -489,7 +729,7 @@ const HDisplayVisitor = () => {
                           onBlur={formik.handleBlur}
                           value={formik.values.Purpose}
                           className="text-sm bg-white border rounded border-slate-400 p-1 w-full"
-                          disabled={approvalStatus}
+                          disabled={isAlreadyApproved}
                         >
                           <option value="">Select a Purpose</option>
                           {Array.isArray(visitorPurposes) &&
@@ -525,7 +765,7 @@ const HDisplayVisitor = () => {
                             onBlur={formik.handleBlur}
                             value={formik.values.Date_From}
                             className="text-sm w-full bg-white border rounded border-slate-400 p-1"
-                            disabled={approvalStatus}
+                            disabled={isAlreadyApproved}
                           />
                           {formik.touched.Date_From &&
                             formik.errors.Date_From && (
@@ -543,7 +783,7 @@ const HDisplayVisitor = () => {
                             onBlur={formik.handleBlur}
                             value={formik.values.Date_To}
                             className="text-sm w-full bg-white border rounded border-slate-400 p-1"
-                            disabled={approvalStatus}
+                            disabled={isAlreadyApproved}
                           />
                           {formik.touched.Date_To && formik.errors.Date_To && (
                             <div className="text-red-600 text-sm">
@@ -569,7 +809,7 @@ const HDisplayVisitor = () => {
                             onBlur={formik.handleBlur}
                             value={formik.values.Time_From}
                             className="text-sm w-full bg-white border rounded border-slate-400 p-1"
-                            disabled={approvalStatus}
+                            disabled={isAlreadyApproved}
                           />
                           {formik.touched.Time_From &&
                             formik.errors.Time_From && (
@@ -587,7 +827,7 @@ const HDisplayVisitor = () => {
                             onBlur={formik.handleBlur}
                             value={formik.values.Time_To}
                             className="text-sm w-full bg-white border rounded border-slate-400 p-1"
-                            disabled={approvalStatus}
+                            disabled={isAlreadyApproved}
                           />
                           {formik.touched.Time_To && formik.errors.Time_To && (
                             <div className="text-red-600 text-sm">
@@ -619,6 +859,7 @@ const HDisplayVisitor = () => {
                       </thead>
                       <tbody>
                         {Array.isArray(visitorGroup) &&
+                        visitorGroup.length > 0 ? (
                           visitorGroup.map((visitor) => (
                             <tr key={visitor.Visitor_Id}>
                               <td className="text-sm border border-black">
@@ -628,7 +869,17 @@ const HDisplayVisitor = () => {
                                 {visitor.Visitor_NIC}
                               </td>
                             </tr>
-                          ))}
+                          ))
+                        ) : (
+                          <tr>
+                            <td
+                              colSpan="2"
+                              className="text-sm text-center py-4 text-gray-500"
+                            >
+                              No visitors found
+                            </td>
+                          </tr>
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -646,7 +897,7 @@ const HDisplayVisitor = () => {
                           checked={formik.values.Breakfast}
                           id="Breakfast"
                           className="mr-1 scale-150"
-                          disabled={approvalStatus}
+                          disabled={isAlreadyApproved}
                         />
                         <label htmlFor="Breakfast" className="text-sm">
                           Breakfast
@@ -660,7 +911,7 @@ const HDisplayVisitor = () => {
                           checked={formik.values.Lunch}
                           id="Lunch"
                           className="mr-1 scale-150"
-                          disabled={approvalStatus}
+                          disabled={isAlreadyApproved}
                         />
                         <label htmlFor="Lunch" className="text-sm">
                           Lunch
@@ -674,7 +925,7 @@ const HDisplayVisitor = () => {
                           checked={formik.values.Tea}
                           id="Tea"
                           className="mr-1 scale-150"
-                          disabled={approvalStatus}
+                          disabled={isAlreadyApproved}
                         />
                         <label htmlFor="Tea" className="text-sm">
                           Tea
@@ -691,7 +942,7 @@ const HDisplayVisitor = () => {
                         onBlur={formik.handleBlur}
                         value={formik.values.Remark}
                         className="text-sm bg-white border rounded border-slate-400 p-1 w-full"
-                        disabled={approvalStatus}
+                        disabled={isAlreadyApproved}
                       ></textarea>
                       {formik.touched.Remark && formik.errors.Remark && (
                         <div className="text-red-600 text-sm">
@@ -717,7 +968,7 @@ const HDisplayVisitor = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {Array.isArray(Vehicles) &&
+                        {Array.isArray(Vehicles) && Vehicles.length > 0 ? (
                           Vehicles.map((vehicle) => (
                             <tr key={vehicle.Vehicle_Id}>
                               <td className="text-sm border border-black">
@@ -727,7 +978,17 @@ const HDisplayVisitor = () => {
                                 {vehicle.Vehicle_No}
                               </td>
                             </tr>
-                          ))}
+                          ))
+                        ) : (
+                          <tr>
+                            <td
+                              colSpan="2"
+                              className="text-sm text-center py-4 text-gray-500"
+                            >
+                              No vehicles found
+                            </td>
+                          </tr>
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -739,16 +1000,23 @@ const HDisplayVisitor = () => {
                     Approval Status
                   </h1>
                   <div className="overflow-x-auto">
-                    <table>
-                      <thead className="">
-                        <th>Department User</th>
-                        <th>Department Head</th>
-                        <th>HR Approval</th>
+                    <table className="w-full">
+                      <thead>
+                        <tr>
+                          <th className="text-sm text-center">
+                            Department User
+                          </th>
+                          <th className="text-sm text-center">
+                            Department Head
+                          </th>
+                          <th className="text-sm text-center">HR Approval</th>
+                        </tr>
                       </thead>
                       <tbody>
                         <tr className="text-center">
                           <td className="border border-black/30">
-                            {Visits.D_User ? (
+                            {/* Updated: Check if D_User is not null */}
+                            {Visits.D_User !== null ? (
                               <div className="flex flex-col items-center text-green-900 p-2">
                                 <IoCheckmarkCircleOutline className="text-xl" />
                                 <span className="text-xs font-semibold">
@@ -809,33 +1077,26 @@ const HDisplayVisitor = () => {
                           Department User Approved By:
                         </h3>
                         <p className="pl-7 mt-1 mb-2 text-sm text-blue-900">
-                          {apNames.departmentUser || "N/A"}
+                          {apNames.departmentUser || "Not approved yet"}
                         </p>
                       </div>
                       {/* approved department head */}
                       <div className="">
                         <h3 className="text-sm">Department Head:</h3>
                         <p className="pl-7 mt-1 mb-2 text-sm text-blue-900">
-                          {apNames.departmentHead || "N/A"}
+                          {apNames.departmentHead || "Not approved yet"}
                         </p>
                       </div>
                       {/* approved hr user */}
                       <div className="">
                         <h3 className="text-sm">HR Approved By:</h3>
                         <p className="pl-7 mt-1 mb-2 text-sm text-blue-900">
-                          {apNames.hrUser || "N/A"}
+                          {apNames.hrUser || "Not approved yet"}
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Error Messages */}
-              <div className="text-center mt-4">
-                {errorMessages && (
-                  <div className="text-red-600 font-bold">{errorMessages}</div>
-                )}
               </div>
             </div>
           </div>

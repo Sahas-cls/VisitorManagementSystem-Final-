@@ -5,6 +5,7 @@ import RConteiner from "./RContainer";
 import SuddenVisit from "./SuddenVisit";
 import UseWindowWidth from "../UseWindowWidth";
 import RDashboard from "./RDashboard";
+import Dashboard from "../Dashboard/Dashboard";
 
 const RMain = ({
   userId,
@@ -15,7 +16,7 @@ const RMain = ({
   userFactoryId,
 }) => {
   // alert(userId);
-  const [view, setView] = useState("visitor");
+  const [view, setView] = useState("Dashboard");
   // alert(view);
 
   const handleSidebarClick = (value) => {
@@ -50,6 +51,19 @@ const RMain = ({
         {toggleSidebar ? (
           <RSidebar handleSidebarClick={handleSidebarClick} />
         ) : null}
+        {/* dashboard */}
+        {view === "Dashboard" && (
+          <Dashboard
+            handleSidebarClick={handleSidebarClick}
+            userId={userId}
+            userName={userName}
+            userCategory={userCategory}
+            userDepartment={userDepartment}
+            userDepartmentId={userDepartmentId}
+            userFactoryId={userFactoryId}
+            // setToggleSidebar={setToggleSidebar}
+          />
+        )}
         {/* Pass the function down to RSidebar */}
         {view === "visitor" && (
           <RConteiner

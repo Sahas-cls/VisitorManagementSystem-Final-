@@ -32,11 +32,22 @@ const DConteiner = ({
 
   // Function to handle navigation
   const navigateTo = (visitorData) => {
-    // alert("clicked");
-    // Navigate to /editVisitor and pass the clicked visitor's data as state
-    navigate("/approve-dhead", {
-      state: { visitor: visitorData, userData: userData },
-    });
+    const visitId = visitorData.Visits[0]?.Visit_Id;
+    if (visitId) {
+      // Make sure userData has userDepartmentId and userFactoryId
+      const userDataWithIds = {
+        ...userData,
+        userId: userData.userId || userData.id,
+        userDepartmentId: userData.userDepartmentId || userData.departmentId,
+        userFactoryId: userData.userFactoryId || userData.factoryId,
+      };
+      localStorage.setItem("userData", JSON.stringify(userDataWithIds));
+      navigate(`/approve-dhead/${visitId}`);
+    } else {
+      navigate("/approve-dhead", {
+        state: { visitor: visitorData, userData: userData },
+      });
+    }
   };
 
   // alert("dhead component")
@@ -113,7 +124,9 @@ const DConteiner = ({
     <div className="dContainer" style={{ backgroundColor: "white" }}>
       {/* <h1>4654: {userId || 123}</h1> */}
       <form action="" onSubmit={() => alert("submitting")} className="w-full">
-        <h1 className="text-md text-center text-lg mt-2 font-extrabold mb-2">New Visitors</h1>
+        <h1 className="text-md text-center text-lg mt-2 font-extrabold mb-2">
+          New Visitors
+        </h1>
 
         <div className="w-full overflow-x-auto">
           <table className="w-full">

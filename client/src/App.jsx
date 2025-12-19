@@ -1,4 +1,4 @@
-	import React, { useState } from "react";
+import React, { useState } from "react";
 import Login from "./components/Login/Login";
 import CMain from "./components/DeparmentClerk/CMain";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -24,6 +24,7 @@ import EditVisitor from "./components/Recept/EditVisitor";
 import EditUser from "./components/Administrator/EditUser";
 import SMain from "./components/SecurityOfficer/SMain";
 import AMain from "./components/Administrator/AMain";
+import Dashboard from "./components/Dashboard/Dashboard";
 // import PopupBox from './components/Recept/popupBox';
 
 function App() {
@@ -56,11 +57,19 @@ function App() {
             element={<PrivateRoute />}
           />
           <Route path="/edit-users" element={<EditUser />} />
+          <Route path="/editVisitor/:visitId" element={<CDisplayVisitor />} />
           <Route path="/editVisitor" element={<CDisplayVisitor />} />
+          // In your routing file:
+          <Route path="/approve-dhead/:visitId" element={<DDisplayVisitor />} />
           <Route path="/approve-dhead" element={<DDisplayVisitor />} />
           <Route path="/sudden-visits" element={<PrivateRoute />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/visitor-success" element={<VisitorSuccess />} />
+          // In your routing file:
+          <Route
+            path="/editVisitor-HR/:visitId"
+            element={<HDisplayVisitor />}
+          />
           <Route path="/editVisitor-HR" element={<HDisplayVisitor />} />
           {/* to display specific user in reception's dashboard */}
           <Route path="/approve-reception" element={<RDisaplayVisitor />} />
@@ -68,7 +77,9 @@ function App() {
           <Route path="/reset-user-password" element={<Resetpassword />} />
           {/* to edit visitors details - reception */}
           <Route path="/edit-visit-recept" element={<EditVisitor />} />
-	  <Route path="/new-visitor" element={<VisitorF/>} />
+          <Route path="/new-visitor" element={<VisitorF />} />
+          {/* dashboard */}
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </Router>
     </div>

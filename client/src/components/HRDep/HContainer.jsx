@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaArrowRight, FaRegEye } from "react-icons/fa";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Make sure to import useNavigate
+import { useNavigate } from "react-router-dom";
 import "./HContainer.css";
 
 const HConteiner = ({
@@ -31,11 +31,33 @@ const HConteiner = ({
   const navigate = useNavigate(); // Initialize useNavigate hook
 
   // Function to handle navigation
+  // In your list component:
   const navigateTo = (visitorData) => {
-    // alert("user factory: ", userFactoryId);
-    navigate("/editVisitor-HR", {
-      state: { visitor: visitorData, userData: userData },
-    });
+    const visitId = visitorData.Visits[0]?.Visit_Id;
+
+    console.log("Visit ID:", visitId);
+    console.log("Visitor Data:", visitorData);
+    console.log("User Data:", userData);
+
+    if (visitId) {
+      // Make sure userData has all required fields
+      const userDataWithIds = {
+        ...userData,
+        userId: userData.userId || userData.id,
+        userDepartmentId: userData.userDepartmentId || userData.departmentId,
+        userFactoryId: userData.userFactoryId || userData.factoryId,
+      };
+
+      console.log("Updated User Data for localStorage:", userDataWithIds);
+
+      localStorage.setItem("userData", JSON.stringify(userDataWithIds));
+      navigate(`/editVisitor-HR/${visitId}`);
+    } else {
+      console.error("No Visit_Id found in visitor data");
+      navigate("/editVisitor-HR", {
+        state: { visitor: visitorData, userData: userData },
+      });
+    }
   };
 
   // alert("dhead component")
@@ -108,7 +130,9 @@ const HConteiner = ({
     <div className="hContainer" style={{ backgroundColor: "white" }}>
       {/* <h1>user factory: {userFactoryId || 123}</h1> */}
       <form action="" onSubmit={() => alert("submitting")} className="w-full">
-        <h1 className="text-md mt-2 mb-2 font-extrabold text-center text-lg">New Visitors</h1>
+        <h1 className="text-md mt-2 mb-2 font-extrabold text-center text-lg">
+          New Visitors
+        </h1>
 
         <div className="w-full overflow-x-auto">
           <table className="w-full">

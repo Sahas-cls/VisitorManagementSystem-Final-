@@ -4,9 +4,10 @@ import { FaPersonCircleExclamation } from "react-icons/fa6";
 import { FaPersonCircleCheck } from "react-icons/fa6";
 import vmsLogo from "../../assets/vmsLogo2.png";
 import { TbReportSearch } from "react-icons/tb";
+import { RiDashboardHorizontalLine } from "react-icons/ri";
 
 const CSidebar = ({ onSidebarClick }) => {
-  const [isActive, setisActive] = useState("New Visitors");
+  const [isActive, setisActive] = useState("Dashboard");
   const handleIsActive = (item) => {
     // alert(item);
     setisActive(item);
@@ -16,6 +17,22 @@ const CSidebar = ({ onSidebarClick }) => {
       <div className="flex justify-center mb-5">
         <img src={vmsLogo} alt="vms Logo" width="170px" />
       </div>
+
+      {/* dashboard component */}
+      <button
+        className={`w-full min-h-14 hover:bg-[#5151A5] hover:text-gray-200   border-gray-400 text-gray-300 font-bold ${
+          isActive == "Dashboard" ? "active-sidebar" : ""
+        } lg:min-h-16`}
+        onClick={() => {
+          setisActive("Dashboard");
+          onSidebarClick("Dashboard");
+        }}
+      >
+        <div className={`flex h-full w-full pl-2`}>
+          <RiDashboardHorizontalLine className="lg:text-2xl" />
+          <span className="ml-2">Dashboard</span>
+        </div>
+      </button>
 
       <button
         className={`w-full min-h-14 hover:bg-[#5151A5] hover:text-gray-200   border-gray-400 text-gray-300 font-bold ${

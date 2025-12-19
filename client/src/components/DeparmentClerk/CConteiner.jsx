@@ -28,10 +28,30 @@ const CConteiner = ({
   const navigate = useNavigate();
   const windowWidth = UseWindowWidth();
 
+  // const navigateTo = (visitorData) => {
+  //   navigate("/editVisitor", {
+  //     state: { visitor: visitorData, userData: userData },
+  //   });
+  // };
+
+  // In your list component where you navigate:
+  // In your list component:
   const navigateTo = (visitorData) => {
-    navigate("/editVisitor", {
-      state: { visitor: visitorData, userData: userData },
-    });
+    const visitId = visitorData.Visits[0]?.Visit_Id;
+    if (visitId) {
+      // Make sure userData has userDepartmentId and userFactoryId
+      const userDataWithIds = {
+        ...userData,
+        userDepartmentId: userData.userDepartmentId || userData.departmentId,
+        userFactoryId: userData.userFactoryId || userData.factoryId,
+      };
+      localStorage.setItem("userData", JSON.stringify(userDataWithIds));
+      navigate(`/editVisitor/${visitId}`);
+    } else {
+      navigate("/editVisitor", {
+        state: { visitor: visitorData, userData: userData },
+      });
+    }
   };
 
   useEffect(() => {
@@ -99,13 +119,19 @@ const CConteiner = ({
 
   return (
     <div className="cContainer" style={{ backgroundColor: "white" }}>
-      <form action="" onSubmit={() => alert("submitting")} className="w-full px-2">
+      <form
+        action=""
+        onSubmit={() => alert("submitting")}
+        className="w-full px-2"
+      >
         <h1 className="text-md text-center text-lg mt-2 mb-2 font-extrabold">
           New Visitors List.
         </h1>
 
         <div className="w-full overflow-x-auto">
-          <div className="min-w-[600px]"> {/* Minimum width to prevent squeezing */}
+          <div className="min-w-[600px]">
+            {" "}
+            {/* Minimum width to prevent squeezing */}
             <table className="w-full">
               <thead className="position-sticky">
                 <tr>

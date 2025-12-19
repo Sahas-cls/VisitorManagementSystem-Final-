@@ -6,6 +6,7 @@ import axios from "axios";
 import Header from "../../Header";
 import DApprovedVisitors from "./DApprovedVisitors";
 import UseWindowWidth from "../UseWindowWidth";
+import Dashboard from "../Dashboard/Dashboard";
 
 const DMain = ({
   userId,
@@ -64,7 +65,7 @@ const DMain = ({
     // console.log(userData);
   }, []);
 
-  const [view, setView] = useState("visitor");
+  const [view, setView] = useState("Dashboard");
   const screenSize = UseWindowWidth();
   // console.log(screenSize)
   const [toggleSidebar, setToggleSidebar] = useState(screenSize < 768);
@@ -96,6 +97,18 @@ const DMain = ({
         {toggleSidebar ? (
           <DSidebar handleSidebarClick={handleSidebarClick} />
         ) : null}
+
+        {view === "Dashboard" && (
+          <Dashboard
+            userId={userId}
+            userName={userName}
+            userCategory={userCategory}
+            userDepartment={userDepartment}
+            userDepartmentId={userDepartmentId}
+            userFactoryId={userFactoryId}
+            setToggleSidebar={setToggleSidebar}
+          />
+        )}
         {/* {toggleSidebar ? <DSidebar onSidebarClick={handleSidebarClick} /> : ""} */}
         {view === "visitor" && (
           <DContainer

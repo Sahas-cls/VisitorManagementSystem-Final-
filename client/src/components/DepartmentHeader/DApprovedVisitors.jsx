@@ -31,10 +31,24 @@ const DApprovedVisitors = ({
   const navigate = useNavigate();
 
   // Function to handle navigation
+  // In your list component:
   const navigateTo = (visitorData) => {
-    navigate("/approve-dhead", {
-      state: { visitor: visitorData, userData: userData },
-    });
+    const visitId = visitorData.Visits[0]?.Visit_Id;
+    if (visitId) {
+      // Make sure userData has userDepartmentId and userFactoryId
+      const userDataWithIds = {
+        ...userData,
+        userId: userData.userId || userData.id,
+        userDepartmentId: userData.userDepartmentId || userData.departmentId,
+        userFactoryId: userData.userFactoryId || userData.factoryId,
+      };
+      localStorage.setItem("userData", JSON.stringify(userDataWithIds));
+      navigate(`/approve-dhead/${visitId}`);
+    } else {
+      navigate("/approve-dhead", {
+        state: { visitor: visitorData, userData: userData },
+      });
+    }
   };
 
   useEffect(() => {

@@ -10,7 +10,7 @@ const EditUser = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const visitors = location.state.visitors;
-  console.log("edit users visitos: ", visitors);
+  console.log("edit users visitors: ", visitors);
 
   const {
     user_Id,
@@ -49,6 +49,12 @@ const EditUser = () => {
     resetPassword: showPW,
   });
 
+  useEffect(() => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      resetPassword: showPW,
+    }));
+  }, [showPW]);
   // get the csrf token
 
   const getFactories = async () => {
@@ -223,7 +229,9 @@ const EditUser = () => {
   // Edit user function
   const handleEdit = async (e) => {
     e.preventDefault();
-
+    alert("submitting");
+    console.log("form data: ", formData);
+    // return;
     // Basic validation
     if (!formData.userName.trim()) {
       validationErrors.userName = "Username is required";
@@ -356,8 +364,8 @@ const EditUser = () => {
   }, []);
 
   const handleResetPassword = (e) => {
-    // alert(e.target.checked);
     setShowPW(e.target.checked);
+    alert(e.target.checked);
   };
 
   return (
