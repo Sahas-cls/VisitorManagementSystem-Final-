@@ -8,7 +8,7 @@ const db = require("../models");
 
 // Debug: Check what models are available
 console.log("Available models in db:", Object.keys(db));
-
+console.log("getting dashboard data")
 // 1. Get Dashboard Summary Counts
 exports.getDashboardSummary = async (req, res, next) => {
   try {

@@ -949,10 +949,11 @@ const Dashboard = ({
                 </h1>
                 {/* {userFactoryId || "----------------------------"} */}
 
-                {/* <p className="text-gray-600 mt-1">
-                  Real-time monitoring and analytics •{" "}
+                <p className="text-gray-600 mt-1">
+                  {/* Real-time monitoring and analytics •{" "} */}
+                  {userCategory || "can't get category"}
                   {formatDateDisplay(selectedDate)}
-                </p> */}
+                </p>
               </div>
             </div>
           </div>
