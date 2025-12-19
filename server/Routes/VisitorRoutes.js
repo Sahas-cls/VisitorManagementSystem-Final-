@@ -884,7 +884,9 @@ visiterRoutes.get("/getDepartmentVisitors", authToken, async (req, res) => {
   }
 });
 
-//to update exisiting visitor using department clerk dashboard
+// to get one visit details according to visit id
+
+//to update existing visitor using department clerk dashboard
 visiterRoutes.post(
   "/updateVisitor",
   authToken,
@@ -3149,6 +3151,139 @@ visiterRoutes.get("/getDepartmentVisitors", async (req, res) => {
   } else {
     console.log("Invalid query");
     return res.status(500).json({ msg: "Failed to fetch data" });
+  }
+});
+
+// get specific visit details
+visiterRoutes.get("/getSingleVisit/:visitId", async (req, res) => {
+  console.log("get single visit called");
+
+  const visitId = req.params.visitId;
+  const userDepartmentId = req.query.userDepartmentId;
+  const userFactoryId = req.query.userFactoryId;
+
+  console.log(
+    "Fetching visit:",
+    visitId,
+    "for dept:",
+    userDepartmentId,
+    "factory:",
+    userFactoryId
+  );
+
+  try {
+    const { Op, sequelize } = require("sequelize");
+
+    // Build where condition for visits
+    const visitWhere = {
+      Visit_Id: visitId,
+    };
+
+    // Add department and factory filters if provided
+    if (userDepartmentId && userFactoryId) {
+      visitWhere.Department_Id = userDepartmentId;
+      visitWhere.Factory_Id = userFactoryId;
+    }
+
+    const result = await ContactPersons.findOne({
+      include: [
+        {
+          model: Visits,
+          as: "Visits",
+          where: visitWhere,
+          required: true,
+        },
+        {
+          model: Vehicles,
+          as: "Vehicles",
+          required: false,
+        },
+        {
+          model: Visitors,
+          as: "Visitors",
+          required: false,
+        },
+      ],
+    });
+
+    if (result) {
+      console.log("Visit found:", result.Visits[0]?.Visit_Id);
+      return res.status(200).json({ data: result });
+    } else {
+      console.log("Visit not found with ID:", visitId);
+      return res.status(404).json({ msg: "Visit not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching single visit:", error);
+    return res
+      .status(500)
+      .json({ msg: "Failed to fetch visit data", error: error.message });
+  }
+});
+
+visiterRoutes.get("/getSingleVisit-hr/:visitId", async (req, res) => {
+  console.log("get single visit called");
+
+  const visitId = req.params.visitId;
+  const userDepartmentId = req.query.userDepartmentId;
+  const userFactoryId = req.query.userFactoryId;
+
+  console.log(
+    "Fetching visit:",
+    visitId,
+    "for dept:",
+    userDepartmentId,
+    "factory:",
+    userFactoryId
+  );
+
+  try {
+    const { Op, sequelize } = require("sequelize");
+
+    // Build where condition for visits
+    const visitWhere = {
+      Visit_Id: visitId,
+    };
+
+    // Add department and factory filters if provided
+    if (userFactoryId) {
+      // visitWhere.Department_Id = userDepartmentId;
+      visitWhere.Factory_Id = userFactoryId;
+    }
+
+    const result = await ContactPersons.findOne({
+      include: [
+        {
+          model: Visits,
+          as: "Visits",
+          where: visitWhere,
+          required: true,
+        },
+        {
+          model: Vehicles,
+          as: "Vehicles",
+          required: false,
+        },
+        {
+          model: Visitors,
+          as: "Visitors",
+          required: false,
+        },
+      ],
+    });
+
+    if (result) {
+      console.log("Visit found:", result.Visits[0]?.Visit_Id);
+      return res.status(200).json({ data: result });
+    } else {
+      console.log("Visit not found with ID:", visitId);
+      return res.status(404).json({ msg: "Visit not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching single visit:", error);
+    return res
+      .status(500)
+      .json({ msg: "Failed to fetch visit data", error: error.message });
   }
 });
 

@@ -26,3 +26,4 @@ module.exports = {
     timezone: "+05:30",
   },
 };
+// Visits

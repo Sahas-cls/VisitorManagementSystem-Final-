@@ -39,6 +39,9 @@ server.use("/visitor", visitorRoutes);
 const userCategories = require("./Routes/UserCategoryRoutes.js");
 server.use("/userCategory", userCategories);
 
+const dashboardUrl = require("./Routes/DashboardRoutes.js");
+server.use("/dashboard", dashboardUrl);
+
 // CSRF token route
 server.get("/getCSRFToken", (req, res) => {
   console.log("CSRF token requested");
