@@ -68,6 +68,8 @@ const Dashboard = ({
     departments: [],
   });
 
+  console.log("factory list and dep set", filterOptions);
+
   const [statistics, setStatistics] = useState({
     factoryStats: [],
     categoryStats: [],
