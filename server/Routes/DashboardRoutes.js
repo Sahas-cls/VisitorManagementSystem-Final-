@@ -8,7 +8,7 @@ const db = require("../models");
 
 // Debug: Check what models are available
 console.log("Available models in db:", Object.keys(db));
-console.log("getting dashboard data")
+console.log("getting dashboard data");
 // 1. Get Dashboard Summary Counts
 exports.getDashboardSummary = async (req, res, next) => {
   try {
@@ -314,6 +314,7 @@ exports.getFilterOptions = async (req, res, next) => {
         order: [["Factory_Name", "ASC"]],
       });
     }
+    console.log("factories: ", factories);
 
     // Get departments
     if (db.Departments && typeof db.Departments.findAll === "function") {
@@ -322,7 +323,7 @@ exports.getFilterOptions = async (req, res, next) => {
         order: [["Department_Name", "ASC"]],
       });
     }
-
+    console.log("factories: ", factories, " ", "departments: ", departments);
     res.status(200).json({
       success: true,
       data: {
