@@ -102,7 +102,7 @@ const Dashboard = ({
         ? ""
         : userCategory === "Reception"
         ? ""
-        : userFactoryId,
+        : userDepartmentId,
     status: "",
   });
   const [activeTab, setActiveTab] = useState("visitors");
@@ -942,7 +942,7 @@ const Dashboard = ({
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="p-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl shadow-lg border">
-                <FaUsers className="text-2xl text-white text-black/70" />
+                <FaUsers className="text-2xl text-black/70" />
               </div>
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
@@ -952,7 +952,6 @@ const Dashboard = ({
 
                 <p className="text-gray-600 mt-1">
                   {/* Real-time monitoring and analytics •{" "} */}
-                  {userCategory || "can't get category"}
                   {formatDateDisplay(selectedDate)}
                 </p>
               </div>
