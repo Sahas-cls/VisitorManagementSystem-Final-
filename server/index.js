@@ -28,19 +28,19 @@ server.use(csrfProtection);
 
 // Routes
 const userRoutes = require("./Routes/UserRoutes.js");
-server.use("/user", userRoutes);
+server.use("/api/user", userRoutes);
 
 const departmentRoutes = require("./Routes/DepartmentRoutes.js");
-server.use("/department", departmentRoutes);
+server.use("/api/department", departmentRoutes);
 
 const visitorRoutes = require("./Routes/VisitorRoutes.js");
-server.use("/visitor", visitorRoutes);
+server.use("/api/visitor", visitorRoutes);
 
 const userCategories = require("./Routes/UserCategoryRoutes.js");
-server.use("/userCategory", userCategories);
+server.use("/api/userCategory", userCategories);
 
 const dashboardUrl = require("./Routes/DashboardRoutes.js");
-server.use("/dashboard", dashboardUrl);
+server.use("/api/dashboard", dashboardUrl);
 
 // CSRF token route
 server.get("/api/getCSRFToken", (req, res) => {
