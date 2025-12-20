@@ -246,6 +246,7 @@ const Dashboard = ({
       if (response.data.success) {
         setFilterOptions(response.data.data);
       }
+      console.log("filter options: ", response);
     } catch (error) {
       console.error("Error fetching filter options:", error);
     }
