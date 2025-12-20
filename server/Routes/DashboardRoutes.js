@@ -307,14 +307,13 @@ exports.getFilterOptions = async (req, res, next) => {
     let factories = [];
     let departments = [];
 
-    // Get factories - NOTE: Model name is Factory (singular)
-    if (db.Factory && typeof db.Factory.findAll === "function") {
-      factories = await db.Factory.findAll({
-        attributes: ["Factory_Id", "Factory_Name"],
-        order: [["Factory_Name", "ASC"]],
-      });
-    }
-    console.log("factories: ", factories);
+    // if (db.Factories && typeof db.Factories.findAll === "function") {
+    factories = await db.Factory.findAll({
+      attributes: ["Factory_Id", "Factory_Name"],
+      order: [["Factory_Name", "ASC"]],
+    });
+    // }
+    console.error("factories---: ", factories);
 
     // Get departments
     if (db.Departments && typeof db.Departments.findAll === "function") {
@@ -323,7 +322,7 @@ exports.getFilterOptions = async (req, res, next) => {
         order: [["Department_Name", "ASC"]],
       });
     }
-    console.log("factories: ", factories, " ", "departments: ", departments);
+    // console.log("factories: ", factories, " ", "departments: ", departments);
     res.status(200).json({
       success: true,
       data: {
