@@ -43,7 +43,7 @@ const dashboardUrl = require("./Routes/DashboardRoutes.js");
 server.use("/dashboard", dashboardUrl);
 
 // CSRF token route
-server.get("/getCSRFToken", (req, res) => {
+server.get("/api/getCSRFToken", (req, res) => {
   console.log("CSRF token requested");
   res.json({ csrfToken: req.csrfToken() });
 });
