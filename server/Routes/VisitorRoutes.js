@@ -779,14 +779,7 @@ visiterRoutes.post(
       const info = await sendEmail(
         listOfEmails,
         "New visitor arrival",
-        `<p>${contactPersonDetails.cName} is waiting for your approval</p>
-        <a href="https://guston-vms.site" style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
-                <br>
-                <br>
-                <p>Thank you,</p>
-                <p>Visitor Management System</p>
-
-        `
+        `<p>${contactPersonDetails.cName} is waiting for approval</p>`
       );
       console.timeEnd("SendEmail");
 
@@ -1048,7 +1041,7 @@ visiterRoutes.post(
                 <h3>Hi</h3>
                 <p>A new visitor request is pending your approval.</p>
                 <p>Please log into the visitor management system to approve or decline the request</p>
-                <a href="https://guston-vms.site" style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
+                <a href="http://localhost:5173" style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
                 <br>
                 <br>
                 <p>Thank you,</p>
@@ -1220,7 +1213,7 @@ visiterRoutes.post(
                 <h3>Hi</h3>
                 <p>A new visitor has been registered</p>
                 <p>Please log into the visitor management system to review the details.</p>
-                <a href="https://guston-vms.site" style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
+                <a href="http://localhost:5173" style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
                 <br>
                 <p>Thank you,</p>
                 <p>Visitor Management System</p>
@@ -1447,9 +1440,9 @@ visiterRoutes.post(
               "New Visitor BOI pass required",
               `
                 <h3>Hi</h3>
-                <p>A new visitor has been registered.</p>
-                <p>Please log into the visitor management system and arrange a BOI pass for him</p>
-                <a href="https://guston-vms.site" style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
+                <p>A new visitor has been registerd.</p>
+                <p>Please log intothe visitor management system and arrange a BOI pass for him</p>
+                <a href="http://localhost:5173" style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
                 <p>Thank you,</p>
                 <p>Visitor Management System</p>
               `
