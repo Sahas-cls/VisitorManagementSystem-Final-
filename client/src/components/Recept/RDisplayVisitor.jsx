@@ -20,7 +20,7 @@ const RDisplayVisitor = () => {
   const approvalStatus = true;
 
   console.log(
-    "All details: ======================================================"
+    "All details: ======================================================",
   );
   console.log(location.state);
 
@@ -31,8 +31,9 @@ const RDisplayVisitor = () => {
   const contactPersonMNo = visitor.ContactPerson_ContactNo;
 
   const Visitor = location.state?.visitor;
+  console.log("visitor: ", visitor.ContactPerson_NIC);
   const [visitorGroup, setVisitorGroup] = useState(
-    location.state?.visitor.Visitors
+    location.state?.visitor.Visitors,
   );
   const UserData = location.state?.userData;
   const [Vehicles, setVehicles] = useState(location.state?.visitor.Vehicles);
@@ -63,7 +64,7 @@ const RDisplayVisitor = () => {
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
-        }
+        },
       );
 
       if (result.status === 200) {
@@ -82,7 +83,7 @@ const RDisplayVisitor = () => {
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
-        }
+        },
       );
       console.log("result134 ======= ", result);
 
@@ -172,7 +173,7 @@ const RDisplayVisitor = () => {
       });
 
     const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
-      message
+      message,
     )}`;
     window.open(url, "_blank");
   };
@@ -201,7 +202,7 @@ const RDisplayVisitor = () => {
           {
             headers: { "X-CSRF-Token": csrfToken },
             withCredentials: true,
-          }
+          },
         );
         if (visitorList) {
           console.log("department list: ", visitorList.data.data);
@@ -249,7 +250,7 @@ const RDisplayVisitor = () => {
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
-        }
+        },
       );
       console.log("response ", response);
       setisSaved(true);
@@ -310,7 +311,7 @@ const RDisplayVisitor = () => {
 
             case 500:
               setErrorMessages(
-                "Internal server error. Please try again later. error code 500"
+                "Internal server error. Please try again later. error code 500",
               );
               errorMessage = "Internal server error. Please try again later.";
               break;
@@ -322,7 +323,7 @@ const RDisplayVisitor = () => {
           }
         } else if (error.request) {
           setErrorMessages(
-            "Network error. Please check your internet connection."
+            "Network error. Please check your internet connection.",
           );
           errorMessage =
             "Network error. Please check your internet connection.";
@@ -349,7 +350,7 @@ const RDisplayVisitor = () => {
     try {
       const response = axios.post(
         `${apiUrl}/visitor/update-visit-reception`,
-        () => {}
+        () => {},
       );
     } catch (error) {}
   };
@@ -378,7 +379,7 @@ const RDisplayVisitor = () => {
           {
             headers: { "X-CSRF-Token": csrfToken },
             withCredentials: true,
-          }
+          },
         );
 
         if (response.status === 200) {
@@ -398,7 +399,7 @@ const RDisplayVisitor = () => {
             setServerSideErrors(errorMessages);
           } else {
             setServerSideErrors(
-              "Mail sending failed. Please send the reference number to the user via mobile."
+              "Mail sending failed. Please send the reference number to the user via mobile.",
             );
           }
         } else {
@@ -411,7 +412,7 @@ const RDisplayVisitor = () => {
     } else {
       alert("Contact person's email doesn't provided");
       setRecMessages(
-        `The selected users email address is cannot be found, please send him reference number using his mobile number ${contactPersonMNo}`
+        `The selected users email address is cannot be found, please send him reference number using his mobile number ${contactPersonMNo}`,
       );
     }
   };
@@ -495,6 +496,20 @@ const RDisplayVisitor = () => {
               <h1 className="text-2xl md:text-3xl font-bold text-sky-600">
                 {Visitor.ContactPerson_Name}
               </h1>
+            </div>
+            <div className="text-center text-md">
+              <p className="">
+                NIC:{" "}
+                <span className="text-red-600">
+                  {Visitor.ContactPerson_NIC}
+                </span>
+              </p>
+              <p className="">
+                Contact No:{" "}
+                <span className="text-red-600">
+                  {Visitor.ContactPerson_ContactNo}
+                </span>
+              </p>
             </div>
 
             <div className="p-0">

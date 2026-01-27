@@ -87,7 +87,7 @@ visiterRoutes.get(
       console.error("Error while fetching the visiting purposes: ", error);
       return res.status(500).json({ success: true, data: "" });
     }
-  }
+  },
 );
 
 //get visitor details according to department id
@@ -285,7 +285,7 @@ visiterRoutes.get(
     console.log("requesting visitor data");
     console.log(req.params);
     // Implement logic to get visitor details by visitorId
-  }
+  },
 );
 
 // To register a new visitor to db
@@ -681,7 +681,7 @@ visiterRoutes.post(
           ContactPerson_ContactNo: contactPersonDetails.cMobileNo,
           ContactPerson_Email: contactPersonDetails.cEmail,
         },
-        { transaction }
+        { transaction },
       );
 
       console.timeEnd("CreateContactPerson");
@@ -691,7 +691,7 @@ visiterRoutes.post(
       console.time("CreateVisitors");
 
       const validVisitors = visitorDetails.filter(
-        (v) => v && v.visitorNIC && v.visitorName
+        (v) => v && v.visitorNIC && v.visitorName,
       );
 
       await Promise.all(
@@ -702,9 +702,9 @@ visiterRoutes.post(
               Visitor_Name: visitor.visitorName,
               Visitor_NIC: visitor.visitorNIC,
             },
-            { transaction }
-          )
-        )
+            { transaction },
+          ),
+        ),
       );
 
       console.timeEnd("CreateVisitors");
@@ -713,7 +713,7 @@ visiterRoutes.post(
       console.time("CreateVehicles");
 
       const validVehicles = vehicleDetails.filter(
-        (v) => v && v.VehicleNo && v.VehicleType
+        (v) => v && v.VehicleNo && v.VehicleType,
       );
 
       await Promise.all(
@@ -724,9 +724,9 @@ visiterRoutes.post(
               Vehicle_No: vehicle.VehicleNo,
               Vehicle_Type: vehicle.VehicleType,
             },
-            { transaction }
-          )
-        )
+            { transaction },
+          ),
+        ),
       );
 
       console.timeEnd("CreateVehicles");
@@ -753,7 +753,7 @@ visiterRoutes.post(
           Time_To: dateTimeDetails.fTimeTo,
           Num_of_Days: noOfDays,
         },
-        { transaction }
+        { transaction },
       );
 
       console.timeEnd("CreateVisit");
@@ -770,7 +770,7 @@ visiterRoutes.post(
       console.time("FindUsers");
       const listOfEmails = await findUsers(
         departmentDetails.factory,
-        departmentDetails.department
+        departmentDetails.department,
       );
       console.timeEnd("FindUsers");
 
@@ -786,7 +786,7 @@ visiterRoutes.post(
                 <p>Thank you,</p>
                 <p>Visitor Management System</p>
 
-        `
+        `,
       );
       console.timeEnd("SendEmail");
 
@@ -801,7 +801,7 @@ visiterRoutes.post(
         error: error.message,
       });
     }
-  }
+  },
 );
 
 //to get all department name and id to display on department combobox
@@ -985,6 +985,7 @@ visiterRoutes.post(
       Department_Id: Requested_Department,
       Date_From: Date_From,
       Requested_Officer: Requested_Officer,
+      D_Head_Approval: true,
       Visitor_Category: Visitor_Category,
       Purpose: Purpose,
       Date_To: Date_To,
@@ -1021,7 +1022,7 @@ visiterRoutes.post(
         // sending email to department head
         try {
           console.log(
-            `=============factory id: ${userFactoryId} department Id: ${userDepartmentId}==========`
+            `=============factory id: ${userFactoryId} department Id: ${userDepartmentId}==========`,
           );
           const usersList = await department_Users.findAll({
             where: {
@@ -1053,7 +1054,7 @@ visiterRoutes.post(
                 <br>
                 <p>Thank you,</p>
                 <p>Visitor Management System</p>
-              `
+              `,
             );
           } else {
             console.log("Cannot find users");
@@ -1074,7 +1075,7 @@ visiterRoutes.post(
       console.error(error.message);
       return res.status(500).send("Visitor update failed, please try again");
     }
-  }
+  },
 );
 
 //to update data in department head dashboard
@@ -1224,7 +1225,7 @@ visiterRoutes.post(
                 <br>
                 <p>Thank you,</p>
                 <p>Visitor Management System</p>
-              `
+              `,
             );
           } else {
             console.log("Cannot find users");
@@ -1245,7 +1246,7 @@ visiterRoutes.post(
       console.error(error.message);
       return res.status(500).send("Visitor update failed, please try again");
     }
-  }
+  },
 );
 
 //to fetch => hr user
@@ -1452,7 +1453,7 @@ visiterRoutes.post(
                 <a href="https://guston-vms.site" style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
                 <p>Thank you,</p>
                 <p>Visitor Management System</p>
-              `
+              `,
             );
           } else {
             console.log("Cannot find users, email send failed");
@@ -1473,7 +1474,7 @@ visiterRoutes.post(
       console.error(error.message);
       return res.status(500).send("Visitor update failed, please try again");
     }
-  }
+  },
 );
 
 //fetching data for display reception
@@ -1805,7 +1806,7 @@ visiterRoutes.post(
     }
 
     // res.status(200).json({ message: "Sudden visit created successfully" });
-  }
+  },
 );
 
 // to send email - reception
@@ -1855,7 +1856,7 @@ visiterRoutes.post(
         Best regards,
         Receptionist
         Guston Group
-        `
+        `,
       );
 
       return res.status(200).json({ msg: "Email sent success full" });
@@ -1863,7 +1864,7 @@ visiterRoutes.post(
       console.log(error);
       return res.status(400).json({ error: "Email doesn't sent" });
     }
-  }
+  },
 );
 
 //visitor details for today - date
@@ -1899,13 +1900,13 @@ visiterRoutes.get(
                   sequelize.fn("DATE", sequelize.col("Visits.Date_From")),
                   {
                     [Op.lte]: sequelize.fn("CURDATE"),
-                  }
+                  },
                 ),
                 sequelize.where(
                   sequelize.fn("DATE", sequelize.col("Visits.Date_To")),
                   {
                     [Op.gte]: sequelize.fn("CURDATE"),
-                  }
+                  },
                 ),
                 // You can add further constraints based on the factory and department IDs if needed
                 { Factory_Id: facId },
@@ -1938,7 +1939,7 @@ visiterRoutes.get(
       console.log(error);
       return res.status(500).json({ msg: "Failed to fetch data", error });
     }
-  }
+  },
 );
 
 visiterRoutes.get("/filterVisitorsByDate", async (req, res) => {
@@ -2110,7 +2111,7 @@ visiterRoutes.get(
       console.log(error);
       return res.status(500).json({ msg: "Failed to fetch data", error });
     }
-  }
+  },
 );
 
 // update checkin checkout time in security officer dashboard
@@ -2250,12 +2251,12 @@ visiterRoutes.post("/updateChackOut", async (req, res) => {
 
       const hours = Math.floor(timeDifference / (1000 * 60 * 60));
       const minutes = Math.floor(
-        (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
+        (timeDifference % (1000 * 60 * 60)) / (1000 * 60),
       );
       const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
 
       console.log(
-        `Total time spent: ${hours} hours, ${minutes} minutes, ${seconds} seconds`
+        `Total time spent: ${hours} hours, ${minutes} minutes, ${seconds} seconds`,
       );
 
       const totalTimeString = `${hours} hours, ${minutes} minutes`;
@@ -2345,7 +2346,7 @@ visiterRoutes.get("/selectApprovedVisitors-DHead", async (req, res) => {
   const oneWeekAgo = sequelize.fn(
     "DATE_SUB",
     sequelize.fn("CURDATE"),
-    sequelize.literal("INTERVAL 7 DAY")
+    sequelize.literal("INTERVAL 7 DAY"),
   );
 
   const result = await ContactPersons.findAll({
@@ -2492,7 +2493,7 @@ visiterRoutes.get("/approvedVisitors-Hr", async (req, res) => {
   const oneWeekAgo = sequelize.fn(
     "DATE_SUB",
     sequelize.fn("CURDATE"),
-    sequelize.literal("INTERVAL 7 DAY")
+    sequelize.literal("INTERVAL 7 DAY"),
   );
   const result = await ContactPersons.findAll({
     include: [
@@ -2719,11 +2720,11 @@ visiterRoutes.post(
 
         res.setHeader(
           "Content-Type",
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         );
         res.setHeader(
           "Content-Disposition",
-          'attachment; filename="Visitor_Report.xlsx"'
+          'attachment; filename="Visitor_Report.xlsx"',
         );
 
         await workBook.xlsx.write(res);
@@ -2733,7 +2734,7 @@ visiterRoutes.post(
       console.error("Excel generation error:", error);
       res.status(500).send("Error generating Excel file");
     }
-  }
+  },
 );
 
 // to delete a record
@@ -2771,7 +2772,7 @@ visiterRoutes.delete(
         if (delete_visitors === 0) {
           // Check if no rows were deleted
           console.log(
-            "Visitors delete failed or may don't have any visitors with contact person"
+            "Visitors delete failed or may don't have any visitors with contact person",
           );
           // throw new Error("Visitors delete failed");
         }
@@ -2820,7 +2821,7 @@ visiterRoutes.delete(
         .status(400)
         .json({ error: "Invalid or missing contact person ID" });
     }
-  }
+  },
 );
 
 // update visit --> reception
@@ -2909,7 +2910,7 @@ visiterRoutes.post(
         const valid = /^\d{9}[vV]$|^\d{12}$/.test(value);
         if (!valid) {
           throw new Error(
-            `Invalid NIC: "${value}". Must be 9 digits + v/V or 12 digits.`
+            `Invalid NIC: "${value}". Must be 9 digits + v/V or 12 digits.`,
           );
         }
         return true;
@@ -2991,7 +2992,7 @@ visiterRoutes.post(
               {
                 where: { Visitor_Id: visitor.Visitor_Id },
                 transaction,
-              }
+              },
             );
           } else {
             // Create new visitor
@@ -3001,7 +3002,7 @@ visiterRoutes.post(
                 Visitor_Name: visitor.Visitor_Name,
                 Visitor_NIC: visitor.Visitor_NIC,
               },
-              { transaction }
+              { transaction },
             );
           }
         }
@@ -3028,7 +3029,7 @@ visiterRoutes.post(
               {
                 where: { Vehicle_Id: vehicle.Vehicle_Id },
                 transaction,
-              }
+              },
             );
           } else {
             // Create new vehicle
@@ -3038,7 +3039,7 @@ visiterRoutes.post(
                 Vehicle_No: vehicle.Vehicle_No,
                 Vehicle_Type: vehicle.Vehicle_Type,
               },
-              { transaction }
+              { transaction },
             );
           }
         }
@@ -3071,7 +3072,7 @@ visiterRoutes.post(
         error: error.message,
       });
     }
-  }
+  },
 );
 
 //to get all department name and id to display on department combobox
@@ -3175,7 +3176,7 @@ visiterRoutes.get("/getSingleVisit/:visitId", async (req, res) => {
     "for dept:",
     userDepartmentId,
     "factory:",
-    userFactoryId
+    userFactoryId,
   );
 
   try {
@@ -3230,7 +3231,7 @@ visiterRoutes.get("/getSingleVisit/:visitId", async (req, res) => {
 
 visiterRoutes.get("/getSingleVisit-hr/:visitId", async (req, res) => {
   console.log("get single visit called");
-
+  // return;
   const visitId = req.params.visitId;
   const userDepartmentId = req.query.userDepartmentId;
   const userFactoryId = req.query.userFactoryId;
@@ -3241,7 +3242,7 @@ visiterRoutes.get("/getSingleVisit-hr/:visitId", async (req, res) => {
     "for dept:",
     userDepartmentId,
     "factory:",
-    userFactoryId
+    userFactoryId,
   );
 
   try {
@@ -3308,7 +3309,7 @@ visiterRoutes.post("/undoCheckIn", async (req, res) => {
         where: {
           Visit_Id: visit,
         },
-      }
+      },
     );
 
     if (result) {
@@ -3333,7 +3334,7 @@ visiterRoutes.post("/undoCheckOut", async (req, res) => {
   try {
     const result = await Visits.update(
       { Checkout_Time: null },
-      { where: { Visit_Id } }
+      { where: { Visit_Id } },
     );
 
     if (result[0] === 1) {

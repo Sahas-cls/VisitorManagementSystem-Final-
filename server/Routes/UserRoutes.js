@@ -53,7 +53,7 @@ userRoutes.post(
           if (user) {
             // If a user with the email already exists, reject the promise
             return Promise.reject(
-              "The email already exists. Please enter a new email address"
+              "The email already exists. Please enter a new email address",
             );
           }
 
@@ -120,11 +120,12 @@ userRoutes.post(
         .json({ message: "User creation failed, please try again" });
     }
     // res.send('User registered');
-  }
+  },
 );
 
 // to get user name using user id
 userRoutes.get("/getUserName/:id", async (req, res) => {
+  console.log("user name requested");
   const id = req.params.id;
   console.log("finding id =", id);
 
@@ -178,7 +179,7 @@ userRoutes.post(
             factoryId: user.Factory_Id,
           },
           process.env.JWT_SECRET,
-          { expiresIn: "1h" }
+          { expiresIn: "1h" },
         );
         console.log("factory_Id: ", user.factory_Id);
 
@@ -200,7 +201,7 @@ userRoutes.post(
     } catch (error) {
       return res.status(500).json({ msg: `Error: ${error.message}` });
     }
-  }
+  },
 );
 
 module.exports = userRoutes;
@@ -215,7 +216,7 @@ userRoutes.get("/getToken", async (req, res) => {
       //decoding authToken
       const decodedToken = jwt.verify(
         token,
-        "Y3J5P2l!aS@N%hUv$1aKeT@9dXqL&8Rz#xWmO*4bQfG"
+        "Y3J5P2l!aS@N%hUv$1aKeT@9dXqL&8Rz#xWmO*4bQfG",
       );
       console.log("decoded....", decodedToken);
       const { userId, userName, userCategory, departmentId, factoryId } =
@@ -286,7 +287,7 @@ userRoutes.post(
           userEmail: user.user_email,
         },
         "jklmno12345pqrs67890tuv",
-        { expiresIn: "30min" }
+        { expiresIn: "30min" },
       );
 
       const expireTime = new Date(Date.now() + 15 * 60 * 1000);
@@ -315,7 +316,7 @@ userRoutes.post(
 
             <p style="color:red;">Please don't share this token with anyone else.</p>
             <p style="color:red;">This token will expire 15 minutes after you receive it.</p>
-          `
+          `,
           );
 
           let emailSend = "";
@@ -348,7 +349,7 @@ userRoutes.post(
     }
     // console.log(token);
     // return;
-  }
+  },
 );
 
 userRoutes.post(
@@ -420,7 +421,7 @@ userRoutes.post(
         error: "Invalid or expired token, password reset failed.",
       });
     }
-  }
+  },
 );
 
 userRoutes.get(
@@ -449,7 +450,7 @@ userRoutes.get(
       console.error(error);
       return res.status(500).json({ error: "Error found ", error });
     }
-  }
+  },
 );
 
 userRoutes.put(
@@ -582,7 +583,7 @@ userRoutes.put(
       console.error("Error updating user:", error);
       res.status(500).json({ message: "Failed to update user" });
     }
-  }
+  },
 );
 
 // to delete existing user
@@ -608,7 +609,7 @@ userRoutes.delete(
       console.error("Error deleting user:", error);
       res.status(500).json({ message: "Failed to delete user" });
     }
-  }
+  },
 );
 
 // select users by factory id
@@ -645,7 +646,7 @@ userRoutes.get(
       console.error(error);
       return res.status(500).send("Server error"); // Send a 500 status if an error occurs
     }
-  }
+  },
 );
 
 // searching by user name
@@ -654,14 +655,24 @@ userRoutes.get(
   csrfProtection,
   checkAuthToken,
   async (req, res) => {
-    const searchKey = req.query.searchKey; // Decode the URL parameter
-    console.log("user name ================= ", searchKey); // Log the decoded name
-
     try {
+      const searchKey = req.query.searchKey;
+
+      // Validate searchKey parameter
+      if (!searchKey || searchKey.trim() === "") {
+        return res.status(400).json({
+          success: false,
+          message: "Search key is required",
+          data: [],
+        });
+      }
+
+      console.log("Searching for user with name containing:", searchKey);
+
       const users = await User.findAll({
         where: {
           user_Name: {
-            [Op.like]: `%${searchKey}%`, // Use Op.like with wildcards for substring search
+            [Op.like]: `%${searchKey.trim()}%`,
           },
         },
         include: [
@@ -670,20 +681,36 @@ userRoutes.get(
             as: "Department",
           },
         ],
-        logging: console.log, // Enable logging to see the generated SQL query
+        order: [["user_Name", "ASC"]], // Optional: Add sorting
       });
 
       if (users && users.length > 0) {
-        return res.status(200).json({ data: users });
+        return res.status(200).json({
+          success: true,
+          message: "Users found successfully",
+          data: users,
+          count: users.length,
+        });
       } else {
-        console.log("No data found");
-        return res.status(404).send("No users found");
+        // Return empty array with success message instead of 404 error
+        return res.status(200).json({
+          success: true,
+          message: "No users found matching your search",
+          data: [],
+          count: 0,
+        });
       }
     } catch (error) {
-      console.error(error);
-      return res.status(500).send("Server error");
+      console.error("Error searching users:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error while searching users",
+        error:
+          process.env.NODE_ENV === "development" ? error.message : undefined,
+        data: [],
+      });
     }
-  }
+  },
 );
 
 module.exports = userRoutes;

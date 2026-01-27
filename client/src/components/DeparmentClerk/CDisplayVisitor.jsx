@@ -68,7 +68,7 @@ const CDisplayVisitor = () => {
           },
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
-        }
+        },
       );
 
       if (response.status === 200) {
@@ -222,7 +222,7 @@ const CDisplayVisitor = () => {
           const { Time_From } = this.parent;
           if (!Time_From || !value) return true;
           return value > Time_From;
-        }
+        },
       ),
     Breakfast: yup.boolean(),
     Lunch: yup.boolean(),
@@ -282,7 +282,7 @@ const CDisplayVisitor = () => {
           {
             headers: { "X-CSRF-Token": csrfToken },
             withCredentials: true,
-          }
+          },
         );
 
         if (response.status === 200) {
@@ -352,7 +352,7 @@ const CDisplayVisitor = () => {
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
-        }
+        },
       );
 
       if (result.status === 200) {
@@ -370,7 +370,7 @@ const CDisplayVisitor = () => {
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
-        }
+        },
       );
 
       if (result.status === 200) {
@@ -388,7 +388,7 @@ const CDisplayVisitor = () => {
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
-        }
+        },
       );
       if (visitorList) {
         setDepartmentList(visitorList.data.data);
@@ -442,7 +442,7 @@ const CDisplayVisitor = () => {
           if (result.isConfirmed) {
             const response = await axios.delete(
               `${apiUrl}/visitor/delete-visit-dUser/${Visitor?.ContactPerson_Id}`,
-              { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true }
+              { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true },
             );
 
             if (response.status === 200) {
@@ -1076,7 +1076,7 @@ const CDisplayVisitor = () => {
                   <thead>
                     <tr>
                       <th className="text-sm text-center">Department User</th>
-                      <th className="text-sm text-center">Department Head</th>
+                      {/* <th className="text-sm text-center">Department Head</th> */}
                       <th className="text-sm text-center">HR Approval</th>
                     </tr>
                   </thead>
@@ -1100,7 +1100,7 @@ const CDisplayVisitor = () => {
                           </div>
                         )}
                       </td>
-                      <td className="border border-black">
+                      {/* <td className="border border-black">
                         {Visits.D_Head_Approval === true ? (
                           <div className="flex flex-col items-center text-green-900 p-2">
                             <IoCheckmarkCircleOutline className="text-xl" />
@@ -1116,7 +1116,7 @@ const CDisplayVisitor = () => {
                             </span>
                           </div>
                         )}
-                      </td>
+                      </td> */}
                       <td className="border border-black">
                         {Visits.HR_Approval === true ? (
                           <div className="flex flex-col items-center text-green-900 p-2">
@@ -1147,12 +1147,12 @@ const CDisplayVisitor = () => {
                     </p>
                   </div>
                   {/* approved department head */}
-                  <div className="">
+                  {/* <div className="">
                     <h3 className="text-sm">Department Head:</h3>
                     <p className="pl-7 mt-1 mb-2 text-sm text-blue-900">
                       {apNames.departmentHead || "Not approved yet"}
                     </p>
-                  </div>
+                  </div> */}
                   {/* approved hr user */}
                   <div className="">
                     <h3 className="text-sm">HR Approved By:</h3>

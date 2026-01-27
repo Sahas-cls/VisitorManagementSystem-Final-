@@ -32,9 +32,17 @@ const HApprovedVisitors = ({
 
   // Function to handle navigation
   const navigateTo = (visitorData) => {
-    navigate("/editVisitor-HR", {
-      state: { visitor: visitorData, userData: userData },
-    });
+    // Get the visit ID from visitor data
+    const visitId = visitorData?.Visits?.[0]?.Visit_Id;
+
+    if (visitId) {
+      navigate(`/editVisitor-HR/${visitId}`, {
+        state: { userData: userData }, // Optional: still pass userData in state
+      });
+    } else {
+      console.error("No visit ID found in visitor data");
+      // Handle error - maybe show a message to user
+    }
   };
 
   useEffect(() => {
@@ -72,7 +80,7 @@ const HApprovedVisitors = ({
           },
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
-        }
+        },
       );
 
       if (response && response.data.data) {
@@ -127,7 +135,7 @@ const HApprovedVisitors = ({
           },
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
-        }
+        },
       );
       if (response.data?.data) {
         setVisitorList(response.data.data);
@@ -277,12 +285,12 @@ const HApprovedVisitors = ({
                 visitorList.map((visitor, index) => {
                   const vehicleNumbers =
                     visitor.Vehicles?.map((vehicle) => vehicle.Vehicle_No).join(
-                      ", "
+                      ", ",
                     ) || "No vehicles";
 
                   const vehicleType =
                     visitor.Vehicles?.map(
-                      (vehicle) => vehicle.Vehicle_Type
+                      (vehicle) => vehicle.Vehicle_Type,
                     ).join(", ") || "No vehicles";
 
                   return (
@@ -314,7 +322,10 @@ const HApprovedVisitors = ({
                       </td>
                       <td className="bg-white p-2" style={{ width: "1%" }}>
                         <FaRegEye
-                          onClick={() => navigateTo(visitor)}
+                          onClick={() => {
+                            console.log("visitor dagta:", visitor);
+                            navigateTo(visitor);
+                          }}
                           className="hover:text-red-600 text-lg hover:scale-110 duration-300 cursor-pointer"
                           title="View Details"
                         />

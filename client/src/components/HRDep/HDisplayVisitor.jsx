@@ -18,6 +18,15 @@ const HDisplayVisitor = () => {
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [visitorData, setVisitorData] = useState(null);
 
+  useEffect(() => {
+    setTimeout(() => {
+      if (!visitId) {
+        alert("no visit id found");
+        navigate(-1);
+      }
+    }, 3500);
+  }, [visitId]);
+
   // Get user data from localStorage
   const UserData = JSON.parse(localStorage.getItem("userData")) || {
     userId: "",
@@ -63,6 +72,7 @@ const HDisplayVisitor = () => {
     setIsDataLoading(true);
     try {
       // Add user department and factory IDs to query params
+      console.log("getting visits - - - - - - - ");
       const response = await axios.get(
         `${apiUrl}/visitor/getSingleVisit-hr/${visitId}`,
         {
@@ -72,7 +82,7 @@ const HDisplayVisitor = () => {
           },
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
-        }
+        },
       );
 
       if (response.status === 200) {
@@ -148,6 +158,7 @@ const HDisplayVisitor = () => {
     const getUserName = async (uId) => {
       if (!uId) return null;
       try {
+        console.log("get user's data - - - - - - - ");
         const res = await axios.get(`${apiUrl}/user/getUserName/${uId}`, {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
@@ -224,7 +235,7 @@ const HDisplayVisitor = () => {
           const { Time_From } = this.parent;
           if (!Time_From || !value) return true;
           return value > Time_From;
-        }
+        },
       ),
     Breakfast: yup.boolean(),
     Lunch: yup.boolean(),
@@ -280,12 +291,12 @@ const HDisplayVisitor = () => {
         };
 
         const response = await axios.post(
-          `${apiUrl}/visitor/updateVisitor-hr`,
+          console.log("updating visit")`${apiUrl}/visitor/updateVisitor-hr`,
           formData,
           {
             headers: { "X-CSRF-Token": csrfToken },
             withCredentials: true,
-          }
+          },
         );
 
         if (response.status === 200) {
@@ -346,12 +357,13 @@ const HDisplayVisitor = () => {
   // API functions
   const getVCategories = async () => {
     try {
+      console.log("getting visit categories");
       const result = await axios.get(
         `${apiUrl}/visitor/getVisitor-categories`,
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
-        }
+        },
       );
       if (result.status === 200) {
         setVisitorCategory(result.data.data);
@@ -363,12 +375,13 @@ const HDisplayVisitor = () => {
 
   const getVisitingPurpose = async (category_id) => {
     try {
+      console.log("getting visiting purpose");
       const result = await axios.get(
         `${apiUrl}/visitor/getVisiting_purpose/${category_id}`,
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
-        }
+        },
       );
       if (result.status === 200) {
         setVisitorPurposes(result.data.data);
@@ -380,12 +393,13 @@ const HDisplayVisitor = () => {
 
   const getDepartments = async () => {
     try {
+      console.log("getting departments");
       const visitorList = await axios.get(
         `${apiUrl}/visitor/getDepartments/${UserData.userFactoryId}`,
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
-        }
+        },
       );
       if (visitorList) {
         setDepartmentList(visitorList.data.data);
@@ -397,6 +411,7 @@ const HDisplayVisitor = () => {
 
   const getCsrf = async () => {
     try {
+      console.log("getting csrf");
       const response = await axios.get(`${apiUrl}/getCSRFToken`, {
         withCredentials: true,
       });
@@ -1006,9 +1021,9 @@ const HDisplayVisitor = () => {
                           <th className="text-sm text-center">
                             Department User
                           </th>
-                          <th className="text-sm text-center">
+                          {/* <th className="text-sm text-center">
                             Department Head
-                          </th>
+                          </th> */}
                           <th className="text-sm text-center">HR Approval</th>
                         </tr>
                       </thead>
@@ -1032,7 +1047,7 @@ const HDisplayVisitor = () => {
                               </div>
                             )}
                           </td>
-                          <td className="border border-black/30">
+                          {/* <td className="border border-black/30">
                             {Visits.D_Head_Approval === true ? (
                               <div className="flex flex-col items-center text-green-900 p-2">
                                 <IoCheckmarkCircleOutline className="text-xl" />
@@ -1048,7 +1063,7 @@ const HDisplayVisitor = () => {
                                 </span>
                               </div>
                             )}
-                          </td>
+                          </td> */}
                           <td className="border border-black/30">
                             {Visits.HR_Approval === true ? (
                               <div className="flex flex-col items-center text-green-900 p-2">
@@ -1081,12 +1096,12 @@ const HDisplayVisitor = () => {
                         </p>
                       </div>
                       {/* approved department head */}
-                      <div className="">
+                      {/* <div className="">
                         <h3 className="text-sm">Department Head:</h3>
                         <p className="pl-7 mt-1 mb-2 text-sm text-blue-900">
                           {apNames.departmentHead || "Not approved yet"}
                         </p>
-                      </div>
+                      </div> */}
                       {/* approved hr user */}
                       <div className="">
                         <h3 className="text-sm">HR Approved By:</h3>
