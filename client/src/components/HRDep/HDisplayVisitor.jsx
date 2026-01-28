@@ -291,7 +291,7 @@ const HDisplayVisitor = () => {
         };
 
         const response = await axios.post(
-          console.log("updating visit")`${apiUrl}/visitor/updateVisitor-hr`,
+          `${apiUrl}/visitor/updateVisitor-hr`,
           formData,
           {
             headers: { "X-CSRF-Token": csrfToken },
@@ -316,7 +316,8 @@ const HDisplayVisitor = () => {
           }, 1000);
         }
       } catch (error) {
-        console.error(error);
+        // console.log(error);
+        console.log(error);
         if (error.response) {
           switch (error.response.status) {
             case 400:
