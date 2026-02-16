@@ -6,9 +6,8 @@ const resend = new Resend(process.env.RESEND_API_KEY); // Make sure this is in y
 async function sendEmail(to, subject, text) {
   let recipients;
 
-  
   if (typeof to === "string") {
-    recipients = to.split(",").map(email => email.trim());
+    recipients = to.split(",").map((email) => email.trim());
   } else if (Array.isArray(to)) {
     recipients = to;
   } else {
@@ -21,13 +20,13 @@ async function sendEmail(to, subject, text) {
 
   try {
     const result = await resend.emails.send({
-      from: "Concord VMS <vms@guston-dev.site>", // ✅ Must match your verified domain
+      from: "Concord VMS <vms@visitor-management.online>", // ✅ RESEND VERIFIED DOMAIN
       to: recipients,
       subject: subject,
       html: text,
     });
 
-    // 🔍 Debug Logs
+    
     console.log("Resend response:", result);
     console.log("Recipients:", recipients);
 
@@ -43,7 +42,6 @@ async function sendEmail(to, subject, text) {
         message: "Email send attempted, but no ID returned.",
       };
     }
-
   } catch (error) {
     console.error("Error sending email:");
     console.error(error?.response?.data || error.message || error);

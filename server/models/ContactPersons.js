@@ -17,9 +17,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       // unique: true,
-      validate: {
-        len: [10, 12],
-      },
+      // validate: {
+      //   len: [10, 12],
+      // },
     },
     ContactPerson_ContactNo: {
       type: DataTypes.STRING,

@@ -23,9 +23,9 @@ module.exports = (sequelize, DataTypes) => {
     Visitor_NIC: {
       type: DataTypes.STRING,
       allowNull: false,
-      validate: {
-        len: [10, 12], // Adjusted to match NIC format
-      },
+      // validate: {
+      //   len: [10, 12], // Adjusted to match NIC format
+      // },
       // unique: true,
     },
   });

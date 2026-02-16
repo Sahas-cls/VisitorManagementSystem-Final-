@@ -55,7 +55,7 @@ const VisitorF = () => {
           {
             headers: { "X-CSRF-Token": csrfToken },
             withCredentials: true,
-          }
+          },
         );
         if (response.data?.data) {
           setFactories(response.data.data);
@@ -71,7 +71,7 @@ const VisitorF = () => {
   const fetchDepartments = async (factoryId) => {
     try {
       const response = await axios.get(
-        `${apiUrl}/department/getDep/${factoryId}`
+        `${apiUrl}/department/getDep/${factoryId}`,
       );
       if (response.data) {
         setDepartments(response.data);
@@ -93,10 +93,13 @@ const VisitorF = () => {
         .max(255, "Name too long")
         .required("Name is required"),
       cNIC: Yup.string()
-        .matches(/^(\d{9}[vV]|\d{12})$/, "Invalid NIC format")
+        .matches(
+          /^(?:\d{9}[vV]|\d{12}|[A-Za-z0-9]{5,15})$/,
+          "Invalid NIC format",
+        )
         .required("NIC is required"),
       cMobileNo: Yup.string()
-        .matches(/^0\d{9}$/, "Invalid mobile number")
+        .matches(/^\+?[0-9]{7,15}$/, "Invalid phone number")
         .required("Mobile number is required"),
       cEmail: Yup.string().email("Invalid email").nullable(),
     }),
@@ -107,9 +110,12 @@ const VisitorF = () => {
             .min(3, "Name must be at least 3 characters")
             .nullable(),
           visitorNIC: Yup.string()
-            .matches(/^(\d{9}[vV]|\d{12})$/, "Invalid NIC format")
-            .nullable(),
-        })
+            .matches(
+              /^(?:\d{9}[vV]|\d{12}|[A-Za-z0-9]{5,15})$/,
+              "Enter valid NIC or Passport number",
+            )
+            .notRequired(),
+        }),
       )
       .test(
         "complete-visitor-entries",
@@ -147,7 +153,11 @@ const VisitorF = () => {
                   message: "Name must be at least 3 characters",
                 });
               }
-              if (!/^(\d{9}[vV]|\d{12})$/.test(visitor.visitorNIC)) {
+              if (
+                !/^(?:\d{9}[vV]|\d{12}|[A-Za-z0-9]{5,15})$/.test(
+                  visitor.visitorNIC,
+                )
+              ) {
                 return this.createError({
                   path: `${this.path}[${i}].visitorNIC`,
                   message: "Invalid NIC format",
@@ -156,14 +166,14 @@ const VisitorF = () => {
             }
           }
           return true;
-        }
+        },
       ),
     vehicleDetails: Yup.array()
       .of(
         Yup.object().shape({
           VehicleNo: Yup.string().required("Vehicle number is required"),
           VehicleType: Yup.string().required("Vehicle type is required"),
-        })
+        }),
       )
       .min(1, "At least one vehicle is required"),
     dateTimeDetails: Yup.object().shape({
@@ -220,7 +230,7 @@ const VisitorF = () => {
           {
             headers: { "X-CSRF-Token": csrfToken },
             withCredentials: true,
-          }
+          },
         );
 
         if (response.status === 200) {

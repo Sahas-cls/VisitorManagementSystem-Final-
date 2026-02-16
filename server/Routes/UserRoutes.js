@@ -14,7 +14,7 @@ const { body, validationResult, cookie } = require("express-validator");
 const { ValidationError, where, Op } = require("sequelize");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv").config();
+require("dotenv").config();
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const { MailtrapClient } = require("mailtrap");
@@ -23,6 +23,7 @@ const { error } = require("console");
 // const Factory = require("../models/Factory");
 require("dotenv").config();
 const checkAuthToken = require("../middlewares/authonticationToken.js"); //middleware to check author jwt token
+const frontendUrl = process.env.FRONTEND_URL;
 
 userRoutes.use(cookieParser());
 // userRoutes.get("/", csrfProtection, (req, res) => {
@@ -312,7 +313,7 @@ userRoutes.post(
             </div>
 
             <p>Click the link below to reset your password:</p>
-            <a href="http://localhost:5173/reset-user-password" style="color: #1a73e8;">Reset Password</a>
+            <a href={${frontendUrl}/reset-user-password} style="color: #1a73e8;">Reset Password</a>
 
             <p style="color:red;">Please don't share this token with anyone else.</p>
             <p style="color:red;">This token will expire 15 minutes after you receive it.</p>
@@ -482,37 +483,25 @@ userRoutes.put(
       .withMessage("resetPassword field must be a boolean"),
 
     // Conditionally validate password and confirm password fields if resetPassword is true
-    body("password")
-      .optional()
-      .isLength({ min: 6 })
-      .withMessage("Password must be at least 6 characters")
-      .custom((value, { req }) => {
-        if (req.body.resetPassword === true) {
-          if (!value) {
-            throw new Error("Password is required when resetPassword is true");
-          }
+    body("password").custom((value, { req }) => {
+      if (req.body.resetPassword === true) {
+        if (!value) {
+          throw new Error("Password is required when resetPassword is true");
         }
-        return true;
-      }),
 
-    // body("cpassword").custom((value, { req }) => {
-    //   console.log(req.body);
-    //   return;
-    //   // Only validate cpassword if resetPassword is true
-    //   if (req.body.resetPassword === true) {
-    //     // Check if cpassword exists and is equal to password
-    //     if (!value) {
-    //       throw new Error(
-    //         "Confirm password is required when resetting the password"
-    //       );
-    //     }
+        if (value.length < 6) {
+          throw new Error("Password must be at least 6 characters");
+        }
+      }
 
-    //     if (value !== req.body.password) {
-    //       throw new Error("Confirm password must match password");
-    //     }
-    //   }
-    //   return true;
-    // }),
+      // If password is provided even when resetPassword is false,
+      // validate length
+      if (value && value.length < 6) {
+        throw new Error("Password must be at least 6 characters");
+      }
+
+      return true;
+    }),
   ],
   async (req, res) => {
     console.log(req.body);

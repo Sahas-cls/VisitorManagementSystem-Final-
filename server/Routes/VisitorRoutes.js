@@ -8,7 +8,7 @@ const { body, validationResult } = require("express-validator");
 const nodemailer = require("nodemailer");
 const exceljs = require("exceljs");
 const authToken = require("../middlewares/authonticationToken");
-
+const frontendUrl = process.env.FRONTEND_URL;
 // const sequelize = new sequelize({
 //   dialect: "mysql", // Change this based on your DB type (mysql, postgres, etc.)
 //   host: "localhost", // Your DB host
@@ -552,99 +552,221 @@ visiterRoutes.get(
 //   }
 // );
 
-//new and faster query to register new visitors
+//to register new visitors
 visiterRoutes.post(
   "/registration",
   [
-    //     // Contact Person Details Validation
-    body("contactPersonDetails.cEmail")
-      .optional({ checkFalsy: true }) // Skip validation if value is not provided or is an empty string
-      .isEmail()
-      .withMessage("Invalid email format."),
+    // ==================== DEPARTMENT DETAILS ====================
+    body("departmentDetails.factory")
+      .notEmpty()
+      .withMessage("Factory is required")
+      .isString()
+      .withMessage("Factory must be a string"),
 
-    body("contactPersonDetails.cMobileNo")
-      .isMobilePhone()
-      .withMessage("Invalid mobile number format.")
-      .isLength({ min: 10, max: 15 })
-      .withMessage("Mobile number must be between 10 and 15 digits."),
+    body("departmentDetails.department")
+      .notEmpty()
+      .withMessage("Department is required")
+      .isString()
+      .withMessage("Department must be a string"),
 
-    body("contactPersonDetails.cNIC")
-      .matches(/^\d{9}[vV]$|^\d{12}$/)
-      .withMessage("ContactPerson NIC number is invalid."),
-
+    // ==================== CONTACT PERSON DETAILS ====================
     body("contactPersonDetails.cName")
       .notEmpty()
-      .withMessage("Contact person name is required.")
+      .withMessage("Name is required")
       .isString()
-      .withMessage("Name must be a string."),
-
-    //     // Date and Time Validation
-    body("dateTimeDetails.dateFrom")
-      .isISO8601()
-      .withMessage("Invalid date format for dateFrom.")
-      .toDate(),
-
-    body("dateTimeDetails.fTimeFrom")
-      .matches(/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/)
-      .withMessage("Invalid time format for fTimeFrom (HH:mm)."),
-
-    body("dateTimeDetails.fTimeTo")
-      .matches(/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/)
-      .withMessage("Invalid time format for fTimeTo (HH:mm)."),
-
-    body("dateTimeDetails.dateTo")
-      .optional()
-      .isISO8601()
-      .withMessage("Invalid date format for dateTo.")
-      .toDate(),
-
-    //     // Department Details Validation
-    body("departmentDetails.department")
-      .isNumeric()
-      .withMessage("Please select a department."),
-
-    body("departmentDetails.factory")
-      .isNumeric()
-      .withMessage("Please select a factory.")
-      .bail()
-      .notEmpty()
-      .withMessage("Please select a factory."),
-
-    //     // Vehicle Details Validation (Array of vehicles)
-    body("vehicleDetails.*.VehicleNo")
-      .optional({ checkFalsy: true })
-      .isString()
-      .withMessage("Vehicle number must be a string."),
-
-    body("vehicleDetails.*.VehicleType")
-      .optional({ checkFalsy: true })
-      .isString()
-      .withMessage("Vehicle type must be a string."),
-
-    //     // Visitor Details Validation (Array of visitors)
-    body("visitorDetails.*.visitorName")
-      .optional({ checkFalsy: true })
+      .withMessage("Name must be a string")
       .isLength({ min: 3, max: 255 })
-      .withMessage("Visitor name must be between 3 and 255 characters.")
+      .withMessage("Name must be at least 3 characters and max 255 characters"),
+
+    body("contactPersonDetails.cNIC")
+      .notEmpty()
+      .withMessage("NIC is required")
+      .matches(/^(?:\d{9}[vV]|\d{12}|[A-Za-z0-9]{5,15})$/)
+      .withMessage("Invalid NIC format"),
+
+    body("contactPersonDetails.cMobileNo")
+      .notEmpty()
+      .withMessage("Mobile number is required")
+      .matches(/^\+?[0-9]{7,15}$/)
+      .withMessage("Invalid phone number"),
+
+    body("contactPersonDetails.cEmail")
+      .optional({ nullable: true, checkFalsy: true })
+      .isEmail()
+      .withMessage("Invalid email"),
+
+    // ==================== VISITOR DETAILS ====================
+    body("visitorDetails")
+      .isArray()
+      .withMessage("Visitor details must be an array")
+      .custom((visitors, { req }) => {
+        if (!visitors) return true;
+
+        for (let i = 0; i < visitors.length; i++) {
+          const visitor = visitors[i];
+          const nameFilled =
+            visitor.visitorName && visitor.visitorName.trim().length > 0;
+          const nicFilled =
+            visitor.visitorNIC && visitor.visitorNIC.trim().length > 0;
+
+          // If any field is filled, both must be filled
+          if (nameFilled && !nicFilled) {
+            throw new Error(
+              `visitorDetails[${i}].visitorNIC: NIC is required when name is provided`,
+            );
+          }
+
+          if (nicFilled && !nameFilled) {
+            throw new Error(
+              `visitorDetails[${i}].visitorName: Name is required when NIC is provided`,
+            );
+          }
+
+          // If both are filled, validate the content
+          if (nameFilled && nicFilled) {
+            // Validate name length
+            if (visitor.visitorName.length < 3) {
+              throw new Error(
+                `visitorDetails[${i}].visitorName: Name must be at least 3 characters`,
+              );
+            }
+
+            // Validate NIC format (strict format for visitors)
+            if (
+              !/^(?:\d{9}[vV]|\d{12}|[A-Za-z0-9]{5,15})$/.test(
+                visitor.visitorNIC,
+              )
+            ) {
+              throw new Error(
+                `visitorDetails[${i}].visitorNIC: Invalid NIC format`,
+              );
+            }
+          }
+        }
+        return true;
+      }),
+
+    body("visitorDetails")
+      .isArray()
+      .withMessage("visitorDetails must be an array"),
+
+    // Individual visitor field validations (these work with the custom validator above)
+    body("visitorDetails.*.visitorName")
+      .optional({ nullable: true, checkFalsy: true })
       .isString()
-      .withMessage("Name can only contain letters."),
+      .withMessage("Visitor name must be a string")
+      .isLength({ min: 3, max: 255 })
+      .withMessage("Visitor name must be between 3 and 255 characters"),
 
     body("visitorDetails.*.visitorNIC")
-      .optional({ checkFalsy: true })
-      .matches(/^\d{9}[vV]$|^\d{12}$/)
-      .withMessage("Invalid visitor NIC number format."),
+      .optional({ nullable: true, checkFalsy: true })
+      .trim()
+      .matches(/^(?:\d{9}[vV]|\d{12}|[A-Za-z0-9]{5,15})$/)
+      .withMessage("Invalid visitor NIC format"),
 
-    //     // body("visitorDetails.*.Visitor_NIC")
-    //     //   // .optional({ checkFalsy: true })
-    //     //   .custom((value) => {
-    //     //     const valid = /^\d{9}[vV]$|^\d{12}$/.test(value);
-    //     //     if (!valid) {
-    //     //       throw new Error(
-    //     //         `Invalid NIC: "${value}". Must be 9 digits + v/V or 12 digits.`
-    //     //       );
-    //     //     }
-    //     //     return true;
-    //     //   }),
+    // ==================== VEHICLE DETAILS ====================
+    body("vehicleDetails")
+      .isArray()
+      .withMessage("Vehicle details must be an array")
+      .notEmpty()
+      .withMessage("At least one vehicle is required")
+      .isArray({ min: 1 })
+      .withMessage("At least one vehicle is required"),
+
+    body("vehicleDetails.*.VehicleNo")
+      .notEmpty()
+      .withMessage("Vehicle number is required")
+      .isString()
+      .withMessage("Vehicle number must be a string"),
+
+    body("vehicleDetails.*.VehicleType")
+      .notEmpty()
+      .withMessage("Vehicle type is required")
+      .isString()
+      .withMessage("Vehicle type must be a string"),
+
+    // ==================== DATE TIME DETAILS ====================
+    body("dateTimeDetails.dateFrom")
+      .notEmpty()
+      .withMessage("Start date is required")
+      .isISO8601()
+      .withMessage("Invalid date format")
+      .toDate()
+      .custom((value) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const inputDate = new Date(value);
+        inputDate.setHours(0, 0, 0, 0);
+
+        if (inputDate < today) {
+          throw new Error("Date cannot be in the past");
+        }
+        return true;
+      }),
+
+    body("dateTimeDetails.dateTo")
+      .notEmpty()
+      .withMessage("End date is required")
+      .isISO8601()
+      .withMessage("Invalid date format")
+      .toDate()
+      .custom((value, { req }) => {
+        const dateFrom = new Date(req.body.dateTimeDetails.dateFrom);
+        const dateTo = new Date(value);
+
+        if (dateTo < dateFrom) {
+          throw new Error("End date cannot be before start date");
+        }
+        return true;
+      }),
+
+    body("dateTimeDetails.fTimeFrom")
+      .notEmpty()
+      .withMessage("Start time is required")
+      .matches(/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/)
+      .withMessage("Invalid time format (HH:mm)"),
+
+    body("dateTimeDetails.fTimeTo")
+      .notEmpty()
+      .withMessage("End time is required")
+      .matches(/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/)
+      .withMessage("Invalid time format (HH:mm)")
+      .custom((value, { req }) => {
+        const timeFrom = req.body.dateTimeDetails.fTimeFrom;
+        const timeTo = value;
+
+        // If dates are the same, validate time range
+        const dateFrom = new Date(req.body.dateTimeDetails.dateFrom);
+        const dateTo = new Date(req.body.dateTimeDetails.dateTo);
+
+        if (dateFrom.toDateString() === dateTo.toDateString()) {
+          if (timeTo <= timeFrom) {
+            throw new Error("End time must be after start time");
+          }
+        }
+        return true;
+      }),
+
+    // ==================== CROSS-FIELD VALIDATIONS ====================
+    body().custom((value) => {
+      const { dateTimeDetails, vehicleDetails } = value;
+
+      // Validate that if dates are different, the sequence is correct
+      if (dateTimeDetails) {
+        const dateFrom = new Date(dateTimeDetails.dateFrom);
+        const dateTo = new Date(dateTimeDetails.dateTo);
+
+        // If multi-day pass, ensure vehicle details make sense
+        if (
+          dateTo > dateFrom &&
+          (!vehicleDetails || vehicleDetails.length === 0)
+        ) {
+          throw new Error("Vehicle details required for multi-day passes");
+        }
+      }
+
+      return true;
+    }),
   ],
   csrfProtection,
   [
@@ -780,7 +902,7 @@ visiterRoutes.post(
         listOfEmails,
         "New visitor arrival",
         `<p>${contactPersonDetails.cName} is waiting for your approval</p>
-        <a href="https://guston-vms.site" style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
+        <a href=${frontendUrl} style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
                 <br>
                 <br>
                 <p>Thank you,</p>
@@ -1049,7 +1171,7 @@ visiterRoutes.post(
                 <h3>Hi</h3>
                 <p>A new visitor request is pending your approval.</p>
                 <p>Please log into the visitor management system to approve or decline the request</p>
-                <a href="https://guston-vms.site" style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
+                <a href=${frontendUrl} style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
                 <br>
                 <br>
                 <p>Thank you,</p>
@@ -1221,7 +1343,7 @@ visiterRoutes.post(
                 <h3>Hi</h3>
                 <p>A new visitor has been registered</p>
                 <p>Please log into the visitor management system to review the details.</p>
-                <a href="https://guston-vms.site" style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
+                <a href=${frontendUrl} style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
                 <br>
                 <p>Thank you,</p>
                 <p>Visitor Management System</p>
@@ -1450,7 +1572,7 @@ visiterRoutes.post(
                 <h3>Hi</h3>
                 <p>A new visitor has been registered.</p>
                 <p>Please log into the visitor management system and arrange a BOI pass for him</p>
-                <a href="https://guston-vms.site" style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
+                <a href=${frontendUrl} style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
                 <p>Thank you,</p>
                 <p>Visitor Management System</p>
               `,
