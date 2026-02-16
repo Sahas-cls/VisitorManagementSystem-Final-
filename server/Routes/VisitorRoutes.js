@@ -1164,20 +1164,20 @@ visiterRoutes.post(
               .join(",");
             console.log(emailAddresses);
 
-            sendEmail(
-              emailAddresses,
-              "New Visitor Approval Required",
-              `
-                <h3>Hi</h3>
-                <p>A new visitor request is pending your approval.</p>
-                <p>Please log into the visitor management system to approve or decline the request</p>
-                <a href=${frontendUrl} style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
-                <br>
-                <br>
-                <p>Thank you,</p>
-                <p>Visitor Management System</p>
-              `,
-            );
+            // sendEmail(
+            //   emailAddresses,
+            //   "New Visitor Approval Required",
+            //   `
+            //     <h3>Hi</h3>
+            //     <p>A new visitor request is pending your approval.</p>
+            //     <p>Please log into the visitor management system to approve or decline the request</p>
+            //     <a href=${frontendUrl} style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
+            //     <br>
+            //     <br>
+            //     <p>Thank you,</p>
+            //     <p>Visitor Management System</p>
+            //   `,
+            // );
           } else {
             console.log("Cannot find users");
           }
