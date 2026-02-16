@@ -20,8 +20,6 @@ const AMain = ({
     setView(value);
   };
 
-  
-
   useEffect(() => {
     // This effect runs when screenSize changes (e.g., window resize)
     if (screenSize < 700) {
@@ -34,7 +32,7 @@ const AMain = ({
   }, [screenSize]); // Dependency array ensures it runs when screen size changes
 
   return (
-    <div className="max-h-screen overflow-y-hidden">
+    <div className=" overflow-y-hidden">
       <Header
         userId={userId}
         userName={userName}

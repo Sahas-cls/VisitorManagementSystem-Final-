@@ -106,7 +106,7 @@ const AManageUsers = () => {
 
       return errorData;
     },
-    [navigate]
+    [navigate],
   );
 
   // Fetch users with improved error handling
@@ -153,7 +153,7 @@ const AManageUsers = () => {
               // API returned success: false
               handleApiError(
                 { response: { status: 400, data: responseData } },
-                "fetch users"
+                "fetch users",
               );
             }
           } else {
@@ -180,15 +180,15 @@ const AManageUsers = () => {
           factoryId
             ? "filter users by factory"
             : name
-            ? "search users"
-            : "fetch users"
+              ? "search users"
+              : "fetch users",
         );
         setUserList([]);
       } finally {
         setIsLoading(false);
       }
     },
-    [apiUrl, csrfToken, handleApiError]
+    [apiUrl, csrfToken, handleApiError],
   );
 
   // Fetch factories
@@ -201,7 +201,7 @@ const AManageUsers = () => {
             "X-CSRF-Token": csrfToken,
           },
           withCredentials: true,
-        }
+        },
       );
       if (response.data?.data) {
         setFactories(response.data.data);
@@ -276,7 +276,7 @@ const AManageUsers = () => {
         setIsLoading(false);
       }
     },
-    [apiUrl, csrfToken, selectedFactory, searchKey, fetchUsers, handleApiError]
+    [apiUrl, csrfToken, selectedFactory, searchKey, fetchUsers, handleApiError],
   );
 
   // Filter by factory
@@ -288,7 +288,7 @@ const AManageUsers = () => {
       setInfoMessage("");
       await fetchUsers(factoryId, "");
     },
-    [fetchUsers]
+    [fetchUsers],
   );
 
   // Search by name with validation
@@ -311,7 +311,7 @@ const AManageUsers = () => {
       setSearchError("");
       await fetchUsers("", trimmedValue);
     },
-    [fetchUsers, searchKey]
+    [fetchUsers, searchKey],
   );
 
   // Clear all filters
@@ -380,7 +380,7 @@ const AManageUsers = () => {
         },
       });
     },
-    [navigate]
+    [navigate],
   );
 
   const navigateToRegister = useCallback(() => {
@@ -429,7 +429,7 @@ const AManageUsers = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6 w-full">
+    <div className="bg-gray-50 p-3 sm:p-4 md:p-6 w-full">
       {isLoading && <LoadingOverlay />}
 
       {/* Header */}
@@ -529,7 +529,7 @@ const AManageUsers = () => {
 
       {/* Users Table */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto h-[500px]">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
@@ -652,6 +652,7 @@ const AManageUsers = () => {
           </div>
         )}
       </div>
+      {/* <div className="">Hello world</div> */}
     </div>
   );
 };
