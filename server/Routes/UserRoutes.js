@@ -314,7 +314,6 @@ userRoutes.post(
 
             <p>Click the link below to reset your password:</p>
             <a href=${frontendUrl}/reset-user-password style="color: #1a73e8;">Reset Password</a>
-            <a href=${frontendUrl} style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
             <p style="color:red;">Please don't share this token with anyone else.</p>
             <p style="color:red;">This token will expire 15 minutes after you receive it.</p>
           `,

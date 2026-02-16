@@ -44,7 +44,7 @@ const Resetpassword = () => {
             "X-CSRF-Token": csrfToken,
           },
           withCredentials: true,
-        }
+        },
       );
       console.log("response- ", response);
 
@@ -58,7 +58,7 @@ const Resetpassword = () => {
       // alert(error.response.status);
       if (error.response.status === 400) {
         setServerSideErrors(
-          error.response.data.errors || error.response.data.error
+          error.response.data.errors || error.response.data.error,
         );
       } else if (error.response.status === 404) {
         setServerSideErrors(error.response.data.errors);
@@ -75,9 +75,9 @@ const Resetpassword = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-1 sm:p-6  bg-[#d7dadf] sm:bg-white">
-      <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto ">
-        <div className=" bg-[#d7dadf]  p-6 sm:p-8 rounded-xl sm:shadow-lg sm:border sm:border-black/30 w-full">
+    <div className="flex items-center justify-center min-h-screen p-1 sm:p-6  sm:bg-white">
+      <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto">
+        <div className=" bg-blue-200/50  p-6 sm:p-8 rounded-xl sm:shadow-lg sm:border sm:border-black/30 w-full">
           <h1 className="text-2xl font-bold text-center mb-8 text-gray-800">
             Reset Your Password
           </h1>
