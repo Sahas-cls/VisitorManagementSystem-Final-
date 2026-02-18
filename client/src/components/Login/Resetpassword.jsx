@@ -71,7 +71,7 @@ const Resetpassword = () => {
 
   const goBack = (e) => {
     e.preventDefault();
-    navigate(-1);
+    navigate("/");
   };
 
   return (

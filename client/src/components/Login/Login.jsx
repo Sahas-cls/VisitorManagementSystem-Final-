@@ -334,11 +334,13 @@ const Login = () => {
                     {`${import.meta.env.VITE_FRONTEND_URL}/new-visitor`}
                   </a>
                   <button
-                    onClick={() =>
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
                       copyToClipboard(
-                        `${import.meta.env.VITE_FRONTEND_URL}/new-visitor`
-                      )
-                    }
+                        `${import.meta.env.VITE_FRONTEND_URL}/new-visitor`,
+                      );
+                    }}
                     className="ml-2 text-gray-600 hover:text-blue-600"
                   >
                     <GrCopy />

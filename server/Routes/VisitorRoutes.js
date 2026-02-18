@@ -1141,16 +1141,23 @@ visiterRoutes.post(
         await transaction.commit();
         console.log("Update success...");
 
-        // sending email to department head
+        // sending email to !department head - hr user
         try {
           console.log(
             `=============factory id: ${userFactoryId} department Id: ${userDepartmentId}==========`,
           );
+          // const usersList = await department_Users.findAll({
+          //   where: {
+          //     factory_Id: userFactoryId,
+          //     department_Id: userDepartmentId,
+          //     user_category: "Department Head",
+          //   },
+          // });
+
           const usersList = await department_Users.findAll({
             where: {
               factory_Id: userFactoryId,
-              department_Id: userDepartmentId,
-              user_category: "Department Head",
+              user_category: "HR User",
             },
           });
 
@@ -1163,6 +1170,20 @@ visiterRoutes.post(
               .map((user) => user.dataValues.user_email)
               .join(",");
             console.log(emailAddresses);
+
+            sendEmail(
+              emailAddresses,
+              "New Visitor Approval Required",
+              `
+                <h3>Hi</h3>
+                <p>A new visitor has been registered</p>
+                <p>Please log into the visitor management system to review the details.</p>
+                <a href=${frontendUrl} style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
+                <br>
+                <p>Thank you,</p>
+                <p>Visitor Management System</p>
+              `,
+            );
 
             // sendEmail(
             //   emailAddresses,
@@ -1428,7 +1449,7 @@ visiterRoutes.get("/getVisitors-hr", async (req, res) => {
   }
 });
 
-// updating specific visit usign hr user account
+// updating specific visit using hr user account
 visiterRoutes.post(
   "/updateVisitor-hr",
   authToken,
