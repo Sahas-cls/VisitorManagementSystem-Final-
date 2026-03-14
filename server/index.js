@@ -15,12 +15,27 @@ server.use(cookieParser());
 const frontendUrl = process.env.FRONTEND_URL;
 console.log("frontend url = ", frontendUrl);
 
+const allowedOrigins = [
+  "https://visitor-management.online",
+  "https://www.visitor-management.online",
+  "http://localhost:5173",
+];
+
 // CORS configuration
-const corsOptions = {
-  origin: "http://localhost:5173",
-  credentials: true,
-};
-server.use(cors(corsOptions));
+server.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true); // allow non-browser requests
+      if (allowedOrigins.indexOf(origin) === -1) {
+        var msg =
+          "The CORS policy for this site does not allow access from the specified Origin.";
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+    credentials: true, // if you are using cookies / auth headers
+  }),
+);
 
 // CSRF protection middleware
 const csrfProtection = csrf({ cookie: true });
