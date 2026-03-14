@@ -18,28 +18,24 @@ server.use(cookieParser());
 const allowedOrigins = [
   "https://visitor-management.online",
   "https://www.visitor-management.online",
-  "http://localhost:5173",
 ];
 
-// Apply CORS to all routes
-server.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-CSRF-Token",
-    );
-    res.setHeader(
-      "Access-Control-Allow-Methods",
-      "GET, POST, PUT, DELETE, OPTIONS",
-    );
-  }
-  // Handle preflight requests
-  if (req.method === "OPTIONS") return res.sendStatus(204);
-  next();
-});
+server.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow requests with no origin like mobile apps or curl
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
+    credentials: true, // allow cookies for CSRF
+  }),
+);
 
 // CSRF protection (cookie-based)
 const csrfProtection = csrf({ cookie: { httpOnly: true, sameSite: "Strict" } });
