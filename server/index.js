@@ -10,36 +10,36 @@ const server = express();
 
 // ==================== MIDDLEWARE ====================
 
-// Parse JSON and URL-encoded payloads
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: false }));
 server.use(cookieParser());
 
-// Allowed frontend origins
+// Allow both www and non-www
 const allowedOrigins = [
   "https://visitor-management.online",
   "https://www.visitor-management.online",
   "http://localhost:5173",
 ];
 
-// CORS configuration
-server.use(
-  cors({
-    origin: function (origin, callback) {
-      // allow requests with no origin (like mobile apps, curl)
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg =
-          "The CORS policy for this site does not allow access from the specified Origin.";
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    },
-    credentials: true, // important to allow cookies
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
-  }),
-);
+// Apply CORS to all routes
+server.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-CSRF-Token",
+    );
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, DELETE, OPTIONS",
+    );
+  }
+  // Handle preflight requests
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
 
 // CSRF protection (cookie-based)
 const csrfProtection = csrf({ cookie: { httpOnly: true, sameSite: "Strict" } });
@@ -62,25 +62,18 @@ server.use("/api/userCategory", userCategories);
 const dashboardUrl = require("./Routes/DashboardRoutes.js");
 server.use("/api/dashboard", dashboardUrl);
 
-// ==================== CSRF TOKEN ROUTE ====================
-
-// Allow CORS + credentials for this route specifically
-server.get(
-  "/api/getCSRFToken",
-  cors({ origin: allowedOrigins, credentials: true }),
-  (req, res) => {
-    console.log("CSRF token requested");
-    res.json({ csrfToken: req.csrfToken() });
-  },
-);
+// CSRF token route
+server.get("/api/getCSRFToken", (req, res) => {
+  console.log("CSRF token requested");
+  res.json({ csrfToken: req.csrfToken() });
+});
 
 // ==================== SERVER START ====================
 const port = process.env.PORT || 3000;
-
 db.sequelize.sync({}).then(() => {
   server.listen(port, () => {
-    console.log(`\n🚀 Server is running on port ${port}`);
-    console.log("✅ CORS and CSRF configured for allowed frontend origins:");
+    console.log(`🚀 Server running on port ${port}`);
+    console.log("✅ CORS configured for allowed origins:");
     allowedOrigins.forEach((o) => console.log(" -", o));
   });
 });
