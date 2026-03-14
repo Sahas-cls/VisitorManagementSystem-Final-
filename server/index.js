@@ -24,19 +24,12 @@ const allowedOrigins = [
 // CORS configuration
 server.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // allow non-browser requests
-      if (allowedOrigins.indexOf(origin) === -1) {
-        var msg =
-          "The CORS policy for this site does not allow access from the specified Origin.";
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    },
-    credentials: true, // if you are using cookies / auth headers
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
+    credentials: false,
   }),
 );
-
 // CSRF protection middleware
 const csrfProtection = csrf({ cookie: true });
 server.use(csrfProtection);
