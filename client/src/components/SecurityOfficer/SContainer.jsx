@@ -426,7 +426,7 @@ const SConteiner = ({
           </button>
         </div>
 
-        <div className="w-full overflow-x-auto">
+        <div className="w-full overflow-x-auto rounded-md">
           <table className="tblVisitor">
             <thead className="bg-blue-400">
               <tr>
