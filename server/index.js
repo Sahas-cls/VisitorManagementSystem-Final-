@@ -18,6 +18,7 @@ server.use(cookieParser());
 const allowedOrigins = [
   "https://visitor-management.online",
   "https://www.visitor-management.online",
+  "http://localhost:5173",
 ];
 
 server.use(

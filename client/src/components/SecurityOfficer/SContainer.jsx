@@ -72,7 +72,7 @@ const SConteiner = ({
           },
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
-        }
+        },
       );
       if (response) {
         setVisitorList(response.data.data);
@@ -112,7 +112,7 @@ const SConteiner = ({
           }
         } else if (error.request) {
           setErrorMessages(
-            "Network error. Please check your internet connection."
+            "Network error. Please check your internet connection.",
           );
         }
         // alert(errorMessage);
@@ -123,6 +123,7 @@ const SConteiner = ({
   };
 
   useEffect(() => {
+    alert(`width: ${window.innerWidth}  height: ${window.innerHeight}`);
     const getCsrf = async () => {
       try {
         const response = await axios.get(`${apiUrl}/getCSRFToken`, {
@@ -199,7 +200,7 @@ const SConteiner = ({
       const response = await axios.post(
         `${apiUrl}/visitor/updateChackIn`,
         formData,
-        { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true }
+        { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true },
       );
 
       if (response.status === 200) {
@@ -266,7 +267,7 @@ const SConteiner = ({
       const response = await axios.post(
         `${apiUrl}/visitor/updateChackOut`,
         formData,
-        { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true }
+        { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true },
       );
 
       if (response.status === 200) {
@@ -300,7 +301,7 @@ const SConteiner = ({
     try {
       const response = await axios.get(
         `${apiUrl}/visitor/getDepartmentVisitors-securityVisitor/${searchKey}`,
-        { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true }
+        { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true },
       );
 
       if (response.status === 200) {
@@ -332,7 +333,7 @@ const SConteiner = ({
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
-        }
+        },
       );
 
       if (response.status === 200) {
@@ -369,7 +370,7 @@ const SConteiner = ({
       const response = await axios.post(
         `${apiUrl}/visitor/undoCheckIn`,
         { visit },
-        { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true }
+        { headers: { "X-CSRF-Token": csrfToken }, withCredentials: true },
       );
 
       if (response.status === 200) {
@@ -457,11 +458,11 @@ const SConteiner = ({
               {Array.isArray(visitorList) &&
                 visitorList.map((visitor) => {
                   const vehicleNumbers = visitor.Vehicles.map(
-                    (vehicle) => vehicle.Vehicle_No
+                    (vehicle) => vehicle.Vehicle_No,
                   ).join("/n");
 
                   const vehicleType = visitor.Vehicles.map(
-                    (vehicle) => vehicle.Vehicle_Type
+                    (vehicle) => vehicle.Vehicle_Type,
                   ).join("/n");
 
                   const visitId = visitor.Visits[0]?.Visit_Id;
@@ -504,13 +505,13 @@ const SConteiner = ({
                         <div className="flex h-full">
                           <div className="w-1/2 text-center h-full border-r border-black">
                             {new Date(
-                              visitor.Visits[0]?.Date_From
+                              visitor.Visits[0]?.Date_From,
                             ).toLocaleDateString()}
                           </div>
                           <div className="w-1/2 text-center h-full border-black">
                             {visitor.Visits[0]?.Date_To &&
                               new Date(
-                                visitor.Visits[0]?.Date_To
+                                visitor.Visits[0]?.Date_To,
                               ).toLocaleDateString()}
                           </div>
                         </div>
@@ -552,7 +553,7 @@ const SConteiner = ({
                                 onClick={(e) =>
                                   handleUndoCheckIn(
                                     e,
-                                    visitor.Visits[0].Visit_Id
+                                    visitor.Visits[0].Visit_Id,
                                   )
                                 }
                               />
@@ -583,7 +584,7 @@ const SConteiner = ({
                                 onClick={(e) =>
                                   handleUndoCheckOut(
                                     e,
-                                    visitor.Visits[0].Visit_Id
+                                    visitor.Visits[0].Visit_Id,
                                   )
                                 }
                               />
