@@ -455,7 +455,7 @@ const SConteiner = ({
             </thead>
 
             <tbody>
-              {Array.isArray(visitorList) &&
+              {Array.isArray(visitorList) && visitorList.length > 0 ? (
                 visitorList.map((visitor) => {
                   const vehicleNumbers = visitor.Vehicles.map(
                     (vehicle) => vehicle.Vehicle_No,
@@ -527,25 +527,23 @@ const SConteiner = ({
                         <div className="w-full justify-around flex">
                           <div className="flex items-center">
                             {visitor.Visits[0].Checkin_Time ? (
-                              <p className="bg-yellow-300 py-1 px-1 rounded-md border border-black">
+                              <p className="bg-blue-300 py-1 px-1 rounded-md border border-black">
                                 {formatTime(visitor.Visits[0].Checkin_Time)}
                               </p>
                             ) : isCheckedIn ? (
-                              <p className="bg-yellow-300 py-1 px-1 rounded-md border border-black">
+                              <p className="bg-blue-300 py-1 px-1 rounded-md border border-black">
                                 {formatTime(isCheckedIn)}
                               </p>
                             ) : (
                               <div className="flex items-center">
-                                <div className="">
-                                  <button
-                                    className="bg-blue-300 px-2 py-1 rounded-md hover:bg-blue-500 hover:text-white whitespace-nowrap"
-                                    onClick={(e) =>
-                                      handleCheckIn(e, visitor.Visits[0])
-                                    }
-                                  >
-                                    In
-                                  </button>
-                                </div>
+                                <button
+                                  className="bg-blue-300 px-2 py-1 rounded-md hover:bg-blue-500 hover:text-white whitespace-nowrap"
+                                  onClick={(e) =>
+                                    handleCheckIn(e, visitor.Visits[0])
+                                  }
+                                >
+                                  In
+                                </button>
                               </div>
                             )}
                             <div className="text-xl text-red-600 hover:text-blue-500 cursor-pointer">
@@ -578,7 +576,6 @@ const SConteiner = ({
                                 Out
                               </button>
                             )}
-
                             <div className="text-xl text-red-600 hover:text-blue-500 cursor-pointer">
                               <IoArrowUndo
                                 onClick={(e) =>
@@ -594,7 +591,18 @@ const SConteiner = ({
                       </td>
                     </tr>
                   );
-                })}
+                })
+              ) : (
+                <tr>
+                  <td
+                    colSpan={7}
+                    className="text-center text-gray-500 py-4 italic"
+                  >
+                    No visits yet. New visitors will appear here once they check
+                    in.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
