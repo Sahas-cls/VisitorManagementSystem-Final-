@@ -24,12 +24,12 @@ const Header = ({
   let screenSize = UseWindowWidth();
   const vmsLogo = "../assets/vmsLogo.png";
   const [displayHamMenu, setdisplayHamMenu] = useState(
-    displayHamb !== undefined ? displayHamb : true
+    displayHamb !== undefined ? displayHamb : true,
   );
   // alert(screenSize);
   // alert(displayHamb);
   const navigate = useNavigate(); // Initialize navigate hook
-
+  // console.log("user category: ", userCategory)
   useEffect(() => {
     const getCsrf = async () => {
       try {
@@ -77,7 +77,7 @@ const Header = ({
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
-        }
+        },
       );
 
       // alert(response.data);
@@ -94,7 +94,7 @@ const Header = ({
       // Handle any errors during logout
       console.error(
         "Logout failed:",
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
     }
   };
@@ -124,11 +124,19 @@ const Header = ({
 
       <div className="flex items-center justify-center">
         <div className="text-center flex flex-row items-center justify-center">
-          <h1 className="mr-4 text-xl font-semibold text-white header-greeting">
-            Hi{" "}
-            <span className="header-greeting" style={{ color: "White" }}>
-              {userName}
-            </span>
+          <h1
+            className={`mr-4 ${userCategory === "Security Officer" ? "text-sm" : "text-xl"}  font-semibold text-white header-greeting`}
+          >
+            {userCategory === "Security Officer" ? (
+              "Hello"
+            ) : (
+              <div>
+                Hi{" "}
+                <span className="header-greeting" style={{ color: "White" }}>
+                  {userName}
+                </span>
+              </div>
+            )}
           </h1>
 
           {/* <p className="text-right mr-4">{userDepartment}</p> */}

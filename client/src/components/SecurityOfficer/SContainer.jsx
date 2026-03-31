@@ -123,7 +123,7 @@ const SConteiner = ({
   };
 
   useEffect(() => {
-    alert(`width: ${window.innerWidth}  height: ${window.innerHeight}`);
+    // alert(`width: ${window.innerWidth}  height: ${window.innerHeight}`);
     const getCsrf = async () => {
       try {
         const response = await axios.get(`${apiUrl}/getCSRFToken`, {
@@ -428,7 +428,7 @@ const SConteiner = ({
 
         <div className="w-full overflow-x-auto">
           <table className="tblVisitor">
-            <thead className="bg-blue-400">
+            <thead className="bg-blue-400 text-xs">
               <tr>
                 <th className="pt-3 pb-3 border-0 text-white border-b-4 border-white">
                   Name
@@ -471,7 +471,7 @@ const SConteiner = ({
 
                   return (
                     <tr
-                      className="odd:bg-blue-100 even:bg-blue-200 border-b border-white hover:text-black"
+                      className="odd:bg-blue-100 even:bg-blue-200 border-b border-white hover:text-black text-xs"
                       key={visitor.ContactPerson_Id}
                     >
                       <td
@@ -543,7 +543,7 @@ const SConteiner = ({
                                       handleCheckIn(e, visitor.Visits[0])
                                     }
                                   >
-                                    Check in
+                                    In
                                   </button>
                                 </div>
                               </div>
@@ -575,7 +575,7 @@ const SConteiner = ({
                                   handleCheckOut(e, visitor.Visits[0])
                                 }
                               >
-                                Check out
+                                Out
                               </button>
                             )}
 
