@@ -112,7 +112,7 @@ const Header = ({
           ""
         ) : (
           <GiHamburgerMenu
-            className={`text-3xl text-white header-icons duration-300 ${
+            className={`${userCategory === "Security Officer" ? "hidden" : "block"} text-3xl text-white header-icons duration-300 ${
               toggleSidebar ? "rotate-180" : ""
             }`}
             onClick={() => setToggleSidebar(!toggleSidebar)}
