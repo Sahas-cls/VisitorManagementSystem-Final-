@@ -428,27 +428,27 @@ const SConteiner = ({
 
         <div className="w-full overflow-x-auto">
           <table className="tblVisitor">
-            <thead className="bg-blue-400 text-xs">
+            <thead className="bg-blue-400">
               <tr>
-                <th className="pt-3 pb-3 border-0 text-white border-b-4 border-white">
+                <th className="pt-3 pb-3 border-0 text-[12px] text-white border-b-4 border-white">
                   Name
                 </th>
-                <th className="border-0 text-white border-b-4 border-white">
+                <th className="border-0 text-[12px] text-white border-b-4 border-white">
                   NIC/PPNo
                 </th>
-                <th className="border-0 text-white border-b-4 border-white">
+                <th className="border-0 text-[12px] text-white border-b-4 border-white">
                   Vehicle Type
                 </th>
-                <th className="border-0 text-white border-b-4 border-white">
+                <th className="border-0 text-[12px] text-white border-b-4 border-white">
                   Vehicle No
                 </th>
-                <th className="border-0 text-white border-b-4 border-white">
+                <th className="border-0 text-[12px] text-white border-b-4 border-white">
                   Visiting Date
                 </th>
-                <th className="border-0 text-white border-b-4 border-white">
+                <th className="border-0 text-[12px] text-white border-b-4 border-white">
                   Reference
                 </th>
-                <th className="border-0 text-white border-b-4 border-white">
+                <th className="border-0 text-[12px] text-white border-b-4 border-white">
                   Check In/Out
                 </th>
               </tr>
@@ -471,7 +471,7 @@ const SConteiner = ({
 
                   return (
                     <tr
-                      className="odd:bg-blue-100 even:bg-blue-200 border-b border-white hover:text-black text-xs"
+                      className="odd:bg-blue-100 even:bg-blue-200 border-b border-white hover:text-black text-[10px]"
                       key={visitor.ContactPerson_Id}
                     >
                       <td
