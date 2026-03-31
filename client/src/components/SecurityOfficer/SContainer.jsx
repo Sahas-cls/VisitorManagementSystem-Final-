@@ -525,7 +525,7 @@ const SConteiner = ({
                         style={{ border: "0", borderLeft: "1px solid white" }}
                       >
                         <div className="w-full justify-around flex">
-                          <div className="flex items-center">
+                          <div className="flex items-center text-[5px]">
                             {visitor.Visits[0].Checkin_Time ? (
                               <p className="bg-green-300 py-1 px-2 rounded-md border border-black">
                                 {formatTime(visitor.Visits[0].Checkin_Time)}
