@@ -527,11 +527,11 @@ const SConteiner = ({
                         <div className="w-full justify-around flex">
                           <div className="flex items-center">
                             {visitor.Visits[0].Checkin_Time ? (
-                              <p className="bg-green-300 py-1 px-1 rounded-md border border-black">
+                              <p className="bg-yellow-300 py-1 px-1 rounded-md border border-black">
                                 {formatTime(visitor.Visits[0].Checkin_Time)}
                               </p>
                             ) : isCheckedIn ? (
-                              <p className="bg-green-300 py-1 px-1 rounded-md border border-black">
+                              <p className="bg-yellow-300 py-1 px-1 rounded-md border border-black">
                                 {formatTime(isCheckedIn)}
                               </p>
                             ) : (
