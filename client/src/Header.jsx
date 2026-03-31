@@ -100,7 +100,9 @@ const Header = ({
   };
   // alert(displayHamMenu);
   return (
-    <header className=" bg-gradient-to-r from-[#3b82f6] to-blue-900 min-h-20 flex justify-between px-4 md:px-9 border-b-2 border-b-white">
+    <header
+      className={` bg-gradient-to-r from-[#3b82f6] to-blue-900 ${userCategory === "Security Officer" ? "min-h-14" : "min-h-20"} flex justify-between px-4 md:px-9 border-b-2 border-b-white`}
+    >
       <div
         className={`flex items-center ml-9 ${
           displayHamMenu === false ? "hidden" : ""

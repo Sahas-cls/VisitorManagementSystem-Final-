@@ -397,7 +397,7 @@ const SConteiner = ({
         {/* <h1 className="cTitle">Incoming Visitors List.</h1> */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4 p-2">
           {/* Search Input - Takes full width on mobile, 60% on larger screens */}
-          <div className="w-full">
+          <div className="w-full text-xs">
             <div className="relative flex items-center justify-end">
               <input
                 type="text"
