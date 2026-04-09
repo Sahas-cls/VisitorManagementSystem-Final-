@@ -69,7 +69,7 @@ const RContainer = ({
             },
             headers: { "X-CSRF-Token": csrfToken },
             withCredentials: true,
-          }
+          },
         );
         if (response) {
           setVisitorList(response.data.data);
@@ -94,7 +94,7 @@ const RContainer = ({
             }
           } else if (error.request) {
             setErrorMessages(
-              "Network error. Please check your internet connection."
+              "Network error. Please check your internet connection.",
             );
           }
           alert(errorMessage);
@@ -113,7 +113,9 @@ const RContainer = ({
       {/* <h1>{userDepartmentId}</h1> */}
       {/* <h1>4654: {userId || 123}</h1> */}
       <form action="" onSubmit={() => alert("submitting")} className="w-full">
-        <h1 className="text-md mt-2 mb-2 font-extrabold text-center text-lg">Visitors List</h1>
+        <h1 className="text-md mt-2 mb-2 font-extrabold text-center text-lg">
+          Visitors List
+        </h1>
 
         <div className="w-full overflow-x-auto">
           <table className="w-full">
@@ -126,7 +128,7 @@ const RContainer = ({
                   NIC/PPNo
                 </th>
                 <th className="border-0 bg-blue-500 text-white text-left text-sm">
-                  Vehicle Type  
+                  Vehicle Type
                 </th>
                 <th className="border-0 bg-blue-500 text-white text-left text-sm">
                   Vehicle No
@@ -142,12 +144,12 @@ const RContainer = ({
               {visitorList &&
                 visitorList.map((visitor) => {
                   const vehicleNumbers = visitor.Vehicles.map(
-                    (vehicle) => vehicle.Vehicle_No
-                  ).join("/n");
+                    (vehicle) => vehicle.Vehicle_No,
+                  ).join(", ");
 
                   const vehicleType = visitor.Vehicles.map(
-                    (vehicle) => vehicle.Vehicle_Type
-                  ).join("/n");
+                    (vehicle) => vehicle.Vehicle_Type,
+                  ).join(", ");
 
                   return (
                     <tr
@@ -173,7 +175,7 @@ const RContainer = ({
                         <div className="h-full md:flex md:gap-1">
                           <div className="w-1/2 text-center md:pr-1 md:h-full md:border-r border-black mb-0">
                             {new Date(
-                              visitor.Visits[0]?.Date_From
+                              visitor.Visits[0]?.Date_From,
                             ).toLocaleDateString()}{" "}
                           </div>
                           {/* &nbsp;-&nbsp; */}
@@ -181,7 +183,7 @@ const RContainer = ({
                           <div className="w-1/2 text-center md:h-full border-black">
                             {visitor.Visits[0]?.Date_To &&
                               new Date(
-                                visitor.Visits[0]?.Date_To
+                                visitor.Visits[0]?.Date_To,
                               ).toLocaleDateString()}
                           </div>
                         </div>

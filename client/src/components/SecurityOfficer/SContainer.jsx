@@ -459,11 +459,11 @@ const SConteiner = ({
                 visitorList.map((visitor) => {
                   const vehicleNumbers = visitor.Vehicles.map(
                     (vehicle) => vehicle.Vehicle_No,
-                  ).join("/n");
+                  ).join(", ");
 
                   const vehicleType = visitor.Vehicles.map(
                     (vehicle) => vehicle.Vehicle_Type,
-                  ).join("/n");
+                  ).join(", ");
 
                   const visitId = visitor.Visits[0]?.Visit_Id;
                   const isCheckedIn = checkedVisitors[visitId]?.checkedIn;
