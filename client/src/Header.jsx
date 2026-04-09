@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { FaUserCircle } from "react-icons/fa";
 import companyLogo from "./assets/compLogo.png";
@@ -58,6 +58,24 @@ const Header = ({
   }, []);
 
   // useEffect(() => {}, [screenSize]);
+
+  const userDataRef = useRef();
+
+  useEffect(() => {
+    function isOutsideClick(e) {
+      if (!userDataRef.current) return;
+
+      if (!userDataRef.current.contains(e.target)) {
+        setUserVisible(false);
+      }
+    }
+
+    document.addEventListener("mousedown", isOutsideClick);
+
+    return () => {
+      document.removeEventListener("mousedown", isOutsideClick);
+    };
+  }, []);
 
   const changeUserDrop = () => {
     setUserVisible(!userVisible);
@@ -153,6 +171,7 @@ const Header = ({
           className={`userDropdown z-20 ${
             userVisible === true ? "visible" : "noneVisible"
           }`}
+          ref={userDataRef}
         >
           <ul>
             {/* <li>{userName}</li> */}
