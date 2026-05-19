@@ -32,6 +32,7 @@ const SConteiner = ({
   const [visitorList, setVisitorList] = useState([]);
   const [checkedVisitors, setCheckedVisitors] = useState({});
   const apiUrl = import.meta.env.VITE_API_URL;
+  const crrTime = new Date().toLocaleTimeString();
 
   const navigate = useNavigate();
   const windowWidth = UseWindowWidth();
@@ -62,6 +63,7 @@ const SConteiner = ({
   };
 
   const getVisitorData = async () => {
+    setErrorMessages("");
     try {
       const response = await axios.get(
         `${apiUrl}/visitor/getDepartmentVisitors-securityVisitor`,
@@ -76,9 +78,8 @@ const SConteiner = ({
       );
       if (response) {
         setVisitorList(response.data.data);
-        console.log("data from backend", response.data.data);
+        console.log("Page refreshed at: ");
         // Initialize checkedVisitors state with existing check-in/out times
-
         const initialChecked = {};
         if (Array.isArray(response?.data?.data)) {
           response.data.data.forEach((visitor) => {
@@ -427,6 +428,13 @@ const SConteiner = ({
         </div>
 
         <div className="w-full overflow-x-auto rounded-md">
+          <div className="">
+            <h3 className=" py-2">
+              Refreshed At:{" "}
+              <span className="text-red-500 font-bold">{crrTime}</span>
+            </h3>
+          </div>
+          {/* <br /> */}
           <table className="tblVisitor">
             <thead className="bg-blue-400">
               <tr>

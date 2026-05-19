@@ -9,71 +9,76 @@ const db = require("../models");
 // Debug: Check what models are available
 console.log("Available models in db:", Object.keys(db));
 console.log("getting dashboard data");
+
 // 1. Get Dashboard Summary Counts
 exports.getDashboardSummary = async (req, res, next) => {
   try {
-    // Get date from query params, default to today
+    // 1. Get date from query params (default = today)
     let selectedDate = new Date();
+    let department = null;
+
     if (req.query.date) {
       selectedDate = new Date(req.query.date);
     }
+
+    if (req.query.departmentId) {
+      department = req.query.departmentId;
+    }
+
+    // Normalize to start of the day
     selectedDate.setHours(0, 0, 0, 0);
+
     const nextDay = new Date(selectedDate);
     nextDay.setDate(nextDay.getDate() + 1);
 
-    // Check if Visits model exists
+    // 2. Check model
     if (!db.Visits) {
       throw new Error("Visits model not found in database");
     }
 
-    // Total visits scheduled for selected date (based on Date_From)
-    const totalTodayVisits = await db.Visits.count({
-      where: {
-        Date_From: {
-          [Op.between]: [selectedDate, nextDay],
-        },
+    // 3. Build dynamic WHERE clause
+    const baseWhere = {
+      Date_From: {
+        [Op.gte]: selectedDate,
+        [Op.lt]: nextDay,
       },
+    };
+
+    // Only add department filter if it exists
+    if (department) {
+      baseWhere.Department_Id = department;
+    }
+
+    // 4. Run queries
+    const totalTodayVisits = await db.Visits.count({
+      where: baseWhere,
     });
 
-    // Current visits (visits that have checked in but not checked out yet)
     const currentVisits = await db.Visits.count({
       where: {
-        Date_From: {
-          [Op.between]: [selectedDate, nextDay],
-        },
-        Checkin_Time: {
-          [Op.not]: null,
-        },
+        ...baseWhere,
+        Checkin_Time: { [Op.not]: null },
         Checkout_Time: null,
       },
     });
 
-    // Yet to visit (scheduled but not checked in yet)
     const yetToVisit = await db.Visits.count({
       where: {
-        Date_From: {
-          [Op.between]: [selectedDate, nextDay],
-        },
+        ...baseWhere,
         Checkin_Time: null,
         Checkout_Time: null,
       },
     });
 
-    // Visits that have completed (checked in and checked out)
     const completedVisits = await db.Visits.count({
       where: {
-        Date_From: {
-          [Op.between]: [selectedDate, nextDay],
-        },
-        Checkin_Time: {
-          [Op.not]: null,
-        },
-        Checkout_Time: {
-          [Op.not]: null,
-        },
+        ...baseWhere,
+        Checkin_Time: { [Op.not]: null },
+        Checkout_Time: { [Op.not]: null },
       },
     });
 
+    // 5. Response
     res.status(200).json({
       success: true,
       data: {
@@ -85,7 +90,10 @@ exports.getDashboardSummary = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Dashboard summary error:", error);
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 };
 
@@ -196,7 +204,7 @@ exports.getTodaysVisitors = async (req, res, next) => {
               "ContactPerson_Email",
               "ContactPerson_NIC",
             ],
-          }
+          },
         );
       }
 

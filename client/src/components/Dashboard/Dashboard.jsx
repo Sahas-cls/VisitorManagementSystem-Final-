@@ -101,8 +101,8 @@ const Dashboard = ({
       userCategory === "HR User"
         ? ""
         : userCategory === "Reception"
-        ? ""
-        : userDepartmentId,
+          ? ""
+          : userDepartmentId,
     status: "",
   });
   const [activeTab, setActiveTab] = useState("visitors");
@@ -213,27 +213,50 @@ const Dashboard = ({
       } else {
         setLoading(true);
       }
+
       setError(null);
 
+      // ✅ Ensure selectedDate is a real Date object
+      const dateObj =
+        selectedDate instanceof Date ? selectedDate : new Date(selectedDate);
+
+      // Optional safety check
+      if (isNaN(dateObj)) {
+        throw new Error("Invalid date provided");
+      }
+
+      const formattedDate = dateObj.toISOString().split("T")[0];
+
+      const params = {
+        date: formattedDate,
+        ...(userDepartmentId ? { departmentId: userDepartmentId } : {}),
+      };
+
+      const upcomingParams = {
+        ...filters,
+        date: formattedDate,
+      };
+
       const [summaryRes, upcomingRes] = await Promise.all([
-        axios.get(`${apiUrl}/dashboard/summary`, {
-          params: { date: selectedDate },
-        }),
-        axios.get(`${apiUrl}/dashboard/upcoming`, {
-          params: { ...filters, date: selectedDate },
-        }),
+        axios.get(`${apiUrl}/dashboard/summary`, { params }),
+        axios.get(`${apiUrl}/dashboard/upcoming`, { params: upcomingParams }),
       ]);
-      console.log("upcoming res: ", upcomingRes);
-      if (summaryRes.data.success) {
+
+      if (summaryRes?.data?.success) {
         setSummaryData(summaryRes.data.data);
       }
 
-      if (upcomingRes.data.success) {
-        setUpcomingVisitors(upcomingRes.data.data.visits);
+      if (upcomingRes?.data?.success) {
+        setUpcomingVisitors(upcomingRes.data.data.visits || []);
       }
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
-      setError("Failed to load dashboard data. Please try again.");
+
+      setError(
+        error?.response?.data?.error ||
+          error.message ||
+          "Failed to load dashboard data",
+      );
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -262,14 +285,14 @@ const Dashboard = ({
           (stat) => ({
             Factory_Name: stat.name || stat.Factory_Name || "Unknown Factory",
             visitCount: stat.value || stat.visitCount || 0,
-          })
+          }),
         );
 
         const transformedCategoryStats = (data.categoryStats || []).map(
           (stat) => ({
             categoryName: stat.name || stat.categoryName || "Unknown Category",
             visitCount: stat.value || stat.visitCount || 0,
-          })
+          }),
         );
 
         setStatistics({
@@ -323,8 +346,8 @@ const Dashboard = ({
       (visit.CheckIn_Time && visit.CheckOut_Time
         ? "Completed Visit"
         : visit.CheckIn_Time
-        ? "Ongoing Visit"
-        : "Upcoming Visit");
+          ? "Ongoing Visit"
+          : "Upcoming Visit");
 
     const statusConfig = {
       "User Approval Pending": {
@@ -397,7 +420,7 @@ const Dashboard = ({
 
   const toggleRowExpansion = (id) => {
     setExpandedRows((prev) =>
-      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id],
     );
   };
 
@@ -1181,7 +1204,7 @@ const Dashboard = ({
                           .filter(
                             (dept) =>
                               !filters.factoryId ||
-                              dept.Factory_Id == filters.factoryId
+                              dept.Factory_Id == filters.factoryId,
                           )
                           .map((dept) => (
                             <option
@@ -1310,7 +1333,7 @@ const Dashboard = ({
                               {hasActiveFilters
                                 ? "Try adjusting your filters or search terms"
                                 : `No visitors scheduled for ${formatDateDisplay(
-                                    selectedDate
+                                    selectedDate,
                                   )}`}
                             </p>
                           </div>
@@ -1350,7 +1373,7 @@ const Dashboard = ({
                                         >
                                           {visitor.Visitor_Name}
                                         </span>
-                                      )
+                                      ),
                                     )}
                                     {visit.Visitors?.length > 3 && (
                                       <span className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-lg font-medium">
@@ -1604,7 +1627,7 @@ const Dashboard = ({
                     {statistics.factoryStats.reduce(
                       (max, stat) =>
                         stat.visitCount > max.visitCount ? stat : max,
-                      statistics.factoryStats[0]
+                      statistics.factoryStats[0],
                     )?.Factory_Name || "N/A"}
                   </div>
                   <div className="flex items-center gap-2 text-sm">
@@ -1612,7 +1635,7 @@ const Dashboard = ({
                       {statistics.factoryStats.reduce(
                         (max, stat) =>
                           stat.visitCount > max.visitCount ? stat : max,
-                        statistics.factoryStats[0]
+                        statistics.factoryStats[0],
                       )?.visitCount || 0}
                     </span>
                     <span className="text-gray-500">visits this month</span>
@@ -1638,7 +1661,7 @@ const Dashboard = ({
                     {statistics.categoryStats.reduce(
                       (max, stat) =>
                         stat.visitCount > max.visitCount ? stat : max,
-                      statistics.categoryStats[0]
+                      statistics.categoryStats[0],
                     )?.categoryName || "N/A"}
                   </div>
                   <div className="flex items-center gap-2 text-sm">
@@ -1646,7 +1669,7 @@ const Dashboard = ({
                       {statistics.categoryStats.reduce(
                         (max, stat) =>
                           stat.visitCount > max.visitCount ? stat : max,
-                        statistics.categoryStats[0]
+                        statistics.categoryStats[0],
                       )?.visitCount || 0}
                     </span>
                     <span className="text-gray-500">visitors this month</span>
@@ -1669,7 +1692,7 @@ const Dashboard = ({
                   ? Math.round(
                       (summaryData.completedVisits /
                         summaryData.totalTodayVisits) *
-                        100
+                        100,
                     )
                   : 0}
                 %
@@ -1683,7 +1706,7 @@ const Dashboard = ({
                         ? Math.round(
                             (summaryData.completedVisits /
                               summaryData.totalTodayVisits) *
-                              100
+                              100,
                           )
                         : 0
                     }%`,

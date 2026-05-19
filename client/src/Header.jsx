@@ -69,7 +69,7 @@ const Header = ({
         setUserVisible(false);
       }
     }
-
+// hansika 
     document.addEventListener("mousedown", isOutsideClick);
 
     return () => {
