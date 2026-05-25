@@ -26,7 +26,6 @@ async function sendEmail(to, subject, text) {
       html: text,
     });
 
-    
     console.log("Resend response:", result);
     console.log("Recipients:", recipients);
 
@@ -53,3 +52,4 @@ async function sendEmail(to, subject, text) {
 }
 
 module.exports = sendEmail;
+

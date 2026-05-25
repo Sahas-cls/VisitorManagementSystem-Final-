@@ -147,6 +147,33 @@ userRoutes.get("/getUserName/:id", async (req, res) => {
   }
 });
 
+userRoutes.post("/authCheck", csrfProtection, async (req, res) => {
+  const { authToken } = req.cookies;
+
+  if (!authToken) {
+    return res.status(401).json({ status: "false", msg: "Token not found" });
+  }
+
+  try {
+    const decoded = jwt.verify(authToken, process.env.JWT_SECRET);
+    console.log("decoded data: ", decoded);
+    // DATA SHOULD SEND TO CLIENT
+    const data = {
+      userName: decoded.userName,
+      userCategory: decoded.userCategory,
+      department: decoded.departmentId,
+    };
+
+    return res
+      .status(200)
+      .json({ status: true, msg: "Auto login success", data: data });
+  } catch (error) {
+    console.error(error);
+    return res.status(404).json({ status: false, msg: "Auto login failed" });
+  }
+});
+
+// login function
 userRoutes.post(
   "/login",
   csrfProtection,
@@ -180,11 +207,15 @@ userRoutes.post(
             factoryId: user.Factory_Id,
           },
           process.env.JWT_SECRET,
-          { expiresIn: "1h" },
+          { expiresIn: "7d" }, // remain until 7 days
         );
         console.log("factory_Id: ", user.factory_Id);
 
-        res.cookie("authToken", token, { httpOnly: true, secure: false });
+        res.cookie("authToken", token, {
+          httpOnly: true,
+          secure: false,
+          maxAge: 7 * 24 * 60 * 60 * 1000, // remain until 7 days
+        });
         console.log("Login success-------------------->cms");
         res.status(200).json({
           msg: "Login success",

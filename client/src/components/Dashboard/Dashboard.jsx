@@ -68,7 +68,7 @@ const Dashboard = ({
     departments: [],
   });
 
-  console.log("factory list and dep set", filterOptions);
+  // console.log("factory list and dep set", filterOptions);
 
   const [statistics, setStatistics] = useState({
     factoryStats: [],
@@ -108,7 +108,7 @@ const Dashboard = ({
   const [activeTab, setActiveTab] = useState("visitors");
   const [showFilters, setShowFilters] = useState(false);
 
-  // Enhanced color palette
+  // color palette
   const COLORS = [
     "#6366F1", // Indigo
     "#10B981", // Emerald
