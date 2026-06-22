@@ -92,15 +92,8 @@ const VisitorF = () => {
         .min(3, "Name must be at least 3 characters")
         .max(255, "Name too long")
         .required("Name is required"),
-      cNIC: Yup.string()
-        .matches(
-          /^(?:\d{9}[vV]|\d{12}|[A-Za-z0-9]{5,15})$/,
-          "Invalid NIC format",
-        )
-        .required("NIC is required"),
-      cMobileNo: Yup.string()
-        .matches(/^\+?[0-9]{7,15}$/, "Invalid phone number")
-        .required("Mobile number is required"),
+      cNIC: Yup.string().required("NIC is required"),
+      cMobileNo: Yup.string().required("Mobile number is required"),
       cEmail: Yup.string().email("Invalid email").nullable(),
     }),
     visitorDetails: Yup.array()
@@ -109,12 +102,7 @@ const VisitorF = () => {
           visitorName: Yup.string()
             .min(3, "Name must be at least 3 characters")
             .nullable(),
-          visitorNIC: Yup.string()
-            .matches(
-              /^(?:\d{9}[vV]|\d{12}|[A-Za-z0-9]{5,15})$/,
-              "Enter valid NIC or Passport number",
-            )
-            .notRequired(),
+          visitorNIC: Yup.string().notRequired(),
         }),
       )
       .test(
@@ -153,16 +141,16 @@ const VisitorF = () => {
                   message: "Name must be at least 3 characters",
                 });
               }
-              if (
-                !/^(?:\d{9}[vV]|\d{12}|[A-Za-z0-9]{5,15})$/.test(
-                  visitor.visitorNIC,
-                )
-              ) {
-                return this.createError({
-                  path: `${this.path}[${i}].visitorNIC`,
-                  message: "Invalid NIC format",
-                });
-              }
+              // if (
+              //   !/^(?:\d{9}[vV]|\d{12}|[A-Za-z0-9]{5,15})$/.test(
+              //     visitor.visitorNIC,
+              //   )
+              // ) {
+              //   return this.createError({
+              //     path: `${this.path}[${i}].visitorNIC`,
+              //     message: "Invalid NIC format",
+              //   });
+              // }
             }
           }
           return true;

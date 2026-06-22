@@ -21,85 +21,85 @@ const Login = () => {
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   // ✅ Memoize tryAutoLogin to prevent unnecessary re-renders
-  const tryAutoLogin = useCallback(async () => {
-    // ✅ Prevent multiple simultaneous auto-login attempts
-    if (isAutoLoggingIn || hasAttemptedAutoLogin) {
-      console.log("Auto-login already attempted or in progress, skipping...");
-      return;
-    }
+  // const tryAutoLogin = useCallback(async () => {
+  //   // ✅ Prevent multiple simultaneous auto-login attempts
+  //   if (isAutoLoggingIn || hasAttemptedAutoLogin) {
+  //     console.log("Auto-login already attempted or in progress, skipping...");
+  //     return;
+  //   }
 
-    if (!csrfToken) {
-      console.log("No CSRF token available yet, skipping auto-login");
-      return;
-    }
+  //   if (!csrfToken) {
+  //     console.log("No CSRF token available yet, skipping auto-login");
+  //     return;
+  //   }
 
-    console.log("sending auto login request 🤖🤖🤖");
-    setIsAutoLoggingIn(true);
+  //   console.log("sending auto login request 🤖🤖🤖");
+  //   setIsAutoLoggingIn(true);
 
-    try {
-      const isValid = await axios.post(
-        `${apiUrl}/user/authCheck`,
-        {},
-        {
-          headers: { "X-CSRF-Token": csrfToken },
-          withCredentials: true,
-          timeout: 10000, // ✅ Add timeout to prevent hanging requests
-        },
-      );
+  //   try {
+  //     const isValid = await axios.post(
+  //       `${apiUrl}/user/authCheck`,
+  //       {},
+  //       {
+  //         headers: { "X-CSRF-Token": csrfToken },
+  //         withCredentials: true,
+  //         timeout: 10000, // ✅ Add timeout to prevent hanging requests
+  //       },
+  //     );
 
-      console.log(isValid);
+  //     console.log(isValid);
 
-      if (isValid.status === 200) {
-        setHasAttemptedAutoLogin(true); // ✅ Mark as attempted on success
+  //     if (isValid.status === 200) {
+  //       setHasAttemptedAutoLogin(true); // ✅ Mark as attempted on success
 
-        await swal.fire({
-          title: "User login success",
-          text: "",
-          icon: "success",
-          showCancelButton: false,
-          confirmButtonText: "Ok",
-          confirmButtonColor: "#d33",
-          cancelButtonColor: "#3085d6",
-        });
+  //       await swal.fire({
+  //         title: "User login success",
+  //         text: "",
+  //         icon: "success",
+  //         showCancelButton: false,
+  //         confirmButtonText: "Ok",
+  //         confirmButtonColor: "#d33",
+  //         cancelButtonColor: "#3085d6",
+  //       });
 
-        setSErrors({ type: "success", text: isValid.data.msg });
+  //       setSErrors({ type: "success", text: isValid.data.msg });
 
-        const userCategory = isValid.data.data.userCategory || "unknown";
-        console.log("user category: ", isValid);
+  //       const userCategory = isValid.data.data.userCategory || "unknown";
+  //       console.log("user category: ", isValid);
 
-        switch (userCategory) {
-          case "Department Head":
-            navigate("/dashboard-d-head");
-            break;
-          case "Department User":
-            navigate("/dashboard-clerk");
-            break;
-          case "Reception":
-            navigate("/dashboard-recept");
-            break;
-          case "HR User":
-            navigate("/dashboard-hr");
-            break;
-          case "Security Officer":
-            navigate("/dashboard-security-officer");
-            break;
-          case "Admin":
-            navigate("/dashboard-administrator");
-            break;
-          default:
-            console.log("Unknown user category:", userCategory);
-            break;
-        }
-      }
-    } catch (error) {
-      console.error("Auto-login failed:", error);
-      // ✅ Don't mark as attempted on error to allow retry?
-      // Actually, we should mark it to prevent infinite retries
-      setHasAttemptedAutoLogin(true);
-    } finally {
-      setIsAutoLoggingIn(false);
-    }
-  }, [csrfToken, apiUrl, navigate, isAutoLoggingIn, hasAttemptedAutoLogin]);
+  //       switch (userCategory) {
+  //         case "Department Head":
+  //           navigate("/dashboard-d-head");
+  //           break;
+  //         case "Department User":
+  //           navigate("/dashboard-clerk");
+  //           break;
+  //         case "Reception":
+  //           navigate("/dashboard-recept");
+  //           break;
+  //         case "HR User":
+  //           navigate("/dashboard-hr");
+  //           break;
+  //         case "Security Officer":
+  //           navigate("/dashboard-security-officer");
+  //           break;
+  //         case "Admin":
+  //           navigate("/dashboard-administrator");
+  //           break;
+  //         default:
+  //           console.log("Unknown user category:", userCategory);
+  //           break;
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Auto-login failed:", error);
+  //     // ✅ Don't mark as attempted on error to allow retry?
+  //     // Actually, we should mark it to prevent infinite retries
+  //     setHasAttemptedAutoLogin(true);
+  //   } finally {
+  //     setIsAutoLoggingIn(false);
+  //   }
+  // }, [csrfToken, apiUrl, navigate, isAutoLoggingIn, hasAttemptedAutoLogin]);
 
   // ✅ Get CSRF token - runs only once on mount
   useEffect(() => {
@@ -135,11 +135,11 @@ const Login = () => {
   }, [apiUrl]); // ✅ Only depends on apiUrl
 
   // ✅ Auto-login effect - runs only when CSRF token is set AND not attempted yet
-  useEffect(() => {
-    if (csrfToken && !hasAttemptedAutoLogin && !isAutoLoggingIn) {
-      tryAutoLogin();
-    }
-  }, [csrfToken, hasAttemptedAutoLogin, isAutoLoggingIn, tryAutoLogin]);
+  // useEffect(() => {
+  //   if (csrfToken && !hasAttemptedAutoLogin && !isAutoLoggingIn) {
+  //     tryAutoLogin();
+  //   }
+  // }, [csrfToken, hasAttemptedAutoLogin, isAutoLoggingIn, tryAutoLogin]);
 
   const [formData, setformData] = useState({
     email: "",

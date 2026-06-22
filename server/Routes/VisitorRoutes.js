@@ -197,14 +197,16 @@ const validateFormData = [
 
   body("contactPersonDetails.cMobileNo")
     .isMobilePhone()
-    .withMessage("Invalid mobile number format.")
-    .isLength({ min: 10, max: 15 })
-    .matches(/^[0-9]{10,12}$/)
-    .withMessage("Invalid Mobile number."),
+    .withMessage("Invalid mobile number format."),
+  // .isLength({ min: 10, max: 15 })
+  // .matches(/^[0-9]{10,12}$/)
+  // .withMessage("Invalid Mobile number."),
 
   body("contactPersonDetails.cNIC")
-    .matches(/^\d{9}[vV]$|^\d{12}$/)
-    .withMessage("Invalid NIC Number"),
+    .notEmpty()
+    .withMessage("Contact person NIC number required"),
+  // .matches(/^\d{9}[vV]$|^\d{12}$/)
+  // .withMessage("Invalid NIC Number"),
 
   body("contactPersonDetails.cName")
     .notEmpty()
@@ -255,9 +257,9 @@ const validateFormData = [
     .isString()
     .withMessage("Visitor name must be a string."),
 
-  body("visitorDetails.*.visitorNIC")
-    .matches(/^\d{9}[vV]$|^\d{12}$/)
-    .withMessage("Invalid visitor NIC number123"),
+  // body("visitorDetails.*.visitorNIC")
+  // .matches(/^\d{9}[vV]$|^\d{12}$/)
+  // .withMessage("Invalid visitor NIC number123"),
 
   body("factory")
     .notEmpty()
@@ -578,17 +580,15 @@ visiterRoutes.post(
       .isLength({ min: 3, max: 255 })
       .withMessage("Name must be at least 3 characters and max 255 characters"),
 
-    body("contactPersonDetails.cNIC")
-      .notEmpty()
-      .withMessage("NIC is required")
-      .matches(/^(?:\d{9}[vV]|\d{12}|[A-Za-z0-9]{5,15})$/)
-      .withMessage("Invalid NIC format"),
+    body("contactPersonDetails.cNIC").notEmpty().withMessage("NIC is required"),
+    // .matches(/^(?:\d{9}[vV]|\d{12}|[A-Za-z0-9]{5,15})$/)
+    // .withMessage("Invalid NIC format"),
 
     body("contactPersonDetails.cMobileNo")
       .notEmpty()
-      .withMessage("Mobile number is required")
-      .matches(/^\+?[0-9]{7,15}$/)
-      .withMessage("Invalid phone number"),
+      .withMessage("Mobile number is required"),
+    // .matches(/^\+?[0-9]{7,15}$/)
+    // .withMessage("Invalid phone number"),
 
     body("contactPersonDetails.cEmail")
       .optional({ nullable: true, checkFalsy: true })
@@ -623,25 +623,25 @@ visiterRoutes.post(
           }
 
           // If both are filled, validate the content
-          if (nameFilled && nicFilled) {
-            // Validate name length
-            if (visitor.visitorName.length < 3) {
-              throw new Error(
-                `visitorDetails[${i}].visitorName: Name must be at least 3 characters`,
-              );
-            }
+          // if (nameFilled && nicFilled) {
+          //   // Validate name length
+          //   if (visitor.visitorName.length < 3) {
+          //     throw new Error(
+          //       `visitorDetails[${i}].visitorName: Name must be at least 3 characters`,
+          //     );
+          //   }
 
-            // Validate NIC format (strict format for visitors)
-            if (
-              !/^(?:\d{9}[vV]|\d{12}|[A-Za-z0-9]{5,15})$/.test(
-                visitor.visitorNIC,
-              )
-            ) {
-              throw new Error(
-                `visitorDetails[${i}].visitorNIC: Invalid NIC format`,
-              );
-            }
-          }
+          //   // Validate NIC format (strict format for visitors)
+          //   if (
+          //     !/^(?:\d{9}[vV]|\d{12}|[A-Za-z0-9]{5,15})$/.test(
+          //       visitor.visitorNIC,
+          //     )
+          //   ) {
+          //     throw new Error(
+          //       `visitorDetails[${i}].visitorNIC: Invalid NIC format`,
+          //     );
+          //   }
+          // }
         }
         return true;
       }),
@@ -660,9 +660,9 @@ visiterRoutes.post(
 
     body("visitorDetails.*.visitorNIC")
       .optional({ nullable: true, checkFalsy: true })
-      .trim()
-      .matches(/^(?:\d{9}[vV]|\d{12}|[A-Za-z0-9]{5,15})$/)
-      .withMessage("Invalid visitor NIC format"),
+      .trim(),
+    // .matches(/^(?:\d{9}[vV]|\d{12}|[A-Za-z0-9]{5,15})$/)
+    // .withMessage("Invalid visitor NIC format"),
 
     // ==================== VEHICLE DETAILS ====================
     body("vehicleDetails")
@@ -1804,10 +1804,10 @@ visiterRoutes.post(
     .withMessage("Name should only contain letters and spaces"),
 
   body("visitorsData.*.visitorNIC")
-    .notEmpty()
-    .withMessage("Visitor NIC required")
-    .matches(/^[0-9]{9}[vV]$|^[0-9]{12}$/)
-    .withMessage("Invalid NIC format"),
+    .optional({ nullable: true, checkFalsy: true })
+    .trim(),
+  // .matches(/^[0-9]{9}[vV]$|^[0-9]{12}$/)
+  // .withMessage("Invalid NIC format"),
 
   body("mealplan.aditionalNote")
     .optional()
@@ -2985,8 +2985,10 @@ visiterRoutes.post(
       .withMessage("Mobile number must be between 10 and 15 digits."),
 
     body("contactPerson.cNIC")
-      .matches(/^\d{9}[vV]$|^\d{12}$/)
-      .withMessage("ContactPerson NIC number is invalid."),
+      .notEmpty()
+      .withMessage("Visitors NIC number required"),
+    // .matches(/^\d{9}[vV]$|^\d{12}$/)
+    // .withMessage("ContactPerson NIC number is invalid."),
 
     body("contactPerson.cName")
       .notEmpty()
