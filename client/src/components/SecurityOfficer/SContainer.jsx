@@ -527,7 +527,7 @@ const SConteiner = ({
                       <td
                         style={{ border: "0", borderLeft: "1px solid white" }}
                       >
-                        {visitor.Visits[0].Reference_No}
+                        {visitor.Visits[0].Reference_No || "N/A"}
                       </td>
                       <td
                         style={{ border: "0", borderLeft: "1px solid white" }}

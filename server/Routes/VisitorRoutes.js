@@ -3004,7 +3004,7 @@ visiterRoutes.post(
 
     body("visitingDateTime.fTimeFrom")
       .notEmpty()
-      .withMessage("Please select time that would you like to visit"),
+      .withMessage("Please select time that would you like to visit"), 
     // .matches(/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/)
     // .withMessage("Invalid time format for fTimeFrom (HH:mm)."),
 
@@ -3022,7 +3022,7 @@ visiterRoutes.post(
     // Department Details Validation
     // body("visitorDetails.department")
     //   .isNumeric()
-    //   .withMessage("Please select a department."),
+    //   .withMessage("Please select a department."),a
 
     // body("visitorDetails.factory")
     //   .isNumeric()
