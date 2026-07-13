@@ -1720,9 +1720,16 @@ visiterRoutes.post(
     .isDate()
     .withMessage("Invalid date format")
     .custom((value) => {
-      if (new Date(value) <= new Date()) {
+      const inputDate = new Date(value);
+      const today = new Date();
+
+      inputDate.setHours(0, 0, 0, 0);
+      today.setHours(0, 0, 0, 0);
+
+      if (inputDate < today) {
         throw new Error("You cannot select past dates");
       }
+
       return true;
     }),
 
@@ -1819,7 +1826,7 @@ visiterRoutes.post(
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      console.log(errors.array());
+      console.log("sudden visit errors: ", errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
@@ -3004,7 +3011,7 @@ visiterRoutes.post(
 
     body("visitingDateTime.fTimeFrom")
       .notEmpty()
-      .withMessage("Please select time that would you like to visit"), 
+      .withMessage("Please select time that would you like to visit"),
     // .matches(/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/)
     // .withMessage("Invalid time format for fTimeFrom (HH:mm)."),
 
