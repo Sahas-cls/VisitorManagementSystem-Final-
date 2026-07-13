@@ -27,7 +27,7 @@ const SuddenVisit = (userFactoryId) => {
         .required("Officer name required")
         .matches(/^[A-Za-z\s]{3,255}$/, "Invalid name format"),
       visitorCategory: Yup.string().required(
-        "Please select a visitor category"
+        "Please select a visitor category",
       ),
     }),
     entryPermit: Yup.object().shape({
@@ -47,7 +47,7 @@ const SuddenVisit = (userFactoryId) => {
           function (value) {
             if (!this.parent.timeFrom || !value) return true;
             return value > this.parent.timeFrom;
-          }
+          },
         ),
     }),
     visitors: Yup.array()
@@ -56,10 +56,9 @@ const SuddenVisit = (userFactoryId) => {
           visitorName: Yup.string()
             .required("Visitor name required")
             .matches(/^[A-Za-z\s]{3,255}$/, "Name should only have letters"),
-          visitorNIC: Yup.string()
-            .required("Visitor NIC required")
-            .matches(/^[0-9]{0,9}[vV]$|^[0-9]{12}/, "Invalid NIC format"),
-        })
+          visitorNIC: Yup.string().required("Visitor NIC required"),
+          // .matches(/^[0-9]{0,9}[vV]$|^[0-9]{12}/, "Invalid NIC format"),
+        }),
       )
       .min(1, "At least one visitor is required"),
   });
@@ -108,7 +107,7 @@ const SuddenVisit = (userFactoryId) => {
           {
             headers: { "x-CSRF-Token": csrfToken },
             withCredentials: true,
-          }
+          },
         );
 
         setValidationErrorsS({ success: "Visit creation successful" });
@@ -122,6 +121,7 @@ const SuddenVisit = (userFactoryId) => {
         resetForm();
         setVisitorData({ visitorName: "", visitorNIC: "" });
       } catch (error) {
+        console.log("server error: ", error);
         if (error.response?.data?.errors) {
           setValidationErrorsS(error.response.data.errors);
         } else {
@@ -152,7 +152,7 @@ const SuddenVisit = (userFactoryId) => {
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
-        }
+        },
       );
 
       if (result.status === 200) {
@@ -171,7 +171,7 @@ const SuddenVisit = (userFactoryId) => {
         {
           headers: { "X-CSRF-Token": csrfToken },
           withCredentials: true,
-        }
+        },
       );
 
       if (result.status === 200) {
@@ -203,7 +203,7 @@ const SuddenVisit = (userFactoryId) => {
     const fetchDepartments = async () => {
       try {
         const response = await axios.get(
-          `${apiUrl}/department/getDep/${factoryId}`
+          `${apiUrl}/department/getDep/${factoryId}`,
         );
         if (response) {
           setDepartments(response.data);
@@ -248,9 +248,7 @@ const SuddenVisit = (userFactoryId) => {
         visitorName: Yup.string()
           .required("Visitor name required")
           .matches(/^[A-Za-z\s]{3,255}$/, "Name should only have letters"),
-        visitorNIC: Yup.string()
-          .required("Visitor NIC required")
-          .matches(/^[0-9]{0,9}[vV]$|^[0-9]{12}/, "Invalid NIC format"),
+        visitorNIC: Yup.string().required("Visitor NIC required"),
       });
 
       visitorSchema.validateSync(visitorData, { abortEarly: false });
@@ -325,6 +323,7 @@ const SuddenVisit = (userFactoryId) => {
       return null;
     }
 
+    // Handle success case
     if (validationErrorsS.success) {
       return (
         <div className="success text-center font-bold mt-4 bg-green-300/70 py-4 rounded-md">
@@ -336,17 +335,46 @@ const SuddenVisit = (userFactoryId) => {
       );
     }
 
+    // Check if validationErrorsS is an array (from backend validation)
+    if (Array.isArray(validationErrorsS)) {
+      return (
+        <div className="error text-center px-8 font-bold rounded-md bg-red-100 py-2 my-2">
+          {validationErrorsS.map((error, index) => (
+            <div
+              key={index}
+              className="text-red-600 flex items-center justify-center"
+            >
+              <FaExclamationCircle className="mr-2" />
+              {error.msg || error.message || "Validation error"}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // Handle object format (for general errors)
     return (
       <div className="error text-center px-8 font-bold rounded-md bg-red-100 py-2 my-2">
-        {Object.entries(validationErrorsS).map(([field, error]) => (
-          <div
-            key={field}
-            className="text-red-600 flex items-center justify-center"
-          >
-            <FaExclamationCircle className="mr-2" />
-            {error.msg || error}
-          </div>
-        ))}
+        {Object.entries(validationErrorsS).map(([field, error]) => {
+          let errorMessage = "";
+          if (typeof error === "string") {
+            errorMessage = error;
+          } else if (error && typeof error === "object") {
+            errorMessage = error.msg || error.message || JSON.stringify(error);
+          } else {
+            errorMessage = String(error);
+          }
+
+          return (
+            <div
+              key={field}
+              className="text-red-600 flex items-center justify-center"
+            >
+              <FaExclamationCircle className="mr-2" />
+              {errorMessage}
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -425,7 +453,7 @@ const SuddenVisit = (userFactoryId) => {
                       </select>
                       {displayError(
                         formik.touched.entryRequest?.reqDept,
-                        formik.errors.entryRequest?.reqDept
+                        formik.errors.entryRequest?.reqDept,
                       )}
                     </td>
                   </tr>
@@ -450,7 +478,7 @@ const SuddenVisit = (userFactoryId) => {
                       />
                       {displayError(
                         formik.touched.entryRequest?.reqDate,
-                        formik.errors.entryRequest?.reqDate
+                        formik.errors.entryRequest?.reqDate,
                       )}
                     </td>
                   </tr>
@@ -475,7 +503,7 @@ const SuddenVisit = (userFactoryId) => {
                       />
                       {displayError(
                         formik.touched.entryRequest?.reqOfficer,
-                        formik.errors.entryRequest?.reqOfficer
+                        formik.errors.entryRequest?.reqOfficer,
                       )}
                     </td>
                   </tr>
@@ -514,7 +542,7 @@ const SuddenVisit = (userFactoryId) => {
                       </select>
                       {displayError(
                         formik.touched.entryRequest?.visitorCategory,
-                        formik.errors.entryRequest?.visitorCategory
+                        formik.errors.entryRequest?.visitorCategory,
                       )}
                     </td>
                   </tr>
@@ -559,7 +587,7 @@ const SuddenVisit = (userFactoryId) => {
                     </select>
                     {displayError(
                       formik.touched.entryPermit?.purpose,
-                      formik.errors.entryPermit?.purpose
+                      formik.errors.entryPermit?.purpose,
                     )}
                   </td>
                 </tr>
@@ -586,7 +614,7 @@ const SuddenVisit = (userFactoryId) => {
                     />
                     {displayError(
                       formik.touched.entryPermit?.dateFrom,
-                      formik.errors.entryPermit?.dateFrom
+                      formik.errors.entryPermit?.dateFrom,
                     )}
                   </td>
                   <td className="">
@@ -601,7 +629,7 @@ const SuddenVisit = (userFactoryId) => {
                     />
                     {displayError(
                       formik.touched.entryPermit?.dateTo,
-                      formik.errors.entryPermit?.dateTo
+                      formik.errors.entryPermit?.dateTo,
                     )}
                   </td>
                 </tr>
@@ -620,7 +648,7 @@ const SuddenVisit = (userFactoryId) => {
                     />
                     {displayError(
                       formik.touched.entryPermit?.timeFrom,
-                      formik.errors.entryPermit?.timeFrom
+                      formik.errors.entryPermit?.timeFrom,
                     )}
                   </td>
                   <td className="w-full">
@@ -636,7 +664,7 @@ const SuddenVisit = (userFactoryId) => {
                     />
                     {displayError(
                       formik.touched.entryPermit?.timeTo,
-                      formik.errors.entryPermit?.timeTo
+                      formik.errors.entryPermit?.timeTo,
                     )}
                   </td>
                 </tr>
@@ -761,12 +789,13 @@ const SuddenVisit = (userFactoryId) => {
                   )}
                 </tbody>
               </table>
-              {formik.touched.visitors && formik.errors.visitors && (
-                <div className="text-red-600 text-xs mt-1 flex items-center">
-                  <FaExclamationCircle className="mr-1" />
-                  {formik.errors.visitors}
-                </div>
-              )}
+              {Array.isArray(formik.errors.visitors) &&
+                formik.errors.visitors.map((err, index) => (
+                  <div key={index} className="text-red-600 text-xs">
+                    {err?.visitorName && <div>{err.visitorName}</div>}
+                    {err?.visitorNIC && <div>{err.visitorNIC}</div>}
+                  </div>
+                ))}
             </div>
 
             {/* right div */}
