@@ -431,7 +431,7 @@ const VisitorF = () => {
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Visitor Registration
           </h1>
-          <p className="text-blue-600 text-lg font-medium">Concord Group</p>
+          <p className="text-blue-600 text-lg font-medium">Guston Group</p>
         </div>
 
         {/* Factory and Department Selection */}
