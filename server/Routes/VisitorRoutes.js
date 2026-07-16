@@ -888,32 +888,6 @@ visiterRoutes.post(
         success: true,
         message: "Visitor registered successfully",
       });
-
-      console.time("FindUsers");
-      const listOfEmails = await findUsers(
-        departmentDetails.factory,
-        departmentDetails.department,
-      );
-      console.timeEnd("FindUsers");
-
-      // Send Email (does NOT block the response)
-      console.time("SendEmail");
-      const info = await sendEmail(
-        listOfEmails,
-        "New visitor arrival",
-        `<p>${contactPersonDetails.cName} is waiting for your approval</p>
-        <a href=${frontendUrl} style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
-                <br>
-                <br>
-                <p>Thank you,</p>
-                <p>Visitor Management System</p>
-
-        `,
-      );
-      console.timeEnd("SendEmail");
-
-      console.log("Email sent:", info.success);
-      console.timeEnd("TotalRouteTime");
     } catch (error) {
       console.error("Error occurred:", error);
       await transaction.rollback();
@@ -1548,73 +1522,108 @@ visiterRoutes.post(
     try {
       // Check if the Visit exists in the database
       const selectedVisit = await Visits.findOne({
-        where: { Visit_Id: Visit_Id },
+        where: { Visit_Id },
       });
 
       if (!selectedVisit) {
+        await transaction.rollback();
         return res.status(404).send("Visit not found.");
       }
 
-      // Proceed with updating the visit
+      // Update the visit
       const updatedVisit = await selectedVisit.update(updateVisit, {
         transaction,
       });
 
-      // If update is successful, commit the transaction
-      if (updatedVisit) {
-        await transaction.commit();
-        console.log("Update success...");
-
-        try {
-          // console.log(
-          //   `=============factory id: ${userFactoryId} department Id: ${userDepartmentId}==========`
-          // );
-          const usersList = await department_Users.findAll({
-            where: {
-              factory_Id: userFactoryId,
-              user_category: "Reception",
-            },
-          });
-
-          // console.log("user list ===== ", usersList);
-
-          let emailAddresses = "";
-
-          if (usersList && usersList.length > 0) {
-            emailAddresses = usersList
-              .map((user) => user.dataValues.user_email)
-              .join(",");
-            console.log(emailAddresses);
-
-            sendEmail(
-              emailAddresses,
-              "New Visitor BOI pass required",
-              `
-                <h3>Hi</h3>
-                <p>A new visitor has been registered.</p>
-                <p>Please log into the visitor management system and arrange a BOI pass for him</p>
-                <a href=${frontendUrl} style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
-                <p>Thank you,</p>
-                <p>Visitor Management System</p>
-              `,
-            );
-          } else {
-            console.log("Cannot find users, email send failed");
-          }
-        } catch (error) {
-          console.error(error);
-        }
-
-        return res.status(200).send("Visit Update success");
-      } else {
-        // Rollback the transaction if the update fails
+      if (!updatedVisit) {
         await transaction.rollback();
         return res.status(500).send("Internal server error");
       }
+
+      // Commit transaction
+      await transaction.commit();
+      console.log("Update success...");
+
+      // Email notifications (don't affect the API response)
+      try {
+        const usersList = await department_Users.findAll({
+          where: {
+            factory_Id: userFactoryId,
+            user_category: "Reception",
+          },
+        });
+
+        if (usersList.length > 0) {
+          const emailAddresses = usersList
+            .map((user) => user.user_email)
+            .join(",");
+
+          console.log("Reception Emails:", emailAddresses);
+
+          // Notify reception
+          await sendEmail(
+            emailAddresses,
+            "New Visitor BOI pass required",
+            `
+          <h3>Hi</h3>
+          <p>A new visitor has been registered.</p>
+          <p>Please log into the Visitor Management System and arrange a BOI pass.</p>
+          <a href="${frontendUrl}" style="color:#1a73e8;text-decoration:none;font-weight:bold;">
+            Go to the Application
+          </a>
+          <p>Thank you,</p>
+          <p>Visitor Management System</p>
+        `,
+          );
+
+          console.time("FindUsers");
+          const listOfEmails = await findUsers(
+            departmentDetails.factory,
+            departmentDetails.department,
+          );
+          console.timeEnd("FindUsers");
+
+          if (listOfEmails) {
+            console.time("SendEmail");
+
+            const info = await sendEmail(
+              listOfEmails,
+              "New visitor arrival",
+              `
+            <p>${contactPersonDetails.cName} is waiting for your approval.</p>
+
+            <a href="${frontendUrl}" style="color:#1a73e8;text-decoration:none;font-weight:bold;">
+              Go to the Application
+            </a>
+
+            <br><br>
+
+            <p>Thank you,</p>
+            <p>Visitor Management System</p>
+          `,
+            );
+
+            console.timeEnd("SendEmail");
+            console.log("Approval email sent:", info?.success);
+          }
+        } else {
+          console.log("No reception users found. BOI email not sent. ");
+        }
+
+        console.timeEnd("TotalRouteTime");
+      } catch (emailError) {
+        // Email failures should not affect the successful update
+        console.error("Email notification failed:", emailError);
+      }
+
+      return res.status(200).send("Visit Update success");
     } catch (error) {
-      // Rollback in case of any error
-      await transaction.rollback();
-      console.error(error.message);
+      // Rollback only if transaction hasn't already been committed
+      if (!transaction.finished) {
+        await transaction.rollback();
+      }
+
+      console.error(error);
       return res.status(500).send("Visitor update failed, please try again");
     }
   },

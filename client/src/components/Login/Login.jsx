@@ -223,6 +223,8 @@ const Login = () => {
           timeout: 15000, // ✅ Add timeout
         });
 
+        console.log("response: ", response);
+
         if (response.status === 200) {
           await swal.fire({
             title: "User login success",
@@ -250,6 +252,9 @@ const Login = () => {
               break;
             case "HR User":
               navigate("/dashboard-hr");
+              break;
+            case "Factory Manager":
+              navigate("/dashboard-factory-manager");
               break;
             case "Security Officer":
               navigate("/dashboard-security-officer");

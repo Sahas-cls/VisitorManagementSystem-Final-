@@ -50,6 +50,7 @@ function App() {
           <Route path="/dashboard-d-head" element={<PrivateRoute />} />
           <Route path="/report-clerk" element={<PrivateRoute />} />
           <Route path="/dashboard-hr" element={<PrivateRoute />} />
+          <Route path="/dashboard-factory-manager" element={<PrivateRoute />} />
           <Route path="/dashboard-recept" element={<PrivateRoute />} />
           <Route path="/dashboard-administrator" element={<PrivateRoute />} />
           <Route

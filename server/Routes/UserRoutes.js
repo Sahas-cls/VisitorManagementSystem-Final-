@@ -196,6 +196,8 @@ userRoutes.post(
       }
       // console.log(user)
       const isUser = await bcrypt.compare(password, user.user_password);
+      console.log(user);
+      // return;
       if (isUser) {
         const token = jwt.sign(
           {
@@ -204,12 +206,12 @@ userRoutes.post(
             userEmail: user.user_email,
             userCategory: user.user_category,
             departmentId: user.Department_Id,
-            factoryId: user.Factory_Id,
+            factoryId: user.Factory_Id || 1,
           },
           process.env.JWT_SECRET,
           { expiresIn: "7d" }, // remain until 7 days
         );
-        console.log("factory_Id: ", user.factory_Id);
+        console.log("factory_Id: ", user.Factory_Id);
 
         res.cookie("authToken", token, {
           httpOnly: true,
@@ -733,3 +735,4 @@ userRoutes.get(
 );
 
 module.exports = userRoutes;
+
