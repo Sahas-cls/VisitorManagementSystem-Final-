@@ -504,9 +504,11 @@ const HDisplayVisitor = () => {
                   <h1 className="text-2xl md:text-3xl font-bold text-sky-600">
                     {Visitor?.ContactPerson_Name || "No Name"}
                   </h1>
-                  <p className="text-sm text-gray-600">Visit ID: {VisitId}</p>
+                  <p className="text-sm text-gray-600">
+                    NIC: {Visitor?.ContactPerson_NIC || "N/A"}
+                  </p>
                   <p className="text-xs text-gray-500">
-                    Status:{" "}
+                    Status :{" "}
                     {Visits?.HR_Approval
                       ? "Approved by HR"
                       : "Pending HR Approval"}

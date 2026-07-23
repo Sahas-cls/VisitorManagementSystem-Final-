@@ -565,7 +565,10 @@ const CDisplayVisitor = () => {
                 <h1 className="text-2xl md:text-3xl font-bold text-sky-600">
                   {Visitor?.ContactPerson_Name || "No Name"}
                 </h1>
-                <p className="text-sm text-gray-600">Visit ID: {VisitId}</p>
+                <p className="text-sm text-gray-600">
+                  NIC: {Visitor?.ContactPerson_NIC || "N/A"}{" "}
+                  <span className="text-white">{VisitId}</span>
+                </p>
                 <p className="text-xs text-gray-500">
                   Status:{" "}
                   {Visits?.D_User
