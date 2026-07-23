@@ -1540,6 +1540,7 @@ visiterRoutes.post(
         return res.status(500).send("Internal server error");
       }
 
+
       // Commit transaction
       await transaction.commit();
       console.log("Update success...");
@@ -1571,7 +1572,7 @@ visiterRoutes.post(
           <a href="${frontendUrl}" style="color:#1a73e8;text-decoration:none;font-weight:bold;">
             Go to the Application
           </a>
-          <p>Thank you,</p>
+          <p>Thank you,</p>s
           <p>Visitor Management System</p>
         `,
           );

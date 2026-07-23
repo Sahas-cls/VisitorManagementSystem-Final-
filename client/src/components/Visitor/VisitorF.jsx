@@ -10,6 +10,8 @@ import { ClipLoader } from "react-spinners";
 import swal from "sweetalert2";
 import { GoDotFill } from "react-icons/go";
 import backgroundImage from "../../assets/VisitorRegistration/Background 1.jpg";
+
+// RULE IMG SET
 import rule1 from "../../assets/VisitorRegistration/rule1.png";
 import rule2 from "../../assets/VisitorRegistration/rule2.jpg";
 import rule3 from "../../assets/VisitorRegistration/rule3.png";
@@ -425,8 +427,9 @@ const VisitorF = () => {
 
       <form
         onSubmit={formik.handleSubmit}
-        className="w-[100%] md:w-[70%] opacity-100 lg:max-w-full mx-auto bg-white rounded-xl shadow-md shadow-black/40 overflow-hidden p-6"
+        className="w-[100%] md:w-[70%] opacity-100 relative lg:max-w-full mx-auto bg-white rounded-xl shadow-md shadow-black/40 overflow-hidden p-6"
       >
+        <div className=""></div>
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             Visitor Registration
@@ -494,9 +497,9 @@ const VisitorF = () => {
         </div>
 
         {/* Contact Person Details */}
-        <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
+        <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8 shadow-md">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
-            Contact Person Details
+            Visitor Details
           </h2>
           <div className="space-y-4">
             <div>
@@ -586,7 +589,7 @@ const VisitorF = () => {
         </div>
 
         {/* Visiting Date & Time */}
-        <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
+        <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8 shadow-md">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
             Visiting Date & Time
           </h2>
@@ -679,7 +682,7 @@ const VisitorF = () => {
         </div>
 
         {/* Vehicle Details */}
-        <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
+        <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8 shadow-md">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-gray-800">
               Vehicle Details
@@ -779,7 +782,7 @@ const VisitorF = () => {
         </div>
 
         {/* Visitor Details */}
-        <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8">
+        <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8 shadow-md">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-gray-800">
               Visitor Details
