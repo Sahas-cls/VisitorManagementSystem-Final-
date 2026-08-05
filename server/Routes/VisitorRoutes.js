@@ -959,12 +959,11 @@ visiterRoutes.post(
       const rows = XLSX.utils.sheet_to_json(sheet, {
         header: 1,
         defval: "",
-        raw: false, // Get formatted values
+        raw: false,
       });
 
       const createdVisits = [];
       const errors = [];
-
       const transaction = await sequelize.transaction();
 
       try {
@@ -988,7 +987,6 @@ visiterRoutes.post(
           dataStartRowIndex = 2;
         }
 
-        // Store created visits with their factory and department info for email
         const visitsWithFactoryDept = [];
 
         for (let i = dataStartRowIndex; i < rows.length; i++) {
@@ -1004,11 +1002,22 @@ visiterRoutes.post(
 
           try {
             const factoryName = row[0]?.toString().trim();
+            const departmentName = row[1]?.toString().trim();
             const contactName = row[2]?.toString().trim();
             const nic = row[3]?.toString().trim();
             const contactNo = row[4]?.toString().trim();
+            const email = row[5]?.toString().trim();
             const visitingDateFrom = row[6];
             const visitingDateTo = row[7];
+            const inTimeRaw = row[8];
+            const outTimeRaw = row[9];
+            // CRITICAL FIX: Check for empty strings properly
+            const vehicleType = row[10]?.toString().trim() || "";
+            const vehicleNo = row[11]?.toString().trim() || "";
+
+            console.log(
+              `Row ${i + 1}: Vehicle Type: "${vehicleType}" (length: ${vehicleType.length}), Vehicle No: "${vehicleNo}" (length: ${vehicleNo.length})`,
+            );
 
             if (!factoryName || !contactName || !nic || !contactNo) {
               errors.push(
@@ -1036,7 +1045,6 @@ visiterRoutes.post(
               continue;
             }
 
-            const departmentName = row[1]?.toString().trim();
             let department = null;
             if (departmentName) {
               department = await Departments.findOne({
@@ -1054,6 +1062,7 @@ visiterRoutes.post(
               }
             }
 
+            // ===== STEP 1: Create/Update Contact Person (same as registration) =====
             let contactPerson = await ContactPersons.findOne({
               where: { ContactPerson_NIC: nic },
               transaction,
@@ -1065,28 +1074,44 @@ visiterRoutes.post(
                   ContactPerson_Name: contactName,
                   ContactPerson_NIC: nic,
                   ContactPerson_ContactNo: contactNo,
-                  ContactPerson_Email: row[5]?.toString().trim() || null,
+                  ContactPerson_Email: email || null,
                 },
                 { transaction },
+              );
+              console.log(
+                `Row ${i + 1}: Created new contact person: ${contactName}`,
               );
             } else {
               await contactPerson.update(
                 {
                   ContactPerson_Name: contactName,
                   ContactPerson_ContactNo: contactNo,
-                  ContactPerson_Email: row[5]?.toString().trim() || null,
+                  ContactPerson_Email: email || null,
                 },
                 { transaction },
               );
+              console.log(
+                `Row ${i + 1}: Updated existing contact person: ${contactName}`,
+              );
             }
 
-            let vehicle = null;
-            const vehicleType = row[10]?.toString().trim();
-            const vehicleNo = row[11]?.toString().trim();
-            console.log(
-              `vehicle type: ${vehicleType} vehicle no: ${vehicleNo}`,
+            // ===== STEP 2: Create Visitors (same as registration) =====
+            // For upload, we create a visitor for each row
+            await Visitors.create(
+              {
+                ContactPerson_Id: contactPerson.ContactPerson_Id,
+                Visitor_Name: contactName,
+                Visitor_NIC: nic,
+              },
+              { transaction },
             );
+            console.log(`Row ${i + 1}: Created visitor: ${contactName}`);
+
+            // ===== STEP 3: Create Vehicle (same as registration - only if BOTH fields have values) =====
+            // CRITICAL FIX: Only create vehicle if BOTH vehicleType AND vehicleNo have values
+            let vehicle = null;
             if (vehicleType && vehicleNo) {
+              // Check if vehicle already exists for this contact person
               vehicle = await Vehicles.findOne({
                 where: {
                   Vehicle_No: vehicleNo,
@@ -1099,46 +1124,33 @@ visiterRoutes.post(
                 vehicle = await Vehicles.create(
                   {
                     ContactPerson_Id: contactPerson.ContactPerson_Id,
-                    Vehicle_Type: vehicleType || "",
-                    Vehicle_No: vehicleNo || "",
+                    Vehicle_Type: vehicleType,
+                    Vehicle_No: vehicleNo,
                   },
                   { transaction },
                 );
+                console.log(
+                  `Row ${i + 1}: Created new vehicle: ${vehicleType} - ${vehicleNo}`,
+                );
+              } else {
+                console.log(
+                  `Row ${i + 1}: Vehicle already exists: ${vehicleType} - ${vehicleNo}`,
+                );
               }
+            } else {
+              console.log(
+                `Row ${i + 1}: No vehicle data provided (Type: "${vehicleType}", No: "${vehicleNo}")`,
+              );
             }
 
-            // Parse dates and times with proper format handling
+            // ===== STEP 4: Parse dates and times =====
             let visitingDateFromParsed = parseDateFromExcel(visitingDateFrom);
             let visitingDateToParsed = visitingDateTo
               ? parseDateFromExcel(visitingDateTo)
               : visitingDateFromParsed;
 
-            let inTime = parseTimeFromExcel(row[8]);
-            let outTime = parseTimeFromExcel(row[9]);
-
-            console.log(
-              `Row ${i + 1} - Date From: ${visitingDateFromParsed ? visitingDateFromParsed.toISOString() : "null"}, ` +
-                `Date To: ${visitingDateToParsed ? visitingDateToParsed.toISOString() : "null"}, ` +
-                `In: ${inTime}, Out: ${outTime}`,
-            );
-
-            // Combine date and time for Checkin/Checkout
-            let checkinDateTime = null;
-            let checkoutDateTime = null;
-
-            if (visitingDateFromParsed && inTime) {
-              checkinDateTime = combineDateAndTime(
-                visitingDateFromParsed,
-                inTime,
-              );
-            }
-
-            if (visitingDateToParsed && outTime) {
-              checkoutDateTime = combineDateAndTime(
-                visitingDateToParsed,
-                outTime,
-              );
-            }
+            let inTime = parseTimeFromExcel(inTimeRaw);
+            let outTime = parseTimeFromExcel(outTimeRaw);
 
             // Calculate number of days
             let numOfDays = 1;
@@ -1149,7 +1161,7 @@ visiterRoutes.post(
               numOfDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
             }
 
-            // Create visit
+            // ===== STEP 5: Create Visit =====
             const visit = await Visits.create(
               {
                 ContactPerson_Id: contactPerson.ContactPerson_Id,
@@ -1170,6 +1182,10 @@ visiterRoutes.post(
                 Last_Modified_By: req.user?.UserId || null,
               },
               { transaction },
+            );
+
+            console.log(
+              `Row ${i + 1}: Created visit with ID: ${visit.Visit_Id}`,
             );
 
             // Store visit info for email notification
