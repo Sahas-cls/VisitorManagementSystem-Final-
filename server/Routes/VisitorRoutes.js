@@ -1099,8 +1099,8 @@ visiterRoutes.post(
                 vehicle = await Vehicles.create(
                   {
                     ContactPerson_Id: contactPerson.ContactPerson_Id,
-                    Vehicle_Type: vehicleType,
-                    Vehicle_No: vehicleNo,
+                    Vehicle_Type: vehicleType || "",
+                    Vehicle_No: vehicleNo || "",
                   },
                   { transaction },
                 );

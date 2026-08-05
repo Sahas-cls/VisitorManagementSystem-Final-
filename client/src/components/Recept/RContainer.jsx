@@ -236,7 +236,7 @@ const RContainer = ({
             </thead>
 
             <tbody>
-              {visitorList &&
+              {visitorList && visitorList.length > 0 ? (
                 visitorList.map((visitor) => {
                   const vehicleNumbers = visitor.Vehicles.map(
                     (vehicle) => vehicle.Vehicle_No,
@@ -295,7 +295,14 @@ const RContainer = ({
                       </td>
                     </tr>
                   );
-                })}
+                })
+              ) : (
+                <tr className="border p-4">
+                  <td colSpan={5} className="py-2">
+                    <p className="text-gray-400 text-center">No visitors yet</p>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
