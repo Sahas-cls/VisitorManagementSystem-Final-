@@ -112,7 +112,7 @@ const HConteiner = ({
             }
           } else if (error.request) {
             setErrorMessages(
-              "Network error. Please check your internet connection."
+              "Network error. Please check your internet connection.",
             );
           }
           alert(errorMessage);
@@ -161,11 +161,11 @@ const HConteiner = ({
               {visitorList && visitorList.length > 0 ? (
                 visitorList.map((visitor) => {
                   const vehicleNumbers = visitor.Vehicles.map(
-                    (vehicle) => vehicle.Vehicle_No
+                    (vehicle) => vehicle.Vehicle_No,
                   ).join("/n");
 
                   const vehicleType = visitor.Vehicles.map(
-                    (vehicle) => vehicle.Vehicle_Type
+                    (vehicle) => vehicle.Vehicle_Type,
                   ).join("/n");
 
                   return (
@@ -192,13 +192,13 @@ const HConteiner = ({
                         <div className="h-full md:flex md:gap-1">
                           <div className="w-1/2 text-center md:pr-1 md:h-full md:border-r border-black mb-0">
                             {new Date(
-                              visitor.Visits[0]?.Date_From
+                              visitor.Visits[0]?.Date_From,
                             ).toLocaleDateString()}{" "}
                           </div>
                           <div className="w-1/2 text-center md:h-full border-black">
                             {visitor.Visits[0]?.Date_To &&
                               new Date(
-                                visitor.Visits[0]?.Date_To
+                                visitor.Visits[0]?.Date_To,
                               ).toLocaleDateString()}
                           </div>
                         </div>

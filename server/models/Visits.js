@@ -89,7 +89,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    D_User:{
+    D_User: {
       type: DataTypes.INTEGER,
       allowNull: true,
     },

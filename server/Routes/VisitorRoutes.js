@@ -9,6 +9,8 @@ const nodemailer = require("nodemailer");
 const exceljs = require("exceljs");
 const authToken = require("../middlewares/authonticationToken");
 const frontendUrl = process.env.FRONTEND_URL;
+const XLSX = require("xlsx");
+
 // const sequelize = new sequelize({
 //   dialect: "mysql", // Change this based on your DB type (mysql, postgres, etc.)
 //   host: "localhost", // Your DB host
@@ -16,7 +18,7 @@ const frontendUrl = process.env.FRONTEND_URL;
 //   password: "", // Your DB password
 //   database: "db_vm_sys", // Your DB name
 // });
-
+const upload = require("../middlewares/upload");
 const {
   ContactPersons,
   Visitors,
@@ -26,8 +28,9 @@ const {
   department_Users,
   VisitorCategory,
   VisitingPurpose,
+  Factory,
 } = require("../models");
-const Factory = require("../models/Factory");
+// const Factory = require("../models/Factory");
 const sendEmail = require("../utils/SendEmail");
 const findUsers = require("../utils/getUsers");
 
@@ -666,24 +669,56 @@ visiterRoutes.post(
 
     // ==================== VEHICLE DETAILS ====================
     body("vehicleDetails")
+      .optional({ nullable: true, checkFalsy: true })
       .isArray()
       .withMessage("Vehicle details must be an array")
-      .notEmpty()
-      .withMessage("At least one vehicle is required")
-      .isArray({ min: 1 })
-      .withMessage("At least one vehicle is required"),
+      .custom((vehicles, { req }) => {
+        if (!vehicles || vehicles.length === 0) return true;
 
-    body("vehicleDetails.*.VehicleNo")
-      .notEmpty()
-      .withMessage("Vehicle number is required")
-      .isString()
-      .withMessage("Vehicle number must be a string"),
+        for (let i = 0; i < vehicles.length; i++) {
+          const vehicle = vehicles[i];
 
-    body("vehicleDetails.*.VehicleType")
-      .notEmpty()
-      .withMessage("Vehicle type is required")
-      .isString()
-      .withMessage("Vehicle type must be a string"),
+          // Skip empty vehicles
+          const typeFilled =
+            vehicle.VehicleType && vehicle.VehicleType.trim().length > 0;
+          const numberFilled =
+            vehicle.VehicleNo && vehicle.VehicleNo.trim().length > 0;
+
+          // If both are empty, skip validation (allow empty entries)
+          if (!typeFilled && !numberFilled) continue;
+
+          // If any field is filled, both must be filled
+          if (typeFilled && !numberFilled) {
+            throw new Error(
+              `vehicleDetails[${i}].VehicleNo: Vehicle number is required when vehicle type is provided`,
+            );
+          }
+
+          if (numberFilled && !typeFilled) {
+            throw new Error(
+              `vehicleDetails[${i}].VehicleType: Vehicle type is required when vehicle number is provided`,
+            );
+          }
+
+          // Additional validation for filled entries
+          if (typeFilled && numberFilled) {
+            // Validate vehicle number format (optional)
+            if (vehicle.VehicleNo.length < 3) {
+              throw new Error(
+                `vehicleDetails[${i}].VehicleNo: Vehicle number must be at least 3 characters`,
+              );
+            }
+
+            // Validate vehicle type format (optional)
+            if (vehicle.VehicleType.length < 2) {
+              throw new Error(
+                `vehicleDetails[${i}].VehicleType: Vehicle type must be at least 2 characters`,
+              );
+            }
+          }
+        }
+        return true;
+      }),
 
     // ==================== DATE TIME DETAILS ====================
     body("dateTimeDetails.dateFrom")
@@ -899,6 +934,455 @@ visiterRoutes.post(
     }
   },
 );
+
+// TO CREATE VISITS USING EXCEL
+visiterRoutes.post(
+  "/upload-visitors",
+  csrfProtection,
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: "No file uploaded.",
+        });
+      }
+
+      const workbook = XLSX.read(req.file.buffer, {
+        type: "buffer",
+        cellDates: true,
+      });
+
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+      const rows = XLSX.utils.sheet_to_json(sheet, {
+        header: 1,
+        defval: "",
+        raw: false, // Get formatted values
+      });
+
+      const createdVisits = [];
+      const errors = [];
+
+      const transaction = await sequelize.transaction();
+
+      try {
+        let headerRowIndex = -1;
+        let dataStartRowIndex = -1;
+
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i];
+          if (
+            row[0]?.toString().trim() === "Factory" &&
+            row[2]?.toString().trim() === "Visitor's Name"
+          ) {
+            headerRowIndex = i;
+            dataStartRowIndex = i + 1;
+            break;
+          }
+        }
+
+        if (headerRowIndex === -1) {
+          headerRowIndex = 1;
+          dataStartRowIndex = 2;
+        }
+
+        for (let i = dataStartRowIndex; i < rows.length; i++) {
+          const row = rows[i];
+
+          const isEmptyRow = row.every(
+            (cell) => cell === "" || cell === null || cell === undefined,
+          );
+
+          if (isEmptyRow) {
+            break;
+          }
+
+          try {
+            const factoryName = row[0]?.toString().trim();
+            const contactName = row[2]?.toString().trim();
+            const nic = row[3]?.toString().trim();
+            const contactNo = row[4]?.toString().trim();
+            const visitingDateFrom = row[6];
+            const visitingDateTo = row[7];
+
+            if (!factoryName || !contactName || !nic || !contactNo) {
+              errors.push(
+                `Row ${i + 1}: Required fields missing (Factory, Visitor's Name, NIC, Mobile)`,
+              );
+              continue;
+            }
+
+            if (!visitingDateFrom) {
+              errors.push(`Row ${i + 1}: Visiting Date From is required`);
+              continue;
+            }
+
+            let factory = await Factory.findOne({
+              where: { Factory_Name: factoryName },
+              transaction,
+            });
+
+            if (!factory) {
+              errors.push(`Row ${i + 1}: Factory "${factoryName}" not found`);
+              continue;
+            }
+
+            const departmentName = row[1]?.toString().trim();
+            let department = null;
+            if (departmentName) {
+              department = await Departments.findOne({
+                where: { Department_Name: departmentName },
+                transaction,
+              });
+
+              if (!department) {
+                department = await Department.create(
+                  {
+                    Department_Name: departmentName,
+                  },
+                  { transaction },
+                );
+              }
+            }
+
+            let contactPerson = await ContactPersons.findOne({
+              where: { ContactPerson_NIC: nic },
+              transaction,
+            });
+
+            if (!contactPerson) {
+              contactPerson = await ContactPersons.create(
+                {
+                  ContactPerson_Name: contactName,
+                  ContactPerson_NIC: nic,
+                  ContactPerson_ContactNo: contactNo,
+                  ContactPerson_Email: row[5]?.toString().trim() || null,
+                },
+                { transaction },
+              );
+            } else {
+              await contactPerson.update(
+                {
+                  ContactPerson_Name: contactName,
+                  ContactPerson_ContactNo: contactNo,
+                  ContactPerson_Email: row[5]?.toString().trim() || null,
+                },
+                { transaction },
+              );
+            }
+
+            let vehicle = null;
+            const vehicleType = row[10]?.toString().trim();
+            const vehicleNo = row[11]?.toString().trim();
+            console.log(
+              `vehicle type: ${vehicleType} vehicle no: ${vehicleNo}`,
+            );
+            // return;
+            if (vehicleType && vehicleNo) {
+              vehicle = await Vehicles.findOne({
+                where: {
+                  Vehicle_No: vehicleNo,
+                  ContactPerson_Id: contactPerson.ContactPerson_Id,
+                },
+                transaction,
+              });
+
+              if (!vehicle) {
+                vehicle = await Vehicles.create(
+                  {
+                    ContactPerson_Id: contactPerson.ContactPerson_Id,
+                    Vehicle_Type: vehicleType,
+                    Vehicle_No: vehicleNo,
+                  },
+                  { transaction },
+                );
+              }
+            }
+
+            // ✅ Parse dates and times with proper format handling
+            let visitingDateFromParsed = parseDateFromExcel(visitingDateFrom);
+            let visitingDateToParsed = visitingDateTo
+              ? parseDateFromExcel(visitingDateTo)
+              : visitingDateFromParsed;
+
+            let inTime = parseTimeFromExcel(row[8]);
+            let outTime = parseTimeFromExcel(row[9]);
+
+            console.log(
+              `Row ${i + 1} - Date From: ${visitingDateFromParsed ? visitingDateFromParsed.toISOString() : "null"}, ` +
+                `Date To: ${visitingDateToParsed ? visitingDateToParsed.toISOString() : "null"}, ` +
+                `In: ${inTime}, Out: ${outTime}`,
+            );
+
+            // Combine date and time for Checkin/Checkout
+            let checkinDateTime = null;
+            let checkoutDateTime = null;
+
+            if (visitingDateFromParsed && inTime) {
+              checkinDateTime = combineDateAndTime(
+                visitingDateFromParsed,
+                inTime,
+              );
+            }
+
+            if (visitingDateToParsed && outTime) {
+              checkoutDateTime = combineDateAndTime(
+                visitingDateToParsed,
+                outTime,
+              );
+            }
+
+            // Calculate number of days
+            let numOfDays = 1;
+            if (visitingDateFromParsed && visitingDateToParsed) {
+              const diffTime = Math.abs(
+                visitingDateToParsed - visitingDateFromParsed,
+              );
+              numOfDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            }
+
+            // Create visit
+            const visit = await Visits.create(
+              {
+                ContactPerson_Id: contactPerson.ContactPerson_Id,
+                Factory_Id: factory.Factory_Id,
+                Department_Id: department ? department.Department_Id : null,
+                Date_From: visitingDateFromParsed,
+                Date_To: visitingDateToParsed,
+                Time_From: inTime,
+                Time_To: outTime,
+                Breakfast: false,
+                Lunch: false,
+                Tea: false,
+                Requested_Officer: null,
+                Visitor_Category: null,
+                Purpose: null,
+                Num_of_Days: numOfDays,
+                Num_of_Days_Came: numOfDays,
+                Last_Modified_By: req.user?.UserId || null,
+              },
+              { transaction },
+            );
+
+            createdVisits.push({
+              visit_id: visit.Visit_Id,
+              contact_person: contactPerson.ContactPerson_Name,
+              factory: factory.Factory_Name,
+              department: department ? department.Department_Name : null,
+              vehicle: vehicle ? vehicle.Vehicle_No : null,
+              date_from: visitingDateFromParsed?.toISOString().split("T")[0],
+              date_to: visitingDateToParsed?.toISOString().split("T")[0],
+              in_time: inTime,
+              out_time: outTime,
+              num_of_days: numOfDays,
+            });
+          } catch (error) {
+            console.error(`Error processing row ${i + 1}:`, error);
+            errors.push(`Row ${i + 1}: ${error.message}`);
+          }
+        }
+
+        if (createdVisits.length > 0) {
+          await transaction.commit();
+
+          return res.status(200).json({
+            success: true,
+            message: `Successfully created ${createdVisits.length} visits`,
+            count: createdVisits.length,
+            data: createdVisits,
+            errors: errors.length > 0 ? errors : undefined,
+          });
+        } else {
+          await transaction.rollback();
+
+          return res.status(400).json({
+            success: false,
+            message: "No visits were created",
+            errors: errors,
+          });
+        }
+      } catch (error) {
+        await transaction.rollback();
+        throw error;
+      }
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        success: false,
+        message: err.message,
+      });
+    }
+  },
+);
+
+// ✅ Parse date from Excel - KEEPS timezone offset (matches registration behavior)
+function parseDateFromExcel(value) {
+  if (!value) return null;
+
+  let date;
+
+  // If it's already a Date object
+  if (value instanceof Date) {
+    date = new Date(value);
+  }
+  // If it's a string
+  else if (typeof value === "string") {
+    let dateStr = value.trim();
+
+    // Handle "2026/08/04" or "2026-08-04" format
+    const dateMatch = dateStr.match(/^(\d{4})[/-](\d{2})[/-](\d{2})/);
+    if (dateMatch) {
+      const year = parseInt(dateMatch[1]);
+      const month = parseInt(dateMatch[2]) - 1;
+      const day = parseInt(dateMatch[3]);
+      date = new Date(year, month, day);
+    } else {
+      date = new Date(dateStr);
+    }
+  }
+  // If it's a number (Excel serial date)
+  else if (typeof value === "number") {
+    date = new Date(Math.round((value - 25569) * 86400 * 1000));
+  } else {
+    return null;
+  }
+
+  if (date && !isNaN(date.getTime())) {
+    // ✅ ADD the timezone offset (5 hours 30 minutes for Sri Lanka)
+    // This makes it match the registration function behavior
+    const offsetHours = 5;
+    const offsetMinutes = 30;
+    date.setHours(date.getHours() + offsetHours);
+    date.setMinutes(date.getMinutes() + offsetMinutes);
+    return date;
+  }
+
+  return null;
+}
+
+function parseTimeFromExcel(value) {
+  if (!value) return null;
+
+  // If it's a Date object
+  if (value instanceof Date) {
+    const hours = value.getHours();
+    const minutes = value.getMinutes();
+    const seconds = value.getSeconds();
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  }
+
+  // If it's a number (Excel time serial)
+  if (typeof value === "number") {
+    const timeFraction = value % 1;
+    const totalSeconds = Math.round(timeFraction * 86400);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  }
+
+  // If it's a string
+  if (typeof value === "string") {
+    const timeMatch = value.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+    if (timeMatch) {
+      const hours = parseInt(timeMatch[1]);
+      const minutes = parseInt(timeMatch[2]);
+      const seconds = parseInt(timeMatch[3] || 0);
+      return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    // Try parsing as full date and extract time
+    const parsed = new Date(value);
+    if (!isNaN(parsed)) {
+      const hours = parsed.getHours();
+      const minutes = parsed.getMinutes();
+      const seconds = parsed.getSeconds();
+      return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+  }
+
+  return null;
+}
+
+// ✅ Combine date and time
+function parseTimeFromExcel(value) {
+  if (!value) return null;
+
+  // If it's a Date object
+  if (value instanceof Date) {
+    const hours = value.getHours();
+    const minutes = value.getMinutes();
+    const seconds = value.getSeconds();
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  }
+
+  // If it's a string
+  if (typeof value === "string") {
+    let timeStr = value.trim();
+
+    // Handle AM/PM format: "10:30:00 AM" or "1:30:00 PM"
+    const ampmMatch = timeStr.match(
+      /^(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)$/i,
+    );
+    if (ampmMatch) {
+      let hours = parseInt(ampmMatch[1]);
+      const minutes = parseInt(ampmMatch[2]);
+      const seconds = parseInt(ampmMatch[3] || 0);
+      const ampm = ampmMatch[4].toUpperCase();
+
+      // Convert to 24-hour format
+      if (ampm === "PM" && hours !== 12) {
+        hours += 12;
+      } else if (ampm === "AM" && hours === 12) {
+        hours = 0;
+      }
+
+      return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    // Handle 24-hour format: "10:30:00"
+    const timeMatch = timeStr.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+    if (timeMatch) {
+      const hours = parseInt(timeMatch[1]);
+      const minutes = parseInt(timeMatch[2]);
+      const seconds = parseInt(timeMatch[3] || 0);
+      return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    // Try parsing as full date
+    const parsed = new Date(timeStr);
+    if (!isNaN(parsed)) {
+      const hours = parsed.getHours();
+      const minutes = parsed.getMinutes();
+      const seconds = parsed.getSeconds();
+      return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+  }
+
+  // If it's a number (Excel time serial)
+  if (typeof value === "number") {
+    const timeFraction = value % 1;
+    const totalSeconds = Math.round(timeFraction * 86400);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  }
+
+  return null;
+}
+
+function combineDateAndTime(date, timeStr) {
+  if (!date || !timeStr) return null;
+
+  const [hours, minutes, seconds] = timeStr.split(":").map(Number);
+  const newDate = new Date(date);
+  newDate.setHours(hours || 0, minutes || 0, seconds || 0);
+
+  return newDate;
+}
 
 //to get all department name and id to display on department combobox
 visiterRoutes.get("/getDepartments", async (req, res) => {
@@ -1539,7 +2023,6 @@ visiterRoutes.post(
         await transaction.rollback();
         return res.status(500).send("Internal server error");
       }
-
 
       // Commit transaction
       await transaction.commit();

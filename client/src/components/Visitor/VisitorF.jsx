@@ -143,16 +143,6 @@ const VisitorF = () => {
                   message: "Name must be at least 3 characters",
                 });
               }
-              // if (
-              //   !/^(?:\d{9}[vV]|\d{12}|[A-Za-z0-9]{5,15})$/.test(
-              //     visitor.visitorNIC,
-              //   )
-              // ) {
-              //   return this.createError({
-              //     path: `${this.path}[${i}].visitorNIC`,
-              //     message: "Invalid NIC format",
-              //   });
-              // }
             }
           }
           return true;
@@ -161,11 +151,43 @@ const VisitorF = () => {
     vehicleDetails: Yup.array()
       .of(
         Yup.object().shape({
-          VehicleNo: Yup.string().required("Vehicle number is required"),
-          VehicleType: Yup.string().required("Vehicle type is required"),
+          VehicleNo: Yup.string(),
+          VehicleType: Yup.string(),
         }),
       )
-      .min(1, "At least one vehicle is required"),
+      .test(
+        "complete-vehicle-entries",
+        "Please provide both vehicle number and type for each vehicle entry",
+        function (vehicles) {
+          if (!vehicles || vehicles.length === 0) return true;
+
+          for (let i = 0; i < vehicles.length; i++) {
+            const vehicle = vehicles[i];
+            const typeFilled =
+              vehicle.VehicleType && vehicle.VehicleType.trim().length > 0;
+            const numberFilled =
+              vehicle.VehicleNo && vehicle.VehicleNo.trim().length > 0;
+
+            // If any field is filled, both must be filled
+            if (typeFilled && !numberFilled) {
+              return this.createError({
+                path: `${this.path}[${i}].VehicleNo`,
+                message:
+                  "Vehicle number is required when vehicle type is provided",
+              });
+            }
+
+            if (numberFilled && !typeFilled) {
+              return this.createError({
+                path: `${this.path}[${i}].VehicleType`,
+                message:
+                  "Vehicle type is required when vehicle number is provided",
+              });
+            }
+          }
+          return true;
+        },
+      ),
     dateTimeDetails: Yup.object().shape({
       dateFrom: Yup.date()
         .required("Start date is required")
@@ -214,9 +236,17 @@ const VisitorF = () => {
     onSubmit: async (values, { setSubmitting }) => {
       try {
         setIsLoading(true);
+        // Filter out empty vehicle entries before submitting
+        const filteredValues = {
+          ...values,
+          vehicleDetails: values.vehicleDetails.filter(
+            (v) => v.VehicleNo.trim() !== "" || v.VehicleType.trim() !== ""
+          ),
+        };
+        
         const response = await axios.post(
           `${apiUrl}/visitor/registration`,
-          values,
+          filteredValues,
           {
             headers: { "X-CSRF-Token": csrfToken },
             withCredentials: true,
@@ -685,7 +715,7 @@ const VisitorF = () => {
         <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8 shadow-md">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-gray-800">
-              Vehicle Details
+              Vehicle Details (Optional)
             </h2>
             <button
               type="button"
@@ -699,13 +729,13 @@ const VisitorF = () => {
           <div className="py-2">
             <p className="hidden md:flex  text-sm text-left ml-2 items-start gap-2">
               <GoDotFill />
-              Please provide the details of the vehicle you’ll be using to visit
-              our factory. To register additional vehicles, click the “Add
-              Vehicle” button.
+              Please provide the details of the vehicle you'll be using to visit
+              our factory. To register additional vehicles, click the "Add
+              Vehicle" button.
             </p>
             <p className="text-sm md:hidden text-left flex ml-2 items-start gap-2">
               <GoDotFill />
-              Please provide vehicle details(you can add multiple vehicles).
+              Please provide vehicle details (you can add multiple vehicles).
             </p>
           </div>
 
@@ -719,9 +749,9 @@ const VisitorF = () => {
                   <th className="px-4 whitespace-nowrap py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Vehicle No
                   </th>
-                  {/* <th className="px-4 py-3 whitespace-nowrap text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 whitespace-nowrap text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Action
-                  </th> */}
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -738,7 +768,8 @@ const VisitorF = () => {
                         onBlur={formik.handleBlur}
                       />
                       {formik.touched.vehicleDetails?.[index]?.VehicleType &&
-                        formik.errors.vehicleDetails?.[index]?.VehicleType && (
+                        formik.errors.vehicleDetails?.[index]
+                          ?.VehicleType && (
                           <p className="mt-1 text-xs text-red-600">
                             {formik.errors.vehicleDetails[index].VehicleType}
                           </p>
@@ -814,9 +845,9 @@ const VisitorF = () => {
                   <th className="px-4 py-3 text-center whitespace-nowrap text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     NIC
                   </th>
-                  {/* <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Action
-                  </th> */}
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">

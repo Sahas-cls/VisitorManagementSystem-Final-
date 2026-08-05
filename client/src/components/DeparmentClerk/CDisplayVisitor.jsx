@@ -10,6 +10,27 @@ import { motion } from "framer-motion";
 import { BsExclamationCircle } from "react-icons/bs";
 import { IoCheckmarkCircleOutline } from "react-icons/io5";
 
+// ✅ Helper function to format date consistently
+const formatDateOnly = (dateValue) => {
+  if (!dateValue) return "";
+
+  // If it's a string like "2026-08-04" (already formatted)
+  if (typeof dateValue === "string" && dateValue.match(/^\d{4}-\d{2}-\d{2}/)) {
+    return dateValue.split("T")[0];
+  }
+
+  // If it's a Date object or ISO string
+  const date = new Date(dateValue);
+  if (!isNaN(date.getTime())) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  return "";
+};
+
 const CDisplayVisitor = () => {
   const { visitId } = useParams();
   const navigate = useNavigate();
@@ -17,7 +38,6 @@ const CDisplayVisitor = () => {
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [visitorData, setVisitorData] = useState(null);
 
-  // Get user data from localStorage
   const UserData = JSON.parse(localStorage.getItem("userData")) || {
     userName: "",
     userCategory: "",
@@ -26,7 +46,6 @@ const CDisplayVisitor = () => {
     userFactoryId: "",
   };
 
-  // Destructuring data from fetched state
   const Visitor = visitorData;
   const visitorGroup = visitorData?.Visitors || [];
   const Vehicles = visitorData?.Vehicles || [];
@@ -58,7 +77,6 @@ const CDisplayVisitor = () => {
 
     setIsDataLoading(true);
     try {
-      // Add user department and factory IDs to query params
       const response = await axios.get(
         `${apiUrl}/visitor/getSingleVisit/${visitId}`,
         {
@@ -70,22 +88,18 @@ const CDisplayVisitor = () => {
           withCredentials: true,
         },
       );
-
+      console.log("response: ", response);
       if (response.status === 200) {
         const fetchedData = response.data.data;
         setVisitorData(fetchedData);
 
         // Update form values with new data
         const visitsData = fetchedData?.Visits?.[0];
-        const reqDate = visitsData?.Date_From
-          ? new Date(visitsData.Date_From).toISOString().split("T")[0]
-          : "";
-        const dateFrom = visitsData?.Date_From
-          ? new Date(visitsData.Date_From).toISOString().split("T")[0]
-          : "";
-        const dateTo = visitsData?.Date_To
-          ? new Date(visitsData.Date_To).toISOString().split("T")[0]
-          : "";
+
+        // ✅ FIXED: Use consistent date formatting
+        const reqDate = formatDateOnly(visitsData?.Date_From);
+        const dateFrom = formatDateOnly(visitsData?.Date_From);
+        const dateTo = formatDateOnly(visitsData?.Date_To);
 
         formik.setValues({
           Requested_Department: visitsData?.Department_Id || "",
@@ -103,12 +117,10 @@ const CDisplayVisitor = () => {
           Remark: visitsData?.Remark || "",
         });
 
-        // Fetch visitor purposes if category exists
         if (visitsData?.Visitor_Category) {
           getVisitingPurpose(visitsData.Visitor_Category);
         }
 
-        // Clear success message after 3 seconds
         if (successMessages.msg) {
           setTimeout(() => {
             setSuccessMessages({ type: "", msg: "" });
@@ -171,19 +183,14 @@ const CDisplayVisitor = () => {
     fetchAllNames();
   }, [Visits, csrfToken, refreshCount]);
 
-  // Format dates
-  const reqDate = Visits?.Date_From
-    ? new Date(Visits.Date_From).toISOString().split("T")[0]
-    : "";
-  const dateTo = Visits?.Date_To
-    ? new Date(Visits.Date_To).toISOString().split("T")[0]
-    : "";
-  const dateFrom = Visits?.Date_From
-    ? new Date(Visits.Date_From).toISOString().split("T")[0]
-    : "";
+  // ✅ FIXED: Use consistent date formatting
+  const reqDate = formatDateOnly(Visits?.Date_From);
+  const dateTo = formatDateOnly(Visits?.Date_To);
+  const dateFrom = formatDateOnly(Visits?.Date_From);
   const today = new Date().toISOString().split("T")[0];
 
-  // Check if editing is disabled - UPDATED: Check D_User instead of D_Head_Approval
+  console.log(`today: ${today} --- dateFrom ${dateFrom}`);
+
   const isDisabled =
     dateFrom < today || Visits?.D_User !== null || Visits?.HR_Approval;
 
@@ -299,7 +306,6 @@ const CDisplayVisitor = () => {
             msg: "Data update success",
           });
 
-          // Force refresh after 1 second to get updated data
           setTimeout(() => {
             setRefreshCount((prev) => prev + 1);
             fetchVisitData();
@@ -411,11 +417,9 @@ const CDisplayVisitor = () => {
     }
   };
 
-  // Delete record function - UPDATED: Check if D_User is null before allowing delete
   const deleteRecord = async (e) => {
     e.preventDefault();
 
-    // Check if visit is already approved by department user
     if (Visits?.D_User !== null) {
       swal.fire({
         title: "Cannot Delete",
@@ -486,7 +490,6 @@ const CDisplayVisitor = () => {
     }
   };
 
-  // Initialize data fetching
   useEffect(() => {
     const initialize = async () => {
       await getCsrf();
@@ -506,7 +509,6 @@ const CDisplayVisitor = () => {
     }
   }, [csrfToken, visitId, refreshCount]);
 
-  // Add refresh button handler
   const handleRefresh = () => {
     setRefreshCount((prev) => prev + 1);
   };

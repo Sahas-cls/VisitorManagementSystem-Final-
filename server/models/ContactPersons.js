@@ -24,9 +24,9 @@ module.exports = (sequelize, DataTypes) => {
     ContactPerson_ContactNo: {
       type: DataTypes.STRING,
       allowNull: false,
-      validate: {
-        len: [9, 12],
-      },
+      // validate: {
+      //   len: [9, 12],
+      // },
     },
     ContactPerson_Email: {
       type: DataTypes.STRING,
