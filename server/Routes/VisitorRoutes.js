@@ -988,6 +988,9 @@ visiterRoutes.post(
           dataStartRowIndex = 2;
         }
 
+        // Store created visits with their factory and department info for email
+        const visitsWithFactoryDept = [];
+
         for (let i = dataStartRowIndex; i < rows.length; i++) {
           const row = rows[i];
 
@@ -1020,7 +1023,11 @@ visiterRoutes.post(
             }
 
             let factory = await Factory.findOne({
-              where: { Factory_Name: factoryName },
+              where: {
+                Factory_Name: {
+                  [Op.like]: `%${factoryName}%`,
+                },
+              },
               transaction,
             });
 
@@ -1079,7 +1086,6 @@ visiterRoutes.post(
             console.log(
               `vehicle type: ${vehicleType} vehicle no: ${vehicleNo}`,
             );
-            // return;
             if (vehicleType && vehicleNo) {
               vehicle = await Vehicles.findOne({
                 where: {
@@ -1101,7 +1107,7 @@ visiterRoutes.post(
               }
             }
 
-            // ✅ Parse dates and times with proper format handling
+            // Parse dates and times with proper format handling
             let visitingDateFromParsed = parseDateFromExcel(visitingDateFrom);
             let visitingDateToParsed = visitingDateTo
               ? parseDateFromExcel(visitingDateTo)
@@ -1166,6 +1172,18 @@ visiterRoutes.post(
               { transaction },
             );
 
+            // Store visit info for email notification
+            visitsWithFactoryDept.push({
+              visitId: visit.Visit_Id,
+              factoryId: factory.Factory_Id,
+              departmentId: department ? department.Department_Id : null,
+              factoryName: factory.Factory_Name,
+              departmentName: department ? department.Department_Name : null,
+              visitorName: contactPerson.ContactPerson_Name,
+              dateFrom: visitingDateFromParsed,
+              dateTo: visitingDateToParsed,
+            });
+
             createdVisits.push({
               visit_id: visit.Visit_Id,
               contact_person: contactPerson.ContactPerson_Name,
@@ -1186,6 +1204,9 @@ visiterRoutes.post(
 
         if (createdVisits.length > 0) {
           await transaction.commit();
+
+          // Send email notifications for each created visit
+          await sendVisitNotifications(visitsWithFactoryDept);
 
           return res.status(200).json({
             success: true,
@@ -1216,6 +1237,111 @@ visiterRoutes.post(
     }
   },
 );
+
+// Helper function to send notifications to department users
+async function sendVisitNotifications(visits) {
+  try {
+    // Group visits by factory and department to avoid duplicate emails
+    const groupedVisits = {};
+
+    visits.forEach((visit) => {
+      const key = `${visit.factoryId}-${visit.departmentId || "no-department"}`;
+      if (!groupedVisits[key]) {
+        groupedVisits[key] = {
+          factoryId: visit.factoryId,
+          departmentId: visit.departmentId,
+          factoryName: visit.factoryName,
+          departmentName: visit.departmentName,
+          visits: [],
+        };
+      }
+      groupedVisits[key].visits.push(visit);
+    });
+
+    // Send emails for each group
+    for (const groupKey in groupedVisits) {
+      const group = groupedVisits[groupKey];
+
+      // Find department users for this factory and department
+      const whereClause = {
+        factory_Id: group.factoryId,
+        user_category: "Department User", // Match the category name from User_Categories table
+      };
+
+      // If department exists, filter by department too
+      if (group.departmentId) {
+        whereClause.Department_Id = group.departmentId;
+      }
+
+      const usersList = await department_Users.findAll({
+        where: whereClause,
+      });
+
+      if (usersList && usersList.length > 0) {
+        const emailAddresses = usersList
+          .map((user) => user.dataValues.user_email)
+          .join(",");
+
+        // Create visit details for email
+        let visitDetails = "";
+        group.visits.forEach((visit, index) => {
+          visitDetails += `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${visit.visitorName}</td>
+              <td>${visit.dateFrom ? new Date(visit.dateFrom).toLocaleDateString() : "N/A"}</td>
+              <td>${visit.dateTo ? new Date(visit.dateTo).toLocaleDateString() : "N/A"}</td>
+            </tr>
+          `;
+        });
+
+        const departmentName = group.departmentName || "No Department";
+
+        // Send email
+        sendEmail(
+          emailAddresses,
+          `New Visitor${group.visits.length > 1 ? "s" : ""} Registered - ${group.factoryName}`,
+          `
+            <h3>Dear Department User,</h3>
+            <p>New visitor${group.visits.length > 1 ? "s have" : " has"} been registered for ${group.factoryName} ${departmentName !== "No Department" ? `- ${departmentName}` : ""}.</p>
+            
+            <h4>Visitor Details:</h4>
+            <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+              <thead>
+                <tr style="background-color: #f2f2f2;">
+                  <th>#</th>
+                  <th>Visitor Name</th>
+                  <th>Date From</th>
+                  <th>Date To</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${visitDetails}
+              </tbody>
+            </table>
+            
+            <br>
+            <p>Please log into the visitor management system to view the complete details.</p>
+            <a href="${frontendUrl}" style="color: #1a73e8; text-decoration: none; font-weight: bold;">Go to the Application</a>
+            <br>
+            <br>
+            <p>Thank you,</p>
+            <p>Visitor Management System</p>
+          `,
+        );
+
+        console.log(`Email sent to ${emailAddresses} for ${group.factoryName}`);
+      } else {
+        console.log(
+          `No Department Users found for ${group.factoryName} - ${departmentName}`,
+        );
+      }
+    }
+  } catch (error) {
+    console.error("Error sending email notifications:", error);
+    // Don't throw error - email failure shouldn't break the main flow
+  }
+}
 
 // ✅ Parse date from Excel - KEEPS timezone offset (matches registration behavior)
 function parseDateFromExcel(value) {

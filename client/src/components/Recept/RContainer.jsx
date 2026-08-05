@@ -3,6 +3,7 @@ import { FaArrowRight, FaRegEye } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./RContainer.css";
+import Swal from "sweetalert2";
 
 const RContainer = ({
   userId,
@@ -70,10 +71,15 @@ const RContainer = ({
           withCredentials: true,
         },
       );
-      if (response.status === 200) {
-        alert("Visits initiation success");
-      }
       console.log("response: ", response);
+      if (response.status === 200) {
+        Swal.fire({
+          title: "Success",
+          text: `Visits import success`,
+          icon: "success",
+          showCancelButton: false,
+        });
+      }
     } catch (error) {
       console.log("error: ", error);
     } finally {
