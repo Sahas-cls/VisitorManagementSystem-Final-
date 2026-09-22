@@ -240,10 +240,10 @@ const VisitorF = () => {
         const filteredValues = {
           ...values,
           vehicleDetails: values.vehicleDetails.filter(
-            (v) => v.VehicleNo.trim() !== "" || v.VehicleType.trim() !== ""
+            (v) => v.VehicleNo.trim() !== "" || v.VehicleType.trim() !== "",
           ),
         };
-        
+
         const response = await axios.post(
           `${apiUrl}/visitor/registration`,
           filteredValues,
@@ -743,13 +743,13 @@ const VisitorF = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="px-4 whitespace-nowrap py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Vehicle Type
                   </th>
-                  <th className="px-4 whitespace-nowrap py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Vehicle No
                   </th>
-                  <th className="px-4 py-3 whitespace-nowrap text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[100px]">
                     Action
                   </th>
                 </tr>
@@ -757,7 +757,7 @@ const VisitorF = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {formik.values.vehicleDetails.map((vehicle, index) => (
                   <tr key={index}>
-                    <td className="md:px-4 md:py-2 whitespace-nowrap border-black/40 border">
+                    <td className="px-4 py-2 border border-black/40">
                       <input
                         type="text"
                         className="block w-full px-3 py-1 border-0 h-full border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -768,14 +768,13 @@ const VisitorF = () => {
                         onBlur={formik.handleBlur}
                       />
                       {formik.touched.vehicleDetails?.[index]?.VehicleType &&
-                        formik.errors.vehicleDetails?.[index]
-                          ?.VehicleType && (
+                        formik.errors.vehicleDetails?.[index]?.VehicleType && (
                           <p className="mt-1 text-xs text-red-600">
                             {formik.errors.vehicleDetails[index].VehicleType}
                           </p>
                         )}
                     </td>
-                    <td className="px-4 py-2 whitespace-nowrap border-black/40 border">
+                    <td className="px-4 py-2 border border-black/40">
                       <input
                         type="text"
                         className="block w-full px-3 py-1 border-0 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -792,13 +791,13 @@ const VisitorF = () => {
                           </p>
                         )}
                     </td>
-                    <td className="px-4 py-2 max-w-10 border-0 whitespace-nowrap text-right text-sm font-medium bg-gray-50/80">
-                      <div className="flex space-x-2 bg-transparent">
+                    <td className="px-4 py-2 border border-black/40 text-center w-[100px]">
+                      <div className="flex justify-center items-center space-x-2">
                         {formik.values.vehicleDetails.length > 1 && (
                           <button
                             type="button"
                             onClick={() => removeVehicle(index)}
-                            className="text-red-600 hover:text-red-900"
+                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors"
                           >
                             <MdDelete className="h-5 w-5" />
                           </button>
@@ -839,13 +838,13 @@ const VisitorF = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="px-4 py-3 whitespace-nowrap text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Visitor Name
                   </th>
-                  <th className="px-4 py-3 text-center whitespace-nowrap text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     NIC
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[100px]">
                     Action
                   </th>
                 </tr>
@@ -853,7 +852,7 @@ const VisitorF = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {formik.values.visitorDetails.map((visitor, index) => (
                   <tr key={index}>
-                    <td className="px-4 py-2 border border-black/40 whitespace-nowrap">
+                    <td className="px-4 py-2 border border-black/40">
                       <input
                         type="text"
                         className="block w-full px-3 py-1 border-0 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -870,10 +869,10 @@ const VisitorF = () => {
                           </p>
                         )}
                     </td>
-                    <td className="px-4 w-[200px] border border-black/40 py-2 whitespace-nowrap">
+                    <td className="px-4 py-2 border border-black/40">
                       <input
                         type="text"
-                        className="block px-3 w-[14ch] py-1 border-0 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        className="block w-full px-3 py-1 border-0 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         name={`visitorDetails[${index}].visitorNIC`}
                         value={visitor.visitorNIC}
                         onChange={formik.handleChange}
@@ -887,13 +886,13 @@ const VisitorF = () => {
                           </p>
                         )}
                     </td>
-                    <td className="px-4 py-2 max-w-10 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex space-x-2">
+                    <td className="px-4 py-2 border border-black/40 text-center w-[100px]">
+                      <div className="flex justify-center items-center space-x-2">
                         {formik.values.visitorDetails.length > 1 && (
                           <button
                             type="button"
                             onClick={() => removeVisitor(index)}
-                            className="text-red-600 hover:text-red-900"
+                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors"
                           >
                             <MdDelete className="h-5 w-5" />
                           </button>

@@ -918,6 +918,39 @@ visiterRoutes.post(
       // Step 5: Commit DB operations
       await transaction.commit();
 
+      // Notify department users (Dept Head / Department User) about the new visitor.
+      // Wrapped separately so an email failure never affects the registration response.
+      try {
+        const listOfEmails = await findUsers(
+          departmentDetails.factory,
+          departmentDetails.department,
+        );
+
+        if (listOfEmails) {
+          const info = await sendEmail(
+            listOfEmails,
+            "New visitor arrival",
+            `
+            <p>${contactPersonDetails.cName} is waiting for your approval.</p>
+
+            <a href="${frontendUrl}" style="color:#1a73e8;text-decoration:none;font-weight:bold;">
+              Go to the Application
+            </a>
+
+            <br><br>
+
+            <p>Thank you,</p>
+            <p>Visitor Management System</p>
+          `,
+          );
+          console.log("Registration notification email sent:", info?.success);
+        } else {
+          console.log("No department users found to notify.");
+        }
+      } catch (emailError) {
+        console.error("Registration notification email failed:", emailError);
+      }
+
       // Respond immediately
       res.status(200).json({
         success: true,
@@ -2201,42 +2234,9 @@ visiterRoutes.post(
           <p>Visitor Management System</p>
         `,
           );
-
-          console.time("FindUsers");
-          const listOfEmails = await findUsers(
-            departmentDetails.factory,
-            departmentDetails.department,
-          );
-          console.timeEnd("FindUsers");
-
-          if (listOfEmails) {
-            console.time("SendEmail");
-
-            const info = await sendEmail(
-              listOfEmails,
-              "New visitor arrival",
-              `
-            <p>${contactPersonDetails.cName} is waiting for your approval.</p>
-
-            <a href="${frontendUrl}" style="color:#1a73e8;text-decoration:none;font-weight:bold;">
-              Go to the Application
-            </a>
-
-            <br><br>
-
-            <p>Thank you,</p>
-            <p>Visitor Management System</p>
-          `,
-            );
-
-            console.timeEnd("SendEmail");
-            console.log("Approval email sent:", info?.success);
-          }
         } else {
           console.log("No reception users found. BOI email not sent. ");
         }
-
-        console.timeEnd("TotalRouteTime");
       } catch (emailError) {
         // Email failures should not affect the successful update
         console.error("Email notification failed:", emailError);
