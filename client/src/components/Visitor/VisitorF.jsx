@@ -25,6 +25,7 @@ const VisitorF = () => {
   const [csrfToken, setCsrfToken] = useState("");
   const [factories, setFactories] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [purposes, setPurposes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [disableSubmitButton, setDisableSubmitButton] = useState(true);
   const navigate = useNavigate();
@@ -69,6 +70,24 @@ const VisitorF = () => {
     if (csrfToken) getFactories();
   }, [csrfToken]);
 
+  // Get predefined visit purposes
+  useEffect(() => {
+    const getPurposes = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/visitor/getAll-purposes`);
+        if (response.data?.data) setPurposes(response.data.data);
+      } catch (error) {
+        console.error("Error fetching purposes:", error);
+      }
+    };
+    getPurposes();
+  }, []);
+
+  // Group 2 (HR_ONLY) factories capture the purpose of the visit at registration
+  const isPurposeRequired = (factoryId) =>
+    factories.find((f) => String(f.Factory_Id) === String(factoryId))
+      ?.Workflow_Type === "HR_ONLY";
+
   // Fetch departments when factory changes
   const fetchDepartments = async (factoryId) => {
     try {
@@ -88,6 +107,17 @@ const VisitorF = () => {
     departmentDetails: Yup.object().shape({
       factory: Yup.string().required("Factory is required"),
       department: Yup.string().required("Department is required"),
+    }),
+    visitDetails: Yup.object().shape({
+      purpose: Yup.string(),
+      requestedOfficer: Yup.string().max(255, "Name too long"),
+      purposeOther: Yup.string()
+        .max(255, "Maximum 255 characters")
+        .when("purpose", {
+          is: "Other",
+          then: (schema) =>
+            schema.trim().required("Please specify the purpose"),
+        }),
     }),
     contactPersonDetails: Yup.object().shape({
       cName: Yup.string()
@@ -225,12 +255,35 @@ const VisitorF = () => {
           VehicleType: "",
         },
       ],
+      visitDetails: {
+        purpose: "",
+        purposeOther: "",
+        requestedOfficer: "",
+      },
       dateTimeDetails: {
         dateFrom: "",
         dateTo: "",
         fTimeFrom: "",
         fTimeTo: "",
       },
+    },
+    validate: (values) => {
+      const errors = {};
+      if (isPurposeRequired(values.departmentDetails.factory)) {
+        const visitErrors = {};
+        if (!values.visitDetails.purpose) {
+          visitErrors.purpose = "Purpose for visit is required";
+        }
+        const officer = (values.visitDetails.requestedOfficer || "").trim();
+        if (!officer) {
+          visitErrors.requestedOfficer = "Contact person is required";
+        } else if (officer.length < 3) {
+          visitErrors.requestedOfficer =
+            "Name should contain at least 3 characters";
+        }
+        if (Object.keys(visitErrors).length) errors.visitDetails = visitErrors;
+      }
+      return errors;
     },
     validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
@@ -617,6 +670,108 @@ const VisitorF = () => {
             </div>
           </div>
         </div>
+
+        {/* Purpose for Visit (Group 2 factories) */}
+        {isPurposeRequired(formik.values.departmentDetails.factory) && (
+          <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8 shadow-md">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Visit Purpose & Contact Person
+            </h2>
+            {/* <p className="text-sm text-gray-500 mb-4">
+              Tell us the person you are meeting and the reason for your visit.
+            </p> */}
+            <div className="space-y-4">
+              <div>
+                <label
+                  htmlFor="requestedOfficer"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Person you are visiting{" "}
+                  <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="requestedOfficer"
+                  type="text"
+                  name="visitDetails.requestedOfficer"
+                  maxLength={255}
+                  placeholder="Full name of the employee you are meeting"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  value={formik.values.visitDetails.requestedOfficer}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                />
+                {formik.touched.visitDetails?.requestedOfficer &&
+                  formik.errors.visitDetails?.requestedOfficer && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {formik.errors.visitDetails.requestedOfficer}
+                    </p>
+                  )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="visitPurpose"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Purpose of visit <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="visitPurpose"
+                  name="visitDetails.purpose"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  value={formik.values.visitDetails.purpose}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                >
+                  <option value="">Select a purpose</option>
+                  {purposes.map((p) => (
+                    <option
+                      key={p.visiting_purpose_id}
+                      value={p.visiting_purpose_id}
+                    >
+                      {p.visiting_purpose}
+                    </option>
+                  ))}
+                  <option value="Other">Other</option>
+                </select>
+                {formik.touched.visitDetails?.purpose &&
+                  formik.errors.visitDetails?.purpose && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {formik.errors.visitDetails.purpose}
+                    </p>
+                  )}
+              </div>
+              {formik.values.visitDetails.purpose === "Other" && (
+                <div>
+                  <label
+                    htmlFor="purposeOther"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Please specify the purpose{" "}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    id="purposeOther"
+                    type="text"
+                    name="visitDetails.purposeOther"
+                    maxLength={255}
+                    placeholder="Briefly describe the reason for your visit"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    value={formik.values.visitDetails.purposeOther}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                  {formik.touched.visitDetails?.purposeOther &&
+                    formik.errors.visitDetails?.purposeOther && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {formik.errors.visitDetails.purposeOther}
+                      </p>
+                    )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Visiting Date & Time */}
         <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mb-8 shadow-md">

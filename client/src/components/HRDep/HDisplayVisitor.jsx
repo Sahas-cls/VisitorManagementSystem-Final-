@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "../../Header";
 import swal from "sweetalert2";
@@ -50,6 +50,10 @@ const HDisplayVisitor = () => {
   const [successMessages, setSuccessMessages] = useState("");
   const [visitorCategory, setVisitorCategory] = useState([]);
   const [visitorPurposes, setVisitorPurposes] = useState([]);
+  // Group 2 (HR_ONLY) factories: purpose is chosen at registration, no visitor category
+  const [hrOnly, setHrOnly] = useState(false);
+  const [allPurposes, setAllPurposes] = useState([]);
+  const [purposeOther, setPurposeOther] = useState("");
   const [refreshCount, setRefreshCount] = useState(0);
   const apiUrl = import.meta.env.VITE_API_URL;
   const [apNames, setApNames] = useState({
@@ -116,6 +120,8 @@ const HDisplayVisitor = () => {
           Tea: visitsData?.Tea || false,
           Remark: visitsData?.Remark || "",
         });
+
+        setPurposeOther(visitsData?.Purpose_Other || "");
 
         // Fetch visitor purposes if category exists
         if (visitsData?.Visitor_Category) {
@@ -188,30 +194,36 @@ const HDisplayVisitor = () => {
   }, [Visits, csrfToken, refreshCount]);
 
   // Format dates
-  const reqDate = Visits?.Date_From
-    ? new Date(Visits.Date_From).toISOString().split("T")[0]
-    : "";
-  const dateTo = Visits?.Date_To
-    ? new Date(Visits.Date_To).toISOString().split("T")[0]
-    : "";
-  const dateFrom = Visits?.Date_From
-    ? new Date(Visits.Date_From).toISOString().split("T")[0]
-    : "";
-  const today = new Date().toISOString().split("T")[0];
-  const timeFrom = Visits?.Time_From;
-  const timeTo = Visits?.Time_To;
+  // const reqDate = Visits?.Date_From
+  //   ? new Date(Visits.Date_From).toISOString().split("T")[0]
+  //   : "";
+  // const dateTo = Visits?.Date_To
+  //   ? new Date(Visits.Date_To).toISOString().split("T")[0]
+  //   : "";
+  // const dateFrom = Visits?.Date_From
+  //   ? new Date(Visits.Date_From).toISOString().split("T")[0]
+  //   : "";
+  // const today = new Date().toISOString().split("T")[0];
+  // const timeFrom = Visits?.Time_From;
+  // const timeTo = Visits?.Time_To;
 
   // Validation schema
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const validationSchema = yup.object({
     Requested_Department: yup.number().required("Department is required"),
-    Requested_Officer: yup
-      .string()
-      .min(3, "Name should contain at least 3 characters")
-      .required("Requested officer is required"),
-    Visitor_Category: yup.number().required("Visitor category is required"),
-    Purpose: yup.number().required("Visiting purpose is required"),
+    Requested_Officer: hrOnly
+      ? yup.string()
+      : yup
+          .string()
+          .min(3, "Name should contain at least 3 characters")
+          .required("Requested officer is required"),
+    Visitor_Category: hrOnly
+      ? yup.mixed()
+      : yup.number().required("Visitor category is required"),
+    Purpose: hrOnly
+      ? yup.string().required("Visiting purpose is required")
+      : yup.number().required("Visiting purpose is required"),
     Req_Date: yup
       .date()
       .required("Request date is required")
@@ -272,8 +284,8 @@ const HDisplayVisitor = () => {
           Entry_Request: {
             Requested_Department: values.Requested_Department,
             Date_From: values.Req_Date,
-            Requested_Officer: values.Requested_Officer,
-            Visitor_Category: values.Visitor_Category,
+            Requested_Officer: hrOnly ? undefined : values.Requested_Officer,
+            Visitor_Category: hrOnly ? undefined : values.Visitor_Category,
           },
           Entry_Permit: {
             Purpose: values.Purpose,
@@ -370,6 +382,7 @@ const HDisplayVisitor = () => {
         setVisitorCategory(result.data.data);
       }
     } catch (error) {
+      console.log(error);
       setVisitorCategory([]);
     }
   };
@@ -388,6 +401,7 @@ const HDisplayVisitor = () => {
         setVisitorPurposes(result.data.data);
       }
     } catch (error) {
+      console.log(error);
       setVisitorPurposes([]);
     }
   };
@@ -432,6 +446,31 @@ const HDisplayVisitor = () => {
 
     initialize();
   }, []);
+
+  // Detect HR_ONLY factories and load the purpose names for display
+  useEffect(() => {
+    if (!csrfToken) return;
+    const loadWorkflow = async () => {
+      try {
+        const [fRes, pRes] = await Promise.all([
+          axios.get(`${apiUrl}/department/getAll-Factories`, {
+            withCredentials: true,
+          }),
+          axios.get(`${apiUrl}/visitor/getAll-purposes`, {
+            withCredentials: true,
+          }),
+        ]);
+        const factory = (fRes.data?.data || []).find(
+          (f) => String(f.Factory_Id) === String(UserData.userFactoryId),
+        );
+        setHrOnly(factory?.Workflow_Type === "HR_ONLY");
+        setAllPurposes(pRes.data?.data || []);
+      } catch (error) {
+        console.error("Error loading factory workflow:", error);
+      }
+    };
+    loadWorkflow();
+  }, [csrfToken, UserData.userFactoryId]);
 
   useEffect(() => {
     if (csrfToken) {
@@ -602,7 +641,9 @@ const HDisplayVisitor = () => {
                     Entry Permit Request Details
                   </h2>
 
-                  <div className="grid grid-cols-1 gap-2">
+                  <div
+                    className={`grid grid-cols-1 gap-2 ${hrOnly ? "gap-y-6" : ""}`}
+                  >
                     {/* Department Select */}
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                       <label className="text-sm sm:w-1/3">
@@ -663,68 +704,92 @@ const HDisplayVisitor = () => {
                       </div>
                     </div>
 
-                    {/* Requested Officer */}
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <label className="text-sm sm:w-1/3">
-                        Requested Officer:{" "}
-                        <span className="text-red-600">*</span>
-                      </label>
-                      <div className="md:col-span-3">
-                        <input
-                          type="text"
-                          name="Requested_Officer"
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          value={formik.values.Requested_Officer}
-                          className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
-                          disabled={isAlreadyApproved}
-                        />
-                        {formik.touched.Requested_Officer &&
-                          formik.errors.Requested_Officer && (
-                            <div className="text-red-600 text-sm">
-                              {formik.errors.Requested_Officer}
-                            </div>
-                          )}
+                    {/* Requested Officer (HR_ONLY: captured from the visitor at registration) */}
+                    {!hrOnly && (
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                        <label className="text-sm sm:w-1/3">
+                          Requested Officer:{" "}
+                          <span className="text-red-600">*</span>
+                        </label>
+                        <div className="md:col-span-3">
+                          <input
+                            type="text"
+                            name="Requested_Officer"
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            value={formik.values.Requested_Officer}
+                            className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
+                            disabled={isAlreadyApproved}
+                          />
+                          {formik.touched.Requested_Officer &&
+                            formik.errors.Requested_Officer && (
+                              <div className="text-red-600 text-sm">
+                                {formik.errors.Requested_Officer}
+                              </div>
+                            )}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
-                    {/* Visitor Category */}
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <label className="text-sm sm:w-1/3">
-                        Visitor Category:{" "}
-                        <span className="text-red-600">*</span>
-                      </label>
-                      <div className="md:col-span-3">
-                        <select
-                          name="Visitor_Category"
-                          value={formik.values.Visitor_Category}
-                          onChange={(e) => {
-                            formik.handleChange(e);
-                            getVisitingPurpose(e.target.value);
-                          }}
-                          onBlur={formik.handleBlur}
-                          className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
-                          disabled={isAlreadyApproved}
-                        >
-                          <option value="">Select a Category</option>
-                          {Array.isArray(visitorCategory) &&
-                            visitorCategory.map((vCategory) => (
-                              <option
-                                value={vCategory.visitor_category_id}
-                                key={vCategory.visitor_category_id}
-                              >
-                                {vCategory.visitor_category}
-                              </option>
-                            ))}
-                        </select>
-                        {formik.touched.Visitor_Category &&
-                          formik.errors.Visitor_Category && (
-                            <div className="text-red-600 text-sm">
-                              {formik.errors.Visitor_Category}
-                            </div>
-                          )}
+                    {/* HR_ONLY: contact person entered by the visitor (read-only) */}
+                    {hrOnly && (
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                        <label className="text-sm sm:w-1/3">
+                          Contact Person:
+                        </label>
+                        <div className="md:col-span-3">
+                          <input
+                            type="text"
+                            value={formik.values.Requested_Officer || ""}
+                            className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
+                            disabled={true}
+                            readOnly
+                          />
+                        </div>
                       </div>
-                    </div>
+                    )}
+
+                    {/* Visitor Category (not used for HR_ONLY factories) */}
+                    {!hrOnly && (
+                      <>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                          <label className="text-sm sm:w-1/3">
+                            Visitor Category:{" "}
+                            <span className="text-red-600">*</span>
+                          </label>
+                          <div className="md:col-span-3">
+                            <select
+                              name="Visitor_Category"
+                              value={formik.values.Visitor_Category}
+                              onChange={(e) => {
+                                formik.handleChange(e);
+                                getVisitingPurpose(e.target.value);
+                              }}
+                              onBlur={formik.handleBlur}
+                              className="text-sm bg-white border rounded border-slate-400 p-1 flex-1 w-full"
+                              disabled={isAlreadyApproved}
+                            >
+                              <option value="">Select a Category</option>
+                              {Array.isArray(visitorCategory) &&
+                                visitorCategory.map((vCategory) => (
+                                  <option
+                                    value={vCategory.visitor_category_id}
+                                    key={vCategory.visitor_category_id}
+                                  >
+                                    {vCategory.visitor_category}
+                                  </option>
+                                ))}
+                            </select>
+                            {formik.touched.Visitor_Category &&
+                              formik.errors.Visitor_Category && (
+                                <div className="text-red-600 text-sm">
+                                  {formik.errors.Visitor_Category}
+                                </div>
+                              )}
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -738,31 +803,48 @@ const HDisplayVisitor = () => {
                     {/* Purpose */}
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                       <label className="text-sm sm:w-1/3">
-                        Purpose: <span className="text-red-600">*</span>
+                        Purpose:{" "}
+                        {!hrOnly && <span className="text-red-600">*</span>}
                       </label>
                       <div className="flex-1">
-                        <select
-                          name="Purpose"
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          value={formik.values.Purpose}
-                          className="text-sm bg-white border rounded border-slate-400 p-1 w-full"
-                          disabled={isAlreadyApproved}
-                        >
-                          <option value="">Select a Purpose</option>
-                          {Array.isArray(visitorPurposes) &&
-                            visitorPurposes.map((purpose) => (
-                              <option
-                                value={purpose.visiting_purpose_id}
-                                key={purpose.visiting_purpose_id}
-                              >
-                                {purpose.visiting_purpose}
-                              </option>
-                            ))}
-                        </select>
-                        {formik.touched.Purpose && formik.errors.Purpose && (
-                          <div className="text-red-600 text-sm">
-                            {formik.errors.Purpose}
+                        {hrOnly ? (
+                          // Selected by the visitor at registration, read-only for HR
+                          <div className="text-sm bg-white border rounded border-slate-400 p-1 w-full">
+                            {formik.values.Purpose === "Other"
+                              ? `Other: ${purposeOther}`
+                              : allPurposes.find(
+                                  (p) =>
+                                    String(p.visiting_purpose_id) ===
+                                    String(formik.values.Purpose),
+                                )?.visiting_purpose || "-"}
+                          </div>
+                        ) : (
+                          <div className="flex-1">
+                            <select
+                              name="Purpose"
+                              onChange={formik.handleChange}
+                              onBlur={formik.handleBlur}
+                              value={formik.values.Purpose}
+                              className="text-sm bg-white border rounded border-slate-400 p-1 w-full"
+                              disabled={isAlreadyApproved}
+                            >
+                              <option value="">Select a Purpose</option>
+                              {Array.isArray(visitorPurposes) &&
+                                visitorPurposes.map((purpose) => (
+                                  <option
+                                    value={purpose.visiting_purpose_id}
+                                    key={purpose.visiting_purpose_id}
+                                  >
+                                    {purpose.visiting_purpose}
+                                  </option>
+                                ))}
+                            </select>
+                            {formik.touched.Purpose &&
+                              formik.errors.Purpose && (
+                                <div className="text-red-600 text-sm">
+                                  {formik.errors.Purpose}
+                                </div>
+                              )}
                           </div>
                         )}
                       </div>

@@ -132,6 +132,13 @@ module.exports = (sequelize, DataTypes) => {
         len: [0, 255],
       },
     },
+    Purpose_Other: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      validate: {
+        len: [0, 255],
+      },
+    },
     Reference_No: {
       type: DataTypes.STRING,
       allowNull: true,

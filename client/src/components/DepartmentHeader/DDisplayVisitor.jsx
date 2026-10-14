@@ -39,6 +39,10 @@ const DDisplayVisitor = () => {
   const [errorMessages, setErrorMessages] = useState("");
   const [visitorCategory, setVisitorCategory] = useState([]);
   const [visitorPurposes, setVisitorPurposes] = useState([]);
+  // Group 2 (HR_ONLY) factories: purpose is chosen at registration, shown read-only
+  const [hrOnly, setHrOnly] = useState(false);
+  const [allPurposes, setAllPurposes] = useState([]);
+  const [purposeOther, setPurposeOther] = useState("");
   const [successMessages, setSuccessMessages] = useState("");
   const [refreshCount, setRefreshCount] = useState(0);
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -105,6 +109,8 @@ const DDisplayVisitor = () => {
           Tea: visitsData?.Tea || false,
           Remark: visitsData?.Remark || "",
         });
+
+        setPurposeOther(visitsData?.Purpose_Other || "");
 
         // Fetch visitor purposes if category exists
         if (visitsData?.Visitor_Category) {
@@ -416,6 +422,30 @@ const DDisplayVisitor = () => {
   }, []);
 
   useEffect(() => {
+    if (!csrfToken) return;
+    const loadWorkflow = async () => {
+      try {
+        const [fRes, pRes] = await Promise.all([
+          axios.get(`${apiUrl}/department/getAll-Factories`, {
+            withCredentials: true,
+          }),
+          axios.get(`${apiUrl}/visitor/getAll-purposes`, {
+            withCredentials: true,
+          }),
+        ]);
+        const factory = (fRes.data?.data || []).find(
+          (f) => String(f.Factory_Id) === String(UserData.userFactoryId),
+        );
+        setHrOnly(factory?.Workflow_Type === "HR_ONLY");
+        setAllPurposes(pRes.data?.data || []);
+      } catch (error) {
+        console.error("Error loading factory workflow:", error);
+      }
+    };
+    loadWorkflow();
+  }, [csrfToken, UserData.userFactoryId]);
+
+  useEffect(() => {
     if (csrfToken) {
       getDepartments();
       getVCategories();
@@ -721,6 +751,18 @@ const DDisplayVisitor = () => {
                     Purpose: <span className="text-red-600">*</span>
                   </label>
                   <div className="flex-1">
+                    {hrOnly ? (
+                      <div className="text-sm bg-white border rounded border-slate-400 p-1 w-full">
+                        {formik.values.Purpose === "Other"
+                          ? `Other: ${purposeOther}`
+                          : allPurposes.find(
+                              (p) =>
+                                String(p.visiting_purpose_id) ===
+                                String(formik.values.Purpose),
+                            )?.visiting_purpose || "-"}
+                      </div>
+                    ) : (
+                    <>
                     <select
                       name="Purpose"
                       onChange={formik.handleChange}
@@ -744,6 +786,8 @@ const DDisplayVisitor = () => {
                       <div className="text-red-600 text-sm">
                         {formik.errors.Purpose}
                       </div>
+                    )}
+                    </>
                     )}
                   </div>
                 </div>

@@ -14,6 +14,7 @@ import { MdDelete } from "react-icons/md";
 import axios from "axios";
 
 const SuddenVisit = (userFactoryId) => {
+  const [hrOnly, setHrOnly] = useState(false);
   // Validation Schema
   const yearsterDay = new Date();
   yearsterDay.setDate(yearsterDay.getDate() - 1);
@@ -215,6 +216,23 @@ const SuddenVisit = (userFactoryId) => {
     };
     fetchDepartments();
     getVCategories();
+
+    // HR_ONLY factories have no meal plan section
+    const fetchWorkflowType = async () => {
+      try {
+        const response = await axios.get(
+          `${apiUrl}/department/getAll-Factories`,
+          { withCredentials: true },
+        );
+        const factory = response.data?.data?.find(
+          (f) => String(f.Factory_Id) === String(factoryId),
+        );
+        setHrOnly(factory?.Workflow_Type === "HR_ONLY");
+      } catch (error) {
+        console.error(`Error while fetching factory workflow: ${error}`);
+      }
+    };
+    fetchWorkflowType();
   }, []);
 
   const [visitorData, setVisitorData] = useState({
@@ -675,7 +693,7 @@ const SuddenVisit = (userFactoryId) => {
           {/* bottom */}
           <div className="w-full p-2 lg:flex gap-[1%]">
             {/* Visitor Details */}
-            <div className="border-black p-1 rounded-lg shadow-custom1 bg-gradient-to-br from-blue-200 to-blue-300 lg:w-2/4">
+            <div className={`border-black p-1 rounded-lg shadow-custom1 bg-gradient-to-br from-blue-200 to-blue-300 ${hrOnly ? "lg:w-full" : "lg:w-2/4"}`}>
               <h1 className="text-lg text-blue-950 mb-2">Visitor Details</h1>
               <table>
                 <tbody>
@@ -798,7 +816,8 @@ const SuddenVisit = (userFactoryId) => {
                 ))}
             </div>
 
-            {/* right div */}
+            {/* right div (meal plan is hidden for HR_ONLY factories) */}
+            {!hrOnly && (
             <div className="border-black p-1 rounded-lg shadow-custom1 bg-gradient-to-br mt-5 lg:mt-0 from-blue-200 to-blue-300 lg:w-[50%]">
               <h1 className="text-lg text-blue-950 mb-2">Meal plan</h1>
               &nbsp;
@@ -859,6 +878,7 @@ const SuddenVisit = (userFactoryId) => {
                 ></textarea>
               </div>
             </div>
+            )}
           </div>
         </div>
       </form>

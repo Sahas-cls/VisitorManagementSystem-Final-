@@ -100,7 +100,8 @@ exports.getDashboardSummary = async (req, res, next) => {
 // Helper function to get visit status
 const getVisitStatus = (visit) => {
   // Check approval workflow first
-  if (!visit.D_User) {
+  // HR_ONLY factories are registered with D_Head_Approval=true and no D_User.
+  if (!visit.D_User && !visit.D_Head_Approval) {
     return "User Approval Pending";
   } else if (!visit.D_Head_Approval) {
     return "Department Head Approval Pending";
@@ -166,6 +167,7 @@ exports.getTodaysVisitors = async (req, res, next) => {
         "Checkin_Time",
         "Checkout_Time",
         "Purpose",
+        "Purpose_Other",
         "Visitor_Category",
         "Factory_Id",
         "Department_Id",
@@ -242,11 +244,25 @@ exports.getTodaysVisitors = async (req, res, next) => {
         });
       }
 
+      // Human readable purpose ("Other" shows the free text entered at registration)
+      let purposeLabel = null;
+      if (visit.Purpose === "Other") {
+        purposeLabel = visit.Purpose_Other
+          ? `Other: ${visit.Purpose_Other}`
+          : "Other";
+      } else if (visit.Purpose && db.VisitingPurpose) {
+        const purpose = await db.VisitingPurpose.findByPk(visit.Purpose, {
+          attributes: ["visiting_purpose"],
+        });
+        purposeLabel = purpose?.visiting_purpose || null;
+      }
+
       // Get status using the helper function
       const visitStatus = getVisitStatus(visit);
 
       visitsWithDetails.push({
         ...visitData,
+        Purpose_Label: purposeLabel,
         ContactPerson: contactPerson,
         Visitors: visitors,
         Vehicles: vehicles,

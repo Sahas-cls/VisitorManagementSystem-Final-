@@ -33,6 +33,12 @@ const {
 // const Factory = require("../models/Factory");
 const sendEmail = require("../utils/SendEmail");
 const findUsers = require("../utils/getUsers");
+const {
+  isHrOnly,
+  getEmails,
+  getHrApprovalRecipients,
+  getHrOnlyRegistrationRecipients,
+} = require("../utils/factoryWorkflow");
 
 //to provide all visitors details according to client side request
 visiterRoutes.get("/", csrfProtection, (req, res) => {
@@ -92,6 +98,17 @@ visiterRoutes.get(
     }
   },
 );
+
+// all predefined visiting purposes (used by the public registration form)
+visiterRoutes.get("/getAll-purposes", async (req, res) => {
+  try {
+    const purposes = await VisitingPurpose.findAll();
+    return res.status(200).json({ success: true, data: purposes });
+  } catch (error) {
+    console.error("Error while fetching the visiting purposes: ", error);
+    return res.status(500).json({ success: false, data: [] });
+  }
+});
 
 //get visitor details according to department id
 visiterRoutes.get("/getVisitors/:departmentId", async (req, res) => {
@@ -782,6 +799,24 @@ visiterRoutes.post(
         return true;
       }),
 
+    // ==================== PURPOSE OF VISIT ====================
+    body("visitDetails.purpose")
+      .optional({ nullable: true, checkFalsy: true })
+      .isString()
+      .withMessage("Purpose must be a string"),
+
+    body("visitDetails.requestedOfficer")
+      .optional({ nullable: true, checkFalsy: true })
+      .isString()
+      .isLength({ max: 255 })
+      .withMessage("Contact person must be at most 255 characters"),
+
+    body("visitDetails.purposeOther")
+      .optional({ nullable: true, checkFalsy: true })
+      .isString()
+      .isLength({ max: 255 })
+      .withMessage("Other purpose must be at most 255 characters"),
+
     // ==================== CROSS-FIELD VALIDATIONS ====================
     body().custom((value) => {
       const { dateTimeDetails, vehicleDetails } = value;
@@ -823,7 +858,38 @@ visiterRoutes.post(
       dateTimeDetails,
       vehicleDetails = [],
       visitorDetails = [],
+      visitDetails = {},
     } = req.body;
+
+    // Group 2 (HR_ONLY) factories require a purpose; Group 1 keeps the existing flow.
+    const hrOnly = await isHrOnly(departmentDetails.factory);
+    const purpose = visitDetails.purpose ? String(visitDetails.purpose) : null;
+    const purposeOther =
+      purpose === "Other" ? (visitDetails.purposeOther || "").trim() : null;
+    if (hrOnly && !purpose) {
+      return res.status(400).json({
+        errors: [{ msg: "Purpose for visit is required", path: "visitDetails.purpose" }],
+      });
+    }
+    // HR_ONLY: the visitor names the person they are visiting (stored as Requested_Officer).
+    const requestedOfficer = hrOnly
+      ? (visitDetails.requestedOfficer || "").trim()
+      : null;
+    if (hrOnly && requestedOfficer.length < 3) {
+      return res.status(400).json({
+        errors: [
+          {
+            msg: "Contact person is required (min 3 characters)",
+            path: "visitDetails.requestedOfficer",
+          },
+        ],
+      });
+    }
+    if (purpose === "Other" && !purposeOther) {
+      return res.status(400).json({
+        errors: [{ msg: "Please specify the purpose", path: "visitDetails.purposeOther" }],
+      });
+    }
 
     const transaction = await sequelize.transaction();
 
@@ -909,6 +975,11 @@ visiterRoutes.post(
           Time_From: dateTimeDetails.fTimeFrom,
           Time_To: dateTimeDetails.fTimeTo,
           Num_of_Days: noOfDays,
+          Purpose: purpose,
+          Purpose_Other: purposeOther,
+          ...(hrOnly ? { Requested_Officer: requestedOfficer } : {}),
+          // HR_ONLY factories skip department approval: HR is the only approver.
+          ...(hrOnly ? { D_Head_Approval: true } : {}),
         },
         { transaction },
       );
@@ -921,15 +992,20 @@ visiterRoutes.post(
       // Notify department users (Dept Head / Department User) about the new visitor.
       // Wrapped separately so an email failure never affects the registration response.
       try {
-        const listOfEmails = await findUsers(
-          departmentDetails.factory,
-          departmentDetails.department,
-        );
+        const listOfEmails = hrOnly
+          ? await getHrOnlyRegistrationRecipients(
+              departmentDetails.factory,
+              departmentDetails.department,
+            )
+          : await findUsers(
+              departmentDetails.factory,
+              departmentDetails.department,
+            );
 
         if (listOfEmails) {
           const info = await sendEmail(
             listOfEmails,
-            "New visitor arrival",
+            hrOnly ? "New Visitor Approval Required" : "New visitor arrival",
             `
             <p>${contactPersonDetails.cName} is waiting for your approval.</p>
 
@@ -2091,16 +2167,22 @@ visiterRoutes.post(
     body("Entry_Request.Requested_Department")
       .isNumeric()
       .withMessage("Requested Department must be a number."),
-    body("Entry_Request.Requested_Officer")
-      .notEmpty()
-      .withMessage("Requested Officer is required.")
-      .isString()
-      .withMessage("Requested Officer must be a string."),
-    body("Entry_Request.Visitor_Category")
-      .notEmpty()
-      .withMessage("Visitor Category is required.")
-      .isString()
-      .withMessage("Visitor Category must be a string."),
+    // For HR_ONLY factories the officer is captured at registration, not by HR
+    body("Entry_Request.Requested_Officer").custom(async (value, { req }) => {
+      if (await isHrOnly(req.body.UserData?.userFactoryId)) return true;
+      if (!value) throw new Error("Requested Officer is required.");
+      if (typeof value !== "string")
+        throw new Error("Requested Officer must be a string.");
+      return true;
+    }),
+    // Visitor category is not used by HR_ONLY factories
+    body("Entry_Request.Visitor_Category").custom(async (value, { req }) => {
+      if (await isHrOnly(req.body.UserData?.userFactoryId)) return true;
+      if (!value) throw new Error("Visitor Category is required.");
+      if (typeof value !== "string")
+        throw new Error("Visitor Category must be a string.");
+      return true;
+    }),
 
     // Entry_Permit Validation
     body("Entry_Permit.Purpose")
@@ -2189,6 +2271,16 @@ visiterRoutes.post(
         return res.status(404).send("Visit not found.");
       }
 
+      // HR_ONLY factories have no Reception/BOI step, so mark the pass as issued
+      // here to let Security see the visit straight away.
+      const hrOnlyFactory = await isHrOnly(selectedVisit.Factory_Id);
+      if (hrOnlyFactory) {
+        delete updateVisit.Visitor_Category; // not used for HR_ONLY factories
+        delete updateVisit.Requested_Officer; // set by the visitor at registration
+        updateVisit.Reference_No = "HR Approved";
+        updateVisit.Issued_Date = new Date();
+      }
+
       // Update the visit
       const updatedVisit = await selectedVisit.update(updateVisit, {
         transaction,
@@ -2202,6 +2294,56 @@ visiterRoutes.post(
       // Commit transaction
       await transaction.commit();
       console.log("Update success...");
+
+      // HR_ONLY factories: notify department head, department users and HR managers.
+      // Reception is skipped; security sees the visit directly.
+      if (hrOnlyFactory) {
+        try {
+          const recipients = await getHrApprovalRecipients(
+            selectedVisit.Factory_Id,
+            selectedVisit.Department_Id,
+          );
+          const contact = await ContactPersons.findByPk(
+            selectedVisit.ContactPerson_Id,
+          );
+          if (recipients) {
+            await sendEmail(
+              recipients,
+              "Visitor Request Approved",
+              `
+          <h3>Hi</h3>
+          <p>The visitor request from <b>${contact?.ContactPerson_Name || "a visitor"}</b> has been approved.</p>
+          <p>Visit date: ${selectedVisit.Date_From} to ${selectedVisit.Date_To}</p>
+          <a href="${frontendUrl}" style="color:#1a73e8;text-decoration:none;font-weight:bold;">
+            Go to the Application
+          </a>
+          <p>Thank you,</p>
+          <p>Visitor Management System</p>
+        `,
+            );
+          }
+
+          // Let the visitor know too, if they provided an email address.
+          const visitorEmail = contact?.ContactPerson_Email?.trim();
+          if (visitorEmail) {
+            await sendEmail(
+              visitorEmail,
+              "Your Visit Request Was Approved",
+              `
+          <h3>Dear ${contact.ContactPerson_Name || "Visitor"},</h3>
+          <p>Your visit request has been approved.</p>
+          <p>Visit date: ${selectedVisit.Date_From} to ${selectedVisit.Date_To}</p>
+          <p>Time: ${selectedVisit.Time_From} to ${selectedVisit.Time_To}</p>
+          <p>Thank you,</p>
+          <p>Visitor Management System</p>
+        `,
+            );
+          }
+        } catch (emailError) {
+          console.error("HR approval email failed:", emailError);
+        }
+        return res.status(200).send("Visit Update success");
+      }
 
       // Email notifications (don't affect the API response)
       try {
@@ -3426,22 +3568,44 @@ visiterRoutes.post(
     const { dateFrom, dateTo } = req.body;
 
     try {
+      // Include every visit that overlaps the selected period (not only visits that
+      // start inside it), compared by calendar date so the end date is fully included.
       const visitors = await Visits.findAll({
         where: {
-          Date_From: { [Op.between]: [dateFrom, dateTo] },
-          Checkin_Time: { [Op.ne]: null },
+          HR_Approval: true,
+          [Op.and]: [
+            sequelize.where(
+              sequelize.fn("DATE", sequelize.col("Visits.Date_From")),
+              { [Op.lte]: dateTo },
+            ),
+            sequelize.where(
+              sequelize.fn(
+                "DATE",
+                sequelize.fn(
+                  "COALESCE",
+                  sequelize.col("Visits.Date_To"),
+                  sequelize.col("Visits.Date_From"),
+                ),
+              ),
+              { [Op.gte]: dateFrom },
+            ),
+          ],
         },
         include: [
           {
             model: ContactPersons,
             as: "ContactPerson",
-            required: true,
+            required: false,
           },
           {
             model: Departments,
             as: "Departments",
-            required: true,
+            required: false,
           },
+        ],
+        order: [
+          ["Date_From", "ASC"],
+          ["Visit_Id", "ASC"],
         ],
       });
 
@@ -3479,17 +3643,45 @@ visiterRoutes.post(
               })
             : "";
 
+        // YYYY-MM-DD in local (Colombo) time, used to walk day by day
+        const toDay = (dt) =>
+          new Date(dt).toLocaleDateString("en-CA", {
+            timeZone: "Asia/Colombo",
+          });
+        const nextDay = (day) => {
+          const d = new Date(`${day}T00:00:00Z`);
+          d.setUTCDate(d.getUTCDate() + 1);
+          return d.toISOString().slice(0, 10);
+        };
+
+        // A multi-day visit gets one row per day that falls inside the selected
+        // range, so no date of the visit is missing from the list. Check-in/out
+        // details are shown on the day they actually happened.
         visitors.forEach((visit) => {
-          worksheet.addRow([
-            new Date(visit.Date_From).toLocaleDateString("en-GB"),
-            visit.ContactPerson.ContactPerson_Name,
-            visit.ContactPerson.ContactPerson_NIC,
-            visit.Departments.Department_Name,
-            formatDateTime(visit.Checkin_Time),
-            formatDateTime(visit.Checkout_Time),
-            visit.Total_Time,
-            visit.Reference_No,
-          ]);
+          const visitStart = toDay(visit.Date_From);
+          const visitEnd = toDay(visit.Date_To ?? visit.Date_From);
+          const first = visitStart > dateFrom ? visitStart : dateFrom;
+          const last = visitEnd < dateTo ? visitEnd : dateTo;
+          const checkinDay = visit.Checkin_Time
+            ? toDay(visit.Checkin_Time)
+            : null;
+          const isSingleDay = visitStart === visitEnd;
+
+          for (let day = first; day <= last; day = nextDay(day)) {
+            const showTimes = isSingleDay || checkinDay === day;
+            worksheet.addRow([
+              new Date(`${day}T00:00:00Z`).toLocaleDateString("en-GB", {
+                timeZone: "UTC",
+              }),
+              visit.ContactPerson?.ContactPerson_Name ?? "",
+              visit.ContactPerson?.ContactPerson_NIC ?? "",
+              visit.Departments?.Department_Name ?? "",
+              showTimes ? formatDateTime(visit.Checkin_Time) : "",
+              showTimes ? formatDateTime(visit.Checkout_Time) : "",
+              showTimes ? visit.Total_Time : "",
+              visit.Reference_No,
+            ]);
+          }
         });
 
         // Column widths

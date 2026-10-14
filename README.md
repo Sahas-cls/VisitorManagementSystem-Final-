@@ -2,27 +2,21 @@
 
 
 
-=========== STAGE 2 MODIFICATIONS ===========
+=========== STAGE 2 MODIFICATIONS (For sri lankan factories system remain as current flow no changes needed but for other countries these below modifications required) ===========
 
  
 
 1\. Remove the Department User role from the system.
 
+&#x20;   - we can leave those department login as how they are currently. what we have to remove is, department user approval level means
 
+&#x20;     when visitor registered, the request should directly send to the hr user not department user. if hr approval granted system should
 
-2\. Modify visitor approval workflow:
-
-&#x20;   - When a visitor submits a registration request:
-
-&#x20;   - Display the request on the dashboard.
-
-&#x20;   - Send email notifications to Department Head, Factory Manager, and HR User roles.
-
-&#x20;   - Only HR Users can approve or reject the request.
+&#x20;     send some emails to particular department **department head** \& **department users** \& **hr manager** and display it on dashboard.
 
 
 
-3\. Add "Purpose for Visit" to the visitor registration form:
+2\. Add "Purpose for Visit" to the visitor registration form:
 
 &#x20;   - Capture the visit purpose during registration.
 
@@ -32,9 +26,7 @@
 
 
 
-
-
-4\. Fix Visitor Entry/Exit Reports:
+3\. Fix Visitor Entry/Exit Reports:
 
 &#x20;   - Reports generated for a date range must include all dates within the selected period.
 
@@ -42,5 +34,21 @@
 
 
 
-5\. Complete any remaining agreed VMS enhancements and provide delivery timeline.
+
+
+"
+
+ALTER TABLE Factories
+
+&#x20; ADD COLUMN Country VARCHAR(255) NULL,
+
+&#x20; ADD COLUMN Workflow\_Type VARCHAR(255) NOT NULL DEFAULT 'STANDARD';
+
+
+
+ALTER TABLE Visits
+
+&#x20; ADD COLUMN Purpose\_Other VARCHAR(255) NULL;
+
+"
 

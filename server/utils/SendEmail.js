@@ -20,7 +20,7 @@ async function sendEmail(to, subject, text) {
 
   try {
     const result = await resend.emails.send({
-      from: "Concord VMS <vms@visitor-management.online>", // ✅ RESEND VERIFIED DOMAIN
+      from: "Concord VMS <vms@visitor-management.online>",
       to: recipients,
       subject: subject,
       html: text,

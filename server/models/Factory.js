@@ -20,6 +20,16 @@ module.exports = (sequelize, DataTypes) => {
         len: [1, 255],
       },
     },
+    Country: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    // 'STANDARD' = Group 1 (full approval flow), 'HR_ONLY' = Group 2 (HR-only approval)
+    Workflow_Type: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "STANDARD",
+    },
   });
 
   Factories.associate = (models) => {

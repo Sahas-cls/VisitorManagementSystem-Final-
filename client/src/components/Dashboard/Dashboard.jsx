@@ -1393,10 +1393,12 @@ const Dashboard = ({
                               <div className="text-sm text-gray-500 mt-1">
                                 {visit.Factory?.Factory_Name || "No factory"}
                               </div>
-                              {visit.VisitingPurpose?.visiting_purpose && (
+                              {(visit.Purpose_Label ||
+                                visit.VisitingPurpose?.visiting_purpose) && (
                                 <div className="mt-2">
                                   <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs rounded-full font-medium">
-                                    {visit.VisitingPurpose?.visiting_purpose}
+                                    {visit.Purpose_Label ||
+                                      visit.VisitingPurpose?.visiting_purpose}
                                   </span>
                                 </div>
                               )}
